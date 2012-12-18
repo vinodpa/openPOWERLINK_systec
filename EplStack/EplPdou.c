@@ -158,6 +158,7 @@ typedef struct
 
     BOOL    m_fAllocated;
     BOOL    m_fRunning;
+    tEplPdouCbEventPdoChange    m_pfnCbEventPdoChange;
 
 } tEplPdouInstance;
 
@@ -228,6 +229,7 @@ tEplKernel EplPdouAddInstance(void)
     EPL_MEMSET(&EplPdouInstance_g, 0, sizeof(EplPdouInstance_g));
     EplPdouInstance_g.m_fAllocated = FALSE;
     EplPdouInstance_g.m_fRunning = FALSE;
+    EplPdouInstance_g.m_pfnCbEventPdoChange = NULL;
 
     return kEplSuccessful;
 }
@@ -281,8 +283,34 @@ tEplKernel      Ret = kEplSuccessful;
         case kEplNmtGsResetApplication:
         case kEplNmtGsResetCommunication:
         {
-            EplPdouInstance_g.m_fAllocated = FALSE;
-            EplPdouInstance_g.m_fRunning = FALSE;
+            if (EplPdouInstance_g.m_fAllocated != FALSE)
+            {
+            unsigned int uiMappParamIndex;
+            DWORD dwAbortCode;
+
+                for (uiMappParamIndex = EPL_PDOU_OBD_IDX_RX_MAPP_PARAM;
+                    uiMappParamIndex < EPL_PDOU_OBD_IDX_RX_MAPP_PARAM + sizeof (EplPdouInstance_g.m_abPdoIdToChannelIdRx);
+                    uiMappParamIndex++)
+                {
+                    Ret = EplPdouCheckAndConfigurePdo(uiMappParamIndex, 0, kEplObdAccWrite, &dwAbortCode);
+                }
+
+                for (uiMappParamIndex = EPL_PDOU_OBD_IDX_TX_MAPP_PARAM;
+                    uiMappParamIndex < EPL_PDOU_OBD_IDX_TX_MAPP_PARAM
+#if (((EPL_MODULE_INTEGRATION) & (EPL_MODULE_NMT_MN)) != 0)
+                        + sizeof (EplPdouInstance_g.m_abPdoIdToChannelIdRx);
+#else
+                        + (EPL_PDOU_PDO_ID_MASK + 1);
+#endif
+                    uiMappParamIndex++)
+                {
+                    Ret = EplPdouCheckAndConfigurePdo(uiMappParamIndex, 0, kEplObdAccRead, &dwAbortCode);
+                }
+
+                Ret = kEplSuccessful;
+                EplPdouInstance_g.m_fAllocated = FALSE;
+                EplPdouInstance_g.m_fRunning = FALSE;
+            }
             break;
         }
 
@@ -428,6 +456,28 @@ unsigned int        uiCurPdoSize;
 
 Exit:
     return Ret;
+}
+
+
+//---------------------------------------------------------------------------
+//
+// Function:    EplPdouRegisterEventPdoChangeCb()
+//
+// Description: register EventPdoChange callback function
+//
+// Parameters:  pfnCbEventPdoChange_p   = callback function pointer
+//
+// Returns:     tEplKernel              = error code
+//
+// State:
+//
+//---------------------------------------------------------------------------
+
+tEplKernel EplPdouRegisterEventPdoChangeCb(tEplPdouCbEventPdoChange pfnCbEventPdoChange_p)
+{
+    EplPdouInstance_g.m_pfnCbEventPdoChange = pfnCbEventPdoChange_p;
+
+    return kEplSuccessful;
 }
 
 
@@ -704,6 +754,14 @@ tEplPdoMappObject*  pMappObject;
         }
     }
 
+    ObdSize = sizeof (bNodeId);
+    // read node ID from OD
+    Ret = EplObduReadEntry(uiCommParamIndex, 0x01, &bNodeId, &ObdSize);
+    if (Ret != kEplSuccessful)
+    {   // fatal error occurred
+        goto Exit;
+    }
+
     if (bMappObjectCount_p == 0)
     {   // PDO shall be disabled
 
@@ -711,7 +769,43 @@ tEplPdoMappObject*  pMappObject;
         PdoChannelConf.m_PdoChannel.m_uiMappObjectCount = 0;
 
         Ret = EplPdouConfigureChannel(&PdoChannelConf);
+        if (Ret != kEplSuccessful)
+        {   // fatal error occurred
+            *pdwAbortCode_p = EPL_SDOAC_GENERAL_ERROR;
+            goto Exit;
+        }
 
+        if ((EplPdouInstance_g.m_fAllocated != FALSE)
+            && (EplPdouInstance_g.m_pfnCbEventPdoChange != NULL))
+        {
+            tEplPdouEventPdoChange EventPdoChange;
+
+            ObdSize = sizeof (bMappObjectCount_p);
+            // read PDO mapping version
+            Ret = EplObdReadEntry(uiMappParamIndex_p, 0x00, &bMappObjectCount_p, &ObdSize);
+            if (Ret != kEplSuccessful)
+            {   // other fatal error occurred
+                goto Exit;
+            }
+
+            if (bMappObjectCount_p == 0)
+            {   // PDO already disabled -> do not inform user
+                goto Exit;
+            }
+
+            EventPdoChange.m_fActivated         = FALSE;
+            EventPdoChange.m_fTx                = PdoChannelConf.m_fTx;
+            EventPdoChange.m_uiNodeId           = bNodeId;
+            EventPdoChange.m_uiPdoMappIndex     = uiMappParamIndex_p;
+            EventPdoChange.m_uiMappObjectCount  = bMappObjectCount_p;
+
+            Ret = EplPdouInstance_g.m_pfnCbEventPdoChange(&EventPdoChange);
+            if (Ret != kEplSuccessful)
+            {   // fatal error occurred
+                *pdwAbortCode_p = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
+                goto Exit;
+            }
+        }
         goto Exit;
     }
 
@@ -720,14 +814,6 @@ tEplPdoMappObject*  pMappObject;
     Ret = EplPdouCheckPdoValidity(uiMappParamIndex_p, pdwAbortCode_p);
     if (Ret != kEplSuccessful)
     {   // PDO is valid or does not exist
-        goto Exit;
-    }
-
-    ObdSize = sizeof (bNodeId);
-    // read node ID from OD
-    Ret = EplObduReadEntry(uiCommParamIndex, 0x01, &bNodeId, &ObdSize);
-    if (Ret != kEplSuccessful)
-    {   // fatal error occurred
         goto Exit;
     }
 
@@ -841,6 +927,25 @@ tEplPdoMappObject*  pMappObject;
     {   // fatal error occurred
         *pdwAbortCode_p = EPL_SDOAC_GENERAL_ERROR;
         goto Exit;
+    }
+
+    if ((EplPdouInstance_g.m_fAllocated != FALSE)
+        && (EplPdouInstance_g.m_pfnCbEventPdoChange != NULL))
+    {
+        tEplPdouEventPdoChange EventPdoChange;
+
+        EventPdoChange.m_fActivated         = TRUE;
+        EventPdoChange.m_fTx                = PdoChannelConf.m_fTx;
+        EventPdoChange.m_uiNodeId           = bNodeId;
+        EventPdoChange.m_uiPdoMappIndex     = uiMappParamIndex_p;
+        EventPdoChange.m_uiMappObjectCount  = bMappObjectCount_p;
+
+        Ret = EplPdouInstance_g.m_pfnCbEventPdoChange(&EventPdoChange);
+        if (Ret != kEplSuccessful)
+        {   // fatal error occurred
+            *pdwAbortCode_p = EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL;
+            goto Exit;
+        }
     }
 
 Exit:
