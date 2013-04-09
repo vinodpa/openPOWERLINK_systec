@@ -555,7 +555,8 @@
 //  definition of TRACE
 //---------------------------------------------------------------------------
 #ifndef NDEBUG
-    #define TRACE(...) trace(__VA_ARGS__)
+    //#define TRACE(...) trace(__VA_ARGS__) //VPA
+    #define TRACE(...) printf(__VA_ARGS__)
     #ifdef __cplusplus
         extern "C"
         {
