@@ -17,13 +17,13 @@
 
 ##################################
 # Settings for Debugging with optimized compilation
-DBG_MODE=_DEBUG
-OPT_LEVEL=-O2
+#DBG_MODE=_DEBUG
+#OPT_LEVEL=-O2
 
 ##################################
 # Settings for Release
-#DBG_MODE=NDEBUG
-#OPT_LEVEL=-O2
+DBG_MODE=NDEBUG
+OPT_LEVEL=-O2
 
 ##################################
 # DEF_DEBUG_LVL = [
@@ -39,8 +39,14 @@ DEF_DEBUG_LVL=0xEC000000L
 TC_I_MEM=pcp_0_tc_i_mem
 
 ##################################
+# SW is for MN/CN?
+PLK_NODE_IS=CONFIG_MN
+#PLK_NODE_IS=CONFIG_CN
+
+##################################
 # Relative path to SOPC file
-SOPC_DIR=../../../../../fpga/boards/altera/TERASIC_DE2-115/mn_dual_nios2/
+#SOPC_DIR=../../../../../fpga/boards/altera/TERASIC_DE2-115/mn_dual_nios2/
+SOPC_DIR=../../../../../fpga/boards/altera/TERASIC_DE2-115/mn_par_pcp/
 
 ##################################
 # Relative path to openPOWERLINK root directory
@@ -70,6 +76,7 @@ ${STACKROOT_DIR}/libs/hostif/linmem.c \
 ${STACKROOT_DIR}/libs/omethlib/omethlib.c \
 ${STACKROOT_DIR}/libs/omethlib/omethlibint.c \
 ${STACKROOT_DIR}/libs/omethlib/omethlib_phycfg_generic.c \
+${STACKROOT_DIR}/libs/trace/trace-printf.c \
 ${STACKROOT_DIR}/stack/src/arch/altera_nios2/target-nios2.c \
 ${STACKROOT_DIR}/stack/src/common/dll/dllcal-hostif.c \
 ${STACKROOT_DIR}/stack/src/common/event/event.c \

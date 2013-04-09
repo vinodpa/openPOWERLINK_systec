@@ -432,6 +432,7 @@ EPLDLLEXPORT void * PUBLIC api_processImageGetInputImage(void);
 EPLDLLEXPORT void * PUBLIC api_processImageGetOutputImage(void);
 
 EPLDLLEXPORT BOOL PUBLIC api_checkKernelStack(void);
+EPLDLLEXPORT tEplKernel PUBLIC api_waitSyncEvent(ULONG timeout_p);
 
 // functions for getting cleartext values of stack states and events
 EPLDLLEXPORT char * PUBLIC EplGetNmtEventStr(tEplNmtEvent nmtEvent_p);
@@ -445,6 +446,11 @@ EPLDLLEXPORT char * PUBLIC EplGetNmtBootEventTypeStr(tEplNmtBootEvent BootEventT
 EPLDLLEXPORT char * PUBLIC EplGetSdoComConStateStr(tEplSdoComConState SdoComConState_p);
 EPLDLLEXPORT char * PUBLIC EplGetEplKernelStr(tEplKernel EplKernel_p);
 EPLDLLEXPORT const char * PUBLIC EplGetEmergErrCodeStr( WORD EmergErrCode_p);
+
+
+EPLDLLEXPORT tEplKernel target_init(void);
+EPLDLLEXPORT tEplKernel target_cleanup(void);
+EPLDLLEXPORT void target_msleep(UINT32 milliSeconds_p);
 
 #ifdef __cplusplus
     }
