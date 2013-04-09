@@ -48,7 +48,8 @@ BSP_DIR=./bsp
 
 ##################################
 # Relative path to SOPC file
-SOPC_DIR=${STACKROOT_DIR}/fpga/boards/altera/TERASIC_DE2-115/mn_dual_nios2/
+#SOPC_DIR=${STACKROOT_DIR}/fpga/boards/altera/TERASIC_DE2-115/mn_dual_nios2/
+SOPC_DIR=${STACKROOT_DIR}/fpga/boards/altera/TERASIC_DE2-115/mn_par_host/
 
 ##################################
 # Include path
@@ -66,7 +67,7 @@ ${STACKROOT_DIR}/libs/hostif/hostiflib.c \
 ${STACKROOT_DIR}/libs/hostif/hostiflib_l.c \
 ${STACKROOT_DIR}/libs/hostif/lfqueue.c \
 ${STACKROOT_DIR}/libs/hostif/linmem.c \
-${STACKROOT_DIR}/libs/misc/conio-nios2.c \
+${STACKROOT_DIR}/libs/trace/trace-printf.c \
 ${STACKROOT_DIR}/objdicts/CiA302-4_MN/EplApiProcessImageSetup.c \
 ${STACKROOT_DIR}/objdicts/CiA302-4_MN/Objdict.c \
 ${STACKROOT_DIR}/stack/src/arch/altera_nios2/target-nios2.c \
