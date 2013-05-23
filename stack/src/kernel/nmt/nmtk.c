@@ -1595,7 +1595,7 @@ tEplEventNmtStateChange NmtStateChange;
     {
         EPL_NMTK_DBG_POST_TRACE_VALUE(NmtEvent, OldNmtState, EPL_MCO_GLB_VAR(m_NmtState));
 
-        EPL_DBGLVL_NMTK_TRACE("EplNmtkProcess(NMT-Event = 0x%04X): New NMT-State = 0x%03X\n", NmtEvent, NmtStateChange.m_NewNmtState);
+
 
         NmtStateChange.m_NewNmtState = EPL_MCO_GLB_VAR(m_NmtState);
         NmtStateChange.m_OldNmtState = OldNmtState;
@@ -1604,7 +1604,7 @@ tEplEventNmtStateChange NmtStateChange;
         EPL_MEMSET(&Event.m_NetTime, 0x00, sizeof(Event.m_NetTime));
         Event.m_pArg = &NmtStateChange;
         Event.m_uiSize = sizeof(NmtStateChange);
-
+        EPL_DBGLVL_NMTK_TRACE("EplNmtkProcess(NMT-Event = 0x%04X): New NMT-State = 0x%03X\n", NmtEvent, NmtStateChange.m_NewNmtState);
         // inform DLLk module about state change
         Event.m_EventSink = kEplEventSinkDllk;
         // d.k.: directly call DLLk process function, because
