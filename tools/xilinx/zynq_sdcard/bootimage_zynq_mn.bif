@@ -8,10 +8,10 @@
 the_ROM_image:
 {
 
-	[bootloader]        zynq_fsbl_digitalIO.elf
+	[bootloader]        zynq_fsbl_dualProcessor.elf
                         system.bit
-	                    digitalIO-Init.elf
-	[load = 0x30000000] directIO.bin
+	                    demo_mn.elf
+	[load = 0x30000000] mn_pcp.bin
 
   //write start vector address 0xFFFFFFF0 to 0xFFFFFF00
   //This load address triggers fsbl to continue
