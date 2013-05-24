@@ -13,14 +13,14 @@
 XPS= xps
 TCL_SCRIPT= build.tcl
 XMP_FILE= system.xmp
-SYSTEM_MAKE=system.make
 
 
 .PHONY: all
-all: $(SYSTEM_MAKE)
+all: bitstream
 
-$(SYSTEM_MAKE):
+.PHONY: bitstream
+bitstream:
 	@echo "Invoking: XPS batch mode"
 	$(XPS) -nw -scr $(TCL_SCRIPT) $(XMP_FILE)
-	@echo Finished generating: 'system.make'
+	@echo Finished building: 'bitstream'
 	@echo ' '
