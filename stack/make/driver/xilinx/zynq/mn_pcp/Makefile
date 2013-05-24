@@ -24,8 +24,8 @@ TARGET_DIR=${STACK_ROOT}/Target/xilinx_microblaze/no_os/gnu/generic
 
 IP_CORE_REPO=${STACK_ROOT}/fpga/ipcore/xilinx
 
-HW_SPEC=$(XPS_DIR)/SDK/SDK_Export/hw
-BSP_PATH=$(APP_DIR)/bsp
+#HW_SPEC=$(XPS_DIR)/SDK/SDK_Export/hw
+#BSP_PATH=$(APP_DIR)/bsp
 
 OBJDIR=obj
 
@@ -62,9 +62,11 @@ INCLUDES=-I${APP_DIR} \
 -I${STACK_ROOT}/stack/include/target/openmac \
 -I${STACK_ROOT}/stack/src \
 -I${STACK_ROOT}/stack/src/arch/xilinx_microblaze \
--I${PROCESSOR_NAME}/include \
--I${APP_DIR}/bsp/pcp/include
+-I${BSP_PATH}/${PROCESSOR_NAME}/include 
 
+
+#-I${PROCESSOR_NAME}/include \
+#-I${APP_DIR}/bsp/pcp/include \
 ##################################
 # Source files
 
