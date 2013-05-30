@@ -50,7 +50,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #elif defined(__MICROBLAZE__)
 
-#error "Microblaze not yet supported!"
+//#error "Microblaze not yet supported!"
+#include "hostiflib_microblaze.h"
 
 #elif defined(__arm__)
 
