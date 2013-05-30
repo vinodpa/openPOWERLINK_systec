@@ -1,71 +1,54 @@
+#  (c) Bernecker + Rainer Industrie-Elektronik Ges.m.b.H.
+#      A-5142 Eggelsberg, B&R Strasse 1
+#      www.br-automation.com
+#
+# Project       : POWERLINK Xilinx Examples
+# Module        : build system
+# Autor         : gaurav
+# Date          : 13.05.2013
+# File          : Makefile
+# contents      : Controls the build of the Xilinx Zynq examples
 ################################################################################
-# Project		: CNDK Ap PDI (Xilinx)
-# Module		: build system
-# File			: Makefile
-# contents		: Controls the build of the CNDK software (AP Processor)
-################################################################################
-#Version			Autor		Date			Feature
-#V0.2			mairt		13.02.2012		Make file for microblaze based sytems
-#V0.3			abhiramb	11.03.2013		ARM processor integrated for Zynq Projects
-################################################################################
+
+# Initial version of Makefile , Compiles Project software files for ps7_cortexa9_0 processor
+# Yet to add hardware compilation
+##
 VERSION = 0.3
 
 include makefile.settings
 
-##################################
-# Directory structure
-POWERLINK_DIR=${CNDK_DIR}/powerlink/generic/openPOWERLINK_CNDKPatched
-APP_DIR=${CNDK_DIR}/apps/ap_PDI
-OBJDICT_DIR=${CNDK_DIR}/objDicts/PDI
-LIBCNAPI_DIR=${CNDK_DIR}/libCnApi
-LIBCNAPI_BUILD_DIR=${LIBCNAPI_DIR}/target/microblaze_newlib
-TOOLS_PATH=${CNDK_DIR}/tools/xilinx
+APP_DIR=.
+OBJDICT_DIR=${STACK_ROOT}/ObjDicts/CiA302-4_MN
+EDRV_DIR=${STACK_ROOT}/stack/src/kernel/edrv
+TARGET_DIR=${STACK_ROOT}/examples/arch/zynq_cortexa9_0/no_os/gnu/demo_mn
 
-BOOTLOADER_PATH=$(TOOLS_PATH)/mem_bootloader
-SCRIPT_DIR=$(TOOLS_PATH)/scripts
+IP_CORE_REPO=${STACK_ROOT}/fpga/ipcore/xilinx
+
+HW_SPEC=$(XPS_DIR)/SDK/SDK_Export/hw
+BSP_PATH=$(APP_DIR)/bsp
 
 OBJDIR=obj
 
 ##################################
-#translate dual_processor variable
-ifeq ($(DUAL_PROCESSOR),yes)
-	DESIGN=dual
-else
-	DESIGN=single
-endif
-
-##################################
 #general compile defines
-
-ifeq ($(BOARD_NAME),zynq)
-	CC=arm-xilinx-eabi-gcc
-	AR=arm-xilinx-eabi-ar
+CC=arm-xilinx-eabi-gcc
+#mb-gcc
+AR=arm-xilinx-eabi-ar
 	SIZE=arm-xilinx-eabi-size
 	PROC=ARM_xilinx
-else
-	CC=mb-gcc
-	AR=mb-ar
-	SIZE=mb-size
-	PROC=MicroBlaze
-endif
+#mb-ar
 CP=cp
-RM=rm
-PERL=xilperl
-EXECUTABLE=ap_pdi
-LIBCNAPI_NAME=CnApi
-LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE)_$(DESIGN).ld
-MACROS=-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
-CFLAGS=$(DEBUG_FLAG) -Wall -fmessage-length=0 ${MACROS}
-CPPFLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
-LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} -Wl,-Map,${EXECUTABLE}.map
+RM=rm -rf
+EXECUTABLE=demo_mn
 
-ifeq ($(BOARD_NAME),zynq)
-	CFLAGS+= $(PROC_FEATURES_ARM)
-	LDFLAGS+= $(PROC_FEATURES_ARM)
-else
-	CFLAGS+= $(PROC_FEATURES_MB)
-	LDFLAGS+= $(PROC_FEATURES_MB)
-endif
+LSSCRIPT=lscript.ld
+#_$(BOARD_NAME)_$(BUS_INTERFACE).ld
+MSS_FILE=system.mss
+#_$(BOARD_NAME)_$(BUS_INTERFACE).mss
+MACROS=-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
+CFLAGS=-g3 -Wall -fmessage-length=0 $(PROC_FEATURES) ${MACROS}
+CPPFLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
+LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} $(PROC_FEATURES) -Wl,-Map,${EXECUTABLE}.map
 
 # Flash defines
 FLASH_IMAGE_NAME= flash_image
@@ -74,54 +57,114 @@ BOOT_BUILD_DIR= build
 OBJCPYFLAGS=-O srec
 BITSTREAM= download
 
+
 ##################################
 # Include directory
-INCLUDES=-I${APP_DIR}\
--I${OBJDICT_DIR} \
--I${BSP_PATH}/${PROCESSOR_NAME}/include \
--I${LIBCNAPI_DIR}/inc \
--I${CNDK_DIR}/common/inc \
--I${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic \
--I${APP_DIR}/target/$(TARGET_BUILD)/include
+INCLUDES=-I${APP_DIR} \
+-I${STACK_ROOT}/include \
+-I${STACK_ROOT}/libs/omethlib \
+-I${STACK_ROOT}/libs/sharedbuff \
+-I${STACK_ROOT}/libs/hostif \
+-I${STACK_ROOT}/stack/include/target/openmac \
+-I${STACK_ROOT}/stack/src \
+-I${STACK_ROOT}/examples/arch/zynq_cortexa9_0/no_os/gnu/demo_mn \
+-I${STACK_ROOT}/stack/make/lib/libpowerlink_user \
+-I${STACK_ROOT}/objdicts/CiA302-4_MN \
+-I${PROCESSOR_NAME}/include \
+-I${APP_DIR}/bsp/ps7_cortexa9_0/include
 
 ##################################
 # Source files
-SRCFILES=${APP_DIR}/main.c \
-${APP_DIR}/target/$(TARGET_BUILD)/src/systemComponents.c
-ifeq ($(TARGET_BUILD),xilinx_microblaze) 
-	SRCFILES+= ${POWERLINK_DIR}/Target/xilinx_microblaze/no_os/gnu/generic/xilinx_usleep.c
-endif
+
+SRCFILES=${APP_DIR}/demo_main.c \
+${STACK_ROOT}/stack/src/arch/xilinx_arm/target_arm.c \
+${STACK_ROOT}/stack/src/common/dll/dllcal-hostif.c \
+${STACK_ROOT}/stack/src/common/event/event.c \
+${STACK_ROOT}/stack/src/common/event/eventcal-direct.c \
+${STACK_ROOT}/stack/src/common/event/eventcal-hostif.c \
+${STACK_ROOT}/stack/src/common/timer/timer-generic.c \
+${STACK_ROOT}/stack/src/common/debug.c \
+${STACK_ROOT}/stack/src/common/errstring.c \
+${STACK_ROOT}/stack/src/user/api/generic.c \
+${STACK_ROOT}/stack/src/user/api/processimage.c \
+${STACK_ROOT}/stack/src/user/ctrl/ctrlu.c \
+${STACK_ROOT}/stack/src/user/ctrl/ctrlucal-hostif.c \
+${STACK_ROOT}/stack/src/user/dll/dllucal.c \
+${STACK_ROOT}/stack/src/user/errhnd/errhndu.c \
+${STACK_ROOT}/stack/src/user/errhnd/errhnducal-hostif.c \
+${STACK_ROOT}/stack/src/user/event/eventu.c \
+${STACK_ROOT}/stack/src/user/event/eventucal.c \
+${STACK_ROOT}/stack/src/user/event/eventucal-direct.c \
+${STACK_ROOT}/stack/src/user/event/eventucal-hostif.c \
+${STACK_ROOT}/stack/src/user/nmt/nmtu.c \
+${STACK_ROOT}/stack/src/user/nmt/nmtucal.c \
+${STACK_ROOT}/stack/src/user/nmt/nmtmnu.c \
+${STACK_ROOT}/stack/src/user/nmt/identu.c \
+${STACK_ROOT}/stack/src/user/nmt/statusu.c \
+${STACK_ROOT}/stack/src/user/nmt/syncu.c \
+${STACK_ROOT}/stack/src/user/obd/obd.c \
+${STACK_ROOT}/stack/src/user/obd/obdcdc.c \
+${STACK_ROOT}/stack/src/user/obd/obdu.c \
+${STACK_ROOT}/stack/src/user/obducal.c \
+${STACK_ROOT}/stack/src/user/pdo/pdou.c \
+${STACK_ROOT}/stack/src/user/pdo/pdoucal.c \
+${STACK_ROOT}/stack/src/user/pdo/pdoucal-hostif.c \
+${STACK_ROOT}/stack/src/user/pdo/pdoucalsync-hostif.c \
+${STACK_ROOT}/stack/src/user/sdo/sdo-asndu.c \
+${STACK_ROOT}/stack/src/user/sdo/sdo-asysequ.c \
+${STACK_ROOT}/stack/src/user/sdo/sdo-comu.c \
+${STACK_ROOT}/stack/src/user/sdo/sdo-udpu.c \
+${STACK_ROOT}/stack/src/cfmu.c \
+${STACK_ROOT}/stack/src/ledu.c \
+${STACK_ROOT}/libs/hostif/hostiflib_arm_cache.c \
+${STACK_ROOT}/libs/hostif/hostiflib_arm_exception.c \
+${STACK_ROOT}/libs/hostif/hostiflib_arm_io.c \
+${STACK_ROOT}/libs/hostif/hostiflib_arm.c \
+${STACK_ROOT}/libs/hostif/hostiflib.c \
+${STACK_ROOT}/libs/hostif/hostiflib_l.c \
+${STACK_ROOT}/libs/hostif/lfqueue.c \
+${STACK_ROOT}/libs/hostif/linmem.c \
+${STACK_ROOT}/libs/trace/trace-printf.c
+#${STACK_ROOT}/libs/ami/amiarm.c \
+
+LIBRARIES = libxil.a
+
 VPATH=$(sort $(patsubst " ", :, $(dir $(SRCFILES))))
+
+
+###################################
+# set Optimization level makro
+ifeq ($(OPT_LEVEL),-O0)
+	MACROS+= -DXIL_NO_OPT_LEVEL
+endif
+ifeq ($(OPT_LEVEL),-O1)
+	MACROS+= -DXIL_OPT_LEVEL_1
+endif
+ifeq ($(OPT_LEVEL),-O2)
+	MACROS+= -DXIL_OPT_LEVEL_2
+endif
+ifeq ($(OPT_LEVEL),-O3)
+	MACROS+= -DXIL_OPT_LEVEL_3
+endif
+ifeq ($(OPT_LEVEL),-Os)
+	MACROS+= -DXIL_OPT_LEVEL_SIZE
+endif
 
 ###################################
 # set endian according to bus interface
 ifeq ($(BUS_INTERFACE),axi)
-	PROC_FEATURES_MB+= -mlittle-endian
+	PROC_FEATURES+= -mlittle-endian
+	SRCFILES+= ${STACK_ROOT}/libs/ami/amiarm.c
 else
-	PROC_FEATURES_MB+= -mbig-endian
-endif
-
-###################################
-# set flash image parameters
-ifeq ($(BOARD_NAME),s6plkeb)
-	FLASH_IMAGE_NAME_DUAL= flash_image
-	PROM_SCRIPT= program_prom_s6plkeb.cmd
-	PROMGEN_FLAGS= -w -p mcs -c FF
-	PROMGEN_TYPE= -s 8192 -u 0000
-	PROMGEN_PREFIX= -spi
-	PCUBLAZE_PARAMS= --format mcs --swap off
-	PCUBLAZE_FILES= --promfile ${FLASH_IMAGE_NAME_DUAL}.mcs --outfile ${FLASH_IMAGE_NAME_DUAL}.mcs
+	PROC_FEATURES+= -mbig-endian
+	SRCFILES+= ${STACK_ROOT}/libs/ami/amibe.c
 endif
 
 ###################################
 # libraries
-LIBSPATH=-L${BSP_PATH}/${PROCESSOR_NAME}/lib -L${LIBCNAPI_BUILD_DIR}
-ifeq ($(BOARD_NAME),zynq)
-# Note: ARM gcc reports undefined reference unless nested
-	LIBS=-Wl,--start-group,-lxil,-lc,-l$(LIBCNAPI_NAME) -W1,--end-group
-else
-	LIBS=-l$(LIBCNAPI_NAME)
-endif
+LIBSPATH=-L$(BSP_PATH)/${PROCESSOR_NAME}/lib -L$(APP_DIR)
+
+#LIBS=-Wl,--start-group,-lxil,-lc,-l$(INCLUDES), -W1,--end-group
 
 ###################################
 # objects
@@ -136,134 +179,144 @@ CFLAGS += ${INCLUDES}
 header:
 	@echo ""
 	@echo "================================================================================"
-	@echo " AP PDI - Build System (Xilinx)"
+	@echo " AP-PCP - Build System (Xilinx)"
 	@echo "================================================================================"
 	@echo ""
 	@echo " Copyright (c) 2012 B&R"
 	@echo " Version $(VERSION)"
 	@echo "================================================================================"
 	@echo ""
-	@echo "Write 'make all' to build the AP PDI example"
-	@echo "Write 'make gen_flash' to generate the .mcs flash image"
-	@echo "Write 'make prog_flash' to program the .mcs flash image to flash"
+	@echo "Write 'make all' to generate the bitstream and Direct I/O software example"
 	@echo ""
-	@echo "Write 'make clean' to remove all generated files"
+	@echo "Write 'make application' to generate the Direct I/O software example"
+	@echo "Write 'make bitstream' to generate the bitstream"
 	@echo ""
-	@echo "Change 'makefile.setting' to configure build system"		
+	@echo "Write 'make download-all' to download the bitstream and the .elf file to the target"
+	@echo "Write 'make download-bits' to download the bitstream to the target"
+	@echo "Write 'make download-elf' to download the .elf file to the target"
+	@echo ""
+	@echo "Write 'make clean_sw' to clean the application"
+	@echo "Write 'make clean_hw' to clean the bitstream"
+	@echo "Write 'make clean_all' to clean the all generated files"
+	@echo ""
+	@echo "Change 'makefile.setting' to configure the build system"
 
-all: buildapp
+.PHONY: all
+all: application
 
-.PHONY: buildapp
-buildapp: libcnapi builddir ${EXECUTABLE}.elf ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck ${EXECUTABLE}.mem
+####################################################
+# A P P L I C A T I O N
+####################################################
+.PHONY: application
+application: builddir ${EXECUTABLE}.elf ${EXECUTABLE}.size ${EXECUTABLE}.elfcheck ${EXECUTABLE}.mem
 
-.PHONY:	builddir
+.PHONY: builddir
 builddir:
 	$(shell mkdir $(OBJDIR))
 
-# rule for building the libCnApi
-.PHONY:	libcnapi
-libcnapi :
-	@$(MAKE) -C $(LIBCNAPI_BUILD_DIR) all BSP_PATH=../$(BSP_PATH) BUS_INTERFACE=$(BUS_INTERFACE) \
-	OPT_LEVEL=$(OPT_LEVEL) DBG_MODE=$(DBG_MODE) DEF_DEBUG_LVL=$(DEF_DEBUG_LVL) \
-	PROCESSOR_NAME=$(PROCESSOR_NAME)
-
-$(OBJDIR)/%.o: %.c
+$(OBJDIR)/%.o: %.c $(BSP_PATH)/$(PROCESSOR_NAME)
 	@echo Building file: $<
-	@echo Invoking: $(PROC) gcc compiler
+	@echo Invoking: MicroBlaze gcc compiler
 	$(CC) -c ${OPT_LEVEL} $(CFLAGS) $(CPPFLAGS) $< $(OUTPUT_OPTION)
 	@echo Finished building: $<
 	@echo ' '
 
 # extra rule for usleep to set opt level to zero
-$(OBJDIR)/xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h
+$(OBJDIR)/xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h $(BSP_PATH)/$(PROCESSOR_NAME)
 	@echo Building file: $<
-	@echo Invoking: $(PROC) gcc compiler
+	@echo Invoking: MicroBlaze gcc compiler
 	$(CC) -c -O0 $(CFLAGS) $(CPPFLAGS) $< ${OUTPUT_OPTION}
 	@echo Finished building: $<
 	@echo ' '
 
-${EXECUTABLE}.elf: ${OBJ} ${LSSCRIPT} $(LIBCNAPI_BUILD_DIR)/lib$(LIBCNAPI_NAME).a
+${EXECUTABLE}.elf: $(BSP_PATH)/$(PROCESSOR_NAME) ${OBJ} ${LSSCRIPT}
 	@echo Building target: $@
-	@echo Invoking: $(PROC) gcc linker
-	$(CC) $(LDFLAGS) $(LIBSPATH) ${OBJ} ${LIBS} -o ${EXECUTABLE}.elf
+	@echo Invoking: MicroBlaze gcc linker
+	$(AR) cr libmn.a ${OBJ}
+	$(CC) $(LDFLAGS) -o ${EXECUTABLE}.elf  $(LIBSPATH)
+	
+
+#	$(CC) $(LDFLAGS) $(LIBSPATH) ${OBJ} ${LIBS} -o ${EXECUTABLE}.elf
 	@echo Finished building target: $@
 	@echo ' '
-	
+
 ${EXECUTABLE}.size: ${EXECUTABLE}.elf
-	@echo Invoking: $(PROC) Print Size
+	@echo Invoking: MicroBlaze Print Size
 	$(SIZE) ${EXECUTABLE}.elf  |tee "${EXECUTABLE}.size"
 	@echo Finished building: $@
 	@echo ' '
 
 ${EXECUTABLE}.elfcheck: ${EXECUTABLE}.elf
 	@echo Invoking: Xilinx ELF Check
-	elfcheck ${EXECUTABLE}.elf -hw ${HW_PLATFORM_PATH}/system.xml -pe ${PROCESSOR_NAME}  |tee "${EXECUTABLE}.elfcheck"
+	elfcheck ${EXECUTABLE}.elf -hw ${HW_SPEC}/system.xml -pe ${PROCESSOR_NAME}  |tee "${EXECUTABLE}.elfcheck"
+	@echo Finished building: $@
+	@echo ' '
+
+${EXECUTABLE}.srec: ${EXECUTABLE}.elf
+	@echo Invoking: mb-objcopy
+	mb-objcopy $(OBJCPYFLAGS) ${EXECUTABLE}.elf ${EXECUTABLE}.srec
 	@echo Finished building: $@
 	@echo ' '
 
 ${EXECUTABLE}.mem: ${EXECUTABLE}.elf
 	@echo Invoking: Data2MEM
-	data2mem -bd ${EXECUTABLE}.elf -d -o m ${EXECUTABLE}.mem
+	Data2MEM -bd ${EXECUTABLE}.elf -d -o m ${EXECUTABLE}.mem
 	@echo Finished building: $@
 	@echo ' '
 
-###################################
-# flash rules
-ifeq ($(DUAL_PROCESSOR), no)
-.PHONY: gen_flash
-gen_flash : buildapp ${FLASH_IMAGE_NAME_DUAL}.mcs
-
-$(BOOTLOADER_PATH)/$(BOOT_BUILD_DIR)/$(BOOTLOADER_NAME).elf : $(BOOTLOADER_PATH)/Makefile
-	@echo Invoking: bootloader build system
-	$(MAKE) -C $(BOOTLOADER_PATH) all BSP_PATH="../$(BSP_PATH)" HW_PLATFORM_PATH="../$(HW_PLATFORM_PATH)" \
-	BOARD_NAME="$(BOARD_NAME)" BUS_INTERFACE="$(BUS_INTERFACE)" PROC_FEATURES="$(PROC_FEATURES)" \
-	PROCESSOR_NAME="$(PROCESSOR_NAME)" APP_MODE=pdi
-	@echo Finished generating: $@
-	@echo ' '
-
-$(BITSTREAM).bit : ${HW_PLATFORM_PATH}/system.bit $(BOOTLOADER_PATH)/$(BOOT_BUILD_DIR)/$(BOOTLOADER_NAME).elf
-	@echo Invoking: elfcheck pcp
-	elfcheck -hw ${HW_PLATFORM_PATH}/system.xml -mode bootload -mem BRAM -pe $(PROCESSOR_NAME) \
-	$(BOOTLOADER_PATH)/$(BOOT_BUILD_DIR)/$(BOOTLOADER_NAME).elf
-	@echo Invoking: data2mem
-	data2mem -bm ${HW_PLATFORM_PATH}/system_bd.bmm -bt ${HW_PLATFORM_PATH}/system.bit \
-	-bd $(BOOTLOADER_PATH)/$(BOOT_BUILD_DIR)/$(BOOTLOADER_NAME).elf tag $(PROCESSOR_NAME) -o b $(BITSTREAM).bit
-	@echo Finished generating: $@
-	@echo ' '
-
-${FLASH_IMAGE_NAME_DUAL}.mcs : ${EXECUTABLE}.mem $(BITSTREAM).bit
-	@echo Invoking: promgen
-	promgen $(PROMGEN_FLAGS) -o ${FLASH_IMAGE_NAME}.mcs $(PROMGEN_TYPE) $(BITSTREAM).bit $(PROMGEN_PREFIX)
-	@echo Invoking: pcublaze.pl
-	$(PERL) $(SCRIPT_DIR)/pcublaze.pl $(PCUBLAZE_PARAMS) --memfile ${EXECUTABLE}.mem $(PCUBLAZE_FILES)
-	@echo Finished generating: $@
-	@echo ' '
-
-.PHONY: prog_flash
-prog_flash : gen_flash
-	@echo Invoking: Xilinx iMPACT
-	impact -batch $(SCRIPT_DIR)/$(PROM_SCRIPT)
-	@echo Finished programming: ${FLASH_IMAGE_NAME_DUAL}.mcs
-	@echo ' '
-
+####################################################
+# C L E A N
+####################################################
 .PHONY: clean
-clean:
-	-@touch $(FLASH_IMAGE_NAME)
-	-@touch $(EXECUTABLE)
-	-${RM} -rf $(EXECUTABLE).* $(OBJ) $(OBJD) ${FLASH_IMAGE_NAME}* $(BITSTREAM).bit
-	-$(MAKE) -C $(BOOTLOADER_PATH) clean
-	-$(MAKE) -C $(LIBCNAPI_BUILD_DIR) clean
+clean: clean_sw
+
+.PHONY: clean_all
+clean_all: clean_sw clean_hw
+
+.PHONY: clean_sw
+clean_sw:
+	-@echo "Cleaning software parts..."
+	@touch $(EXECUTABLE)
+	-${RM} -rf $(EXECUTABLE).* $(OBJ) $(OBJD) $(PROCESSOR_NAME)
 	-@echo ' '
-else
-#######################################
-# two processors are in one bitstream! (Disable burning to flash!)
-.PHONY: clean
-clean:
-	-@touch $(FLASH_IMAGE_NAME)
-	-@touch $(EXECUTABLE)
-	-${RM} -rf $(EXECUTABLE).* $(OBJ) $(OBJD) ${FLASH_IMAGE_NAME}* $(BITSTREAM).bit
-	-$(MAKE) -C $(LIBCNAPI_BUILD_DIR) clean
+
+.PHONY: clean_hw
+clean_hw:
+	-@echo "Cleaning bitstream parts..."
+	$(MAKE) -C $(XPS_DIR) -f system.make clean
+	-${RM} -rf $(XPS_DIR)/system.make
 	-@echo ' '
-endif
+
+
+####################################################
+# H A R D W A R E
+####################################################
+
+$(XPS_DIR)/system.make :
+	$(MAKE) -C $(XPS_DIR) bitstream
+
+$(XPS_DIR)/implementation/system.bit :
+	$(MAKE) -C $(XPS_DIR) -f system.make bits
+
+$(HW_SPEC)/system.xml :
+	$(MAKE) -C $(XPS_DIR) -f system.make exporttosdk
+
+.PHONY: bitstream
+bitstream: $(XPS_DIR)/system.make $(XPS_DIR)/implementation/system.bit $(HW_SPEC)/system.xml
+
+
+####################################################
+# D O W N L O A D
+####################################################
+.PHONY: download-all
+download-all: download-bits download-elf
+
+.PHONY: download-bits
+download-bits: $(XPS_DIR)/system.make
+	$(MAKE) -C $(XPS_DIR) -f system.make download
+
+.PHONY: download-elf
+download-elf: application
+	xmd -hw $(HW_SPEC)/system.xml -tcl download-elf.tcl
 
 -include $(OBJD)

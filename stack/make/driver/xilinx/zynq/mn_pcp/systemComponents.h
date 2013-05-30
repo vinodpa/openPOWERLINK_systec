@@ -82,7 +82,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     #endif //XPAR_PLB_POWERLINK_0_PDI_ASYNC_BUF_COUNT
 
 #elif defined(POWERLINK_USES_AXI_BUS)
-	#ifdef __ZYNQ__
+	#ifndef __ZYNQ__ //TODO: check Marco at makefile
 		#include "xil_io.h"
 		// base address of PS Uart1
 		#define UART_BASE 0xE0001000
@@ -102,6 +102,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 			u8 u8Data = Data; \
 			while (XUartChanged_IsTransmitFull(u32BaseAddress));\
 			X_mWriteReg(u32BaseAddress, 0x30, u8Data);
+    //#error
 	#endif
 
     #ifdef XPAR_AXI_POWERLINK_0_S_AXI_SMP_PCP_BASEADDR
