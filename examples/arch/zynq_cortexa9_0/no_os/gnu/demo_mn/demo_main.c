@@ -39,9 +39,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 // includes
 //------------------------------------------------------------------------------
+<<<<<<< HEAD
+#include <xil_cache.h>
+=======
 //#include <sys/alt_cache.h>
+>>>>>>> 9303f79cd4036a6cbe0a459ed7ad40b3a99ff396
 
 #include <Epl.h>
+#include <EplTarget.h>
 
 #include "xap.h"
 
@@ -152,9 +157,19 @@ int  main (void)
     char*                       sHostname = HOSTNAME;
     int                         checkStack = 0;
 
-    alt_icache_flush_all();
-    alt_dcache_flush_all();
+  //  alt_icache_flush_all();
 
+
+    //Xil_DCacheFlush();//TODO:@John
+    EplRet = target_init();
+
+    if(EplRet != kEplSuccessful)
+    {
+    	printf("Could not initialize the hardware!\n");
+    	goto Exit;
+    }
+	//target_msleep(1000); // wait 1 s, so you can see the LEDs
+	
     printf("----------------------------------------------------\n");
     printf("openPOWERLINK FPGA MN DEMO application\n");
     printf("----------------------------------------------------\n");

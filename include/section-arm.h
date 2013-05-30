@@ -1,16 +1,15 @@
 /**
 ********************************************************************************
-\file   hostiflib_target.h
+\file   section-default.h
 
-\brief  Host Interface Library - Target header file
+\brief  Macros for default function linking
 
-This header file defines target specific macros (e.g. data types) and selects
-the target specific header file (e.g. hostiflib_nios.h).
+This header file defines empty macros if the specific functions are not linked
+to a specific section.
 
-*******************************************************************************/
-
-/*------------------------------------------------------------------------------
 Copyright (c) 2012, Bernecker+Rainer Industrie-Elektronik Ges.m.b.H. (B&R)
+Copyright (c) 2012, SYSTEC electronik GmbH
+Copyright (c) 2012, Kalycito Infotech Private Ltd.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,72 +33,41 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-------------------------------------------------------------------------------*/
+*******************************************************************************/
 
-#ifndef _INC_HOSTIF_TARGET_H_
-#define _INC_HOSTIF_TARGET_H_
+#ifndef _INC_SECTION_ARM_H_
+#define _INC_SECTION_ARM_H_
 
 //------------------------------------------------------------------------------
 // includes
 //------------------------------------------------------------------------------
-#include <stdint.h>
-
-#if defined(__NIOS2__)
-
-#include "hostiflib_nios.h"
-
-#elif defined(__MICROBLAZE__)
-
-#error "Microblaze not yet supported!"
-
-#elif defined(__arm__)
-
-#include "hostiflib_arm.h"
-
-#else
-
-#error "Target is not supported! Please revise hostiflib_target.h"
-
-#endif
-
-//---------------------------------------------------------
-// include section header file with null macros
-#include <section-default.h>
-
+//FIXME:@John: To be ported
 //------------------------------------------------------------------------------
 // const defines
 //------------------------------------------------------------------------------
 
-/**
-\name Data types
-If the following data types are not defined in the environment, then they are
-set to those provided by stdint.h.
-*/
-/**@{*/
-#ifndef UINT8
-#define UINT8               uint8_t
+#define XIL_INTERNAL_RAM    __attribute__((section(".local_memory")))
+
+#if (defined(XIL_NO_OPT_LEVEL) || defined(XIL_OPT_LEVEL_1) || \
+    defined(XIL_OPT_LEVEL_2)   || defined(XIL_OPT_LEVEL_3) || \
+    defined(XIL_OPT_LEVEL_SIZE)                               )
+
+    #define SECTION_PDOK_PROCESS_TPDO_CB    XIL_INTERNAL_RAM
+    #define SECTION_PDOK_ENCODE_TPDO_CB     XIL_INTERNAL_RAM
+    #define SECTION_PDOK_PDO_DECODE         XIL_INTERNAL_RAM
+    #define SECTION_EVENTK_PROCESS          XIL_INTERNAL_RAM
+    #define SECTION_EVENTK_POST             XIL_INTERNAL_RAM
+    #define SECTION_OMETHLIB_RX_IRQ_HDL     XIL_INTERNAL_RAM
+    #define SECTION_OMETHLIB_TX_IRQ_HDL     XIL_INTERNAL_RAM
+    #define SECTION_EDRVOPENMAC_RX_HOOK     XIL_INTERNAL_RAM
+    #define SECTION_EDRVOPENMAC_IRQ_HDL     XIL_INTERNAL_RAM
+    #define SECTION_MAIN_APP_CB_SYNC        XIL_INTERNAL_RAM
+
 #endif
 
-#ifndef UINT16
-#define UINT16              uint16_t
+#if (defined(XIL_OPT_LEVEL_3) || defined(XIL_OPT_LEVEL_SIZE))
+    #define SECTION_DLLK_FRAME_RCVD_CB      XIL_INTERNAL_RAM
 #endif
-
-#ifndef UINT32
-#define UINT32              uint32_t
-#endif
-
-#ifndef BOOL
-#define BOOL                uint8_t
-#endif
-
-#ifndef FALSE
-#define FALSE               0x00
-#endif
-
-#ifndef TRUE
-#define TRUE                0xFF
-#endif
-/**@}*/
 
 //------------------------------------------------------------------------------
 // typedef
@@ -109,4 +77,4 @@ set to those provided by stdint.h.
 // function prototypes
 //------------------------------------------------------------------------------
 
-#endif /* _INC_HOSTIF_TARGET_H_ */
+#endif /* _INC_SECTION_ARM_H_ */
