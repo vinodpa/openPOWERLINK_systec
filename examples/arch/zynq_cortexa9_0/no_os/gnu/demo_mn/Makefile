@@ -24,8 +24,8 @@ TARGET_DIR=${STACK_ROOT}/examples/arch/zynq_cortexa9_0/no_os/gnu/demo_mn
 
 IP_CORE_REPO=${STACK_ROOT}/fpga/ipcore/xilinx
 
-HW_SPEC=$(XPS_DIR)/SDK/SDK_Export/hw
-BSP_PATH=$(APP_DIR)/bsp
+#HW_SPEC=$(XPS_DIR)/SDK/SDK_Export/hw
+#BSP_PATH=$(APP_DIR)/bsp
 
 OBJDIR=obj
 
@@ -41,8 +41,7 @@ CP=cp
 RM=rm -rf
 EXECUTABLE=demo_mn
 
-LSSCRIPT=lscript.ld
-#_$(BOARD_NAME)_$(BUS_INTERFACE).ld
+LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE)_dual.ld
 MSS_FILE=system.mss
 #_$(BOARD_NAME)_$(BUS_INTERFACE).mss
 MACROS=-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
@@ -71,7 +70,7 @@ INCLUDES=-I${APP_DIR} \
 -I${STACK_ROOT}/stack/make/lib/libpowerlink_user \
 -I${STACK_ROOT}/objdicts/CiA302-4_MN \
 -I${PROCESSOR_NAME}/include \
--I${APP_DIR}/bsp/ps7_cortexa9_0/include
+-I$(BSP_PATH)/ps7_cortexa9_0/include
 
 ##################################
 # Source files

@@ -11,3 +11,5 @@ build*
 /tools/xilinx/zynq_sdcard/pcp_PDI.elf
 /tools/xilinx/zynq_sdcard/system.bit
 /tools/xilinx/zynq_sdcard/zynq_fsbl_dualProcessor.elf
+/examples/arch/zynq_cortexa9_0/no_os/gnu/demo_mn/obj
+/examples/arch/zynq_cortexa9_0/no_os/gnu/demo_mn/libmn.a

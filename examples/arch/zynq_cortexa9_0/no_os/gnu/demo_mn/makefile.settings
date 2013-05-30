@@ -10,6 +10,7 @@
 # contents      : Settings file for the build system
 ################################################################################
 
+MNDK_DIR=../../../../../../../workspace
 ##################################
 #Path to the openPOWERLINK root directory
 STACK_ROOT=../../../../../..
@@ -18,7 +19,8 @@ STACK_ROOT=../../../../../..
 #Path to the XPS project
 XPS_DIR=${STACK_ROOT}/fpga/boards/xilinx/xilinx_z702/zynq_ap_pcp_intaxi-axi
 
-
+BSP_PATH=${MNDK_DIR}/standalone_bsp_zynq_intaxi-host-axi
+HW_SPEC=${MNDK_DIR}/hw_platform_zynq_intaxi-axi
 ##################################
 # Board name: [zynq]
 BOARD_NAME=zynq

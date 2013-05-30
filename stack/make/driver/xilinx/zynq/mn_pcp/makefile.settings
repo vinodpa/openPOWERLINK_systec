@@ -12,7 +12,7 @@
 
 ##################################
 #Path to the MNDK root directory
-MNDK_DIR=../../../../../../Workspace/
+MNDK_DIR=../../../../../../../workspace/
 ##################################
 #Path to the openPOWERLINK root directory
 STACK_ROOT=../../../../../..

@@ -39,11 +39,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 // includes
 //------------------------------------------------------------------------------
-<<<<<<< HEAD
-#include <xil_cache.h>
-=======
+
+#include "xil_cache.h"
+
 //#include <sys/alt_cache.h>
->>>>>>> 9303f79cd4036a6cbe0a459ed7ad40b3a99ff396
+
 
 #include <Epl.h>
 #include <EplTarget.h>
