@@ -28,7 +28,11 @@ IP_CORE_REPO=${STACK_ROOT}/fpga/ipcore/xilinx
 #BSP_PATH=$(APP_DIR)/bsp
 
 OBJDIR=obj
-
+##################################
+# Specific for Zynq to enable prints
+ifeq ($(BOARD_NAME),zynq)
+	MACROS+= -D__ZYNQ__
+endif
 ##################################
 #general compile defines
 CC=mb-gcc
