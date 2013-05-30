@@ -116,6 +116,11 @@
         #include "ioLib.h"
 #endif
 
+#if (TARGET_SYSTEM == _NO_OS_ && DEV_SYSTEM == _DEV_ARM_)
+		#include <unistd.h>
+
+#endif
+
 #if (TARGET_SYSTEM == _WIN32_)
 
     #define flush  _commit
@@ -131,6 +136,10 @@
 #endif
 
 #if (TARGET_SYSTEM == _NO_OS_ && DEV_SYSTEM == _DEV_NIOS2_)
+#define O_BINARY 0 //FIXME: If file system is used, you have to fix that!
+#endif
+
+#if (TARGET_SYSTEM == _NO_OS_ && DEV_SYSTEM == _DEV_ARM_)//TODO:@John: to be ported
 #define O_BINARY 0 //FIXME: If file system is used, you have to fix that!
 #endif
 

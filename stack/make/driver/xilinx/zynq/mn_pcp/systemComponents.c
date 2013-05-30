@@ -61,7 +61,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 // global function prototypes
 //------------------------------------------------------------------------------
-
+#ifdef __ZYNQ__
+	void outbyte(char c)
+	{
+		XUartChanged_SendByte(UART_BASE, c);
+	}
+	void print(char *str);
+#endif
 //============================================================================//
 //            P R I V A T E   D E F I N I T I O N S                           //
 //============================================================================//
