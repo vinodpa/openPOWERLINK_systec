@@ -98,6 +98,7 @@ ${STACK_ROOT}/stack/src/user/event/eventucal-hostif.c \
 ${STACK_ROOT}/stack/src/user/nmt/nmtu.c \
 ${STACK_ROOT}/stack/src/user/nmt/nmtucal.c \
 ${STACK_ROOT}/stack/src/user/nmt/nmtmnu.c \
+${STACK_ROOT}/stack/src/user/nmt/nmtcnu.c \
 ${STACK_ROOT}/stack/src/user/nmt/identu.c \
 ${STACK_ROOT}/stack/src/user/nmt/statusu.c \
 ${STACK_ROOT}/stack/src/user/nmt/syncu.c \
@@ -123,8 +124,11 @@ ${STACK_ROOT}/libs/hostif/hostiflib.c \
 ${STACK_ROOT}/libs/hostif/hostiflib_l.c \
 ${STACK_ROOT}/libs/hostif/lfqueue.c \
 ${STACK_ROOT}/libs/hostif/linmem.c \
-${STACK_ROOT}/libs/trace/trace-printf.c
+${STACK_ROOT}/libs/trace/trace-printf.c \
+${STACK_ROOT}/objdicts/CiA302-4_MN/EplApiProcessImageSetup.c \
+${STACK_ROOT}/objdicts/CiA302-4_MN/Objdict.c
 #${STACK_ROOT}/libs/ami/amiarm.c \
+
 
 LIBRARIES = libxil.a
 
@@ -161,9 +165,12 @@ endif
 
 ###################################
 # libraries
-LIBSPATH=-L$(BSP_PATH)/${PROCESSOR_NAME}/lib -L$(APP_DIR)
+LIBCNAPI_NAME =mn
+LIBSPATH=-L$(BSP_PATH)/${PROCESSOR_NAME}/lib 
+#-L$(APP_DIR)/lib
+LIBS=-Wl,--start-group,-lxil,-lc -W1,--end-group
 
-#LIBS=-Wl,--start-group,-lxil,-lc,-l$(INCLUDES), -W1,--end-group
+#LIBS=-Wl,--start-group,-lxil,-lc,-l$(LIBCNAPI_NAME), -W1,--end-group
 
 ###################################
 # objects
@@ -231,9 +238,10 @@ $(OBJDIR)/xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h $(BSP_PATH)/$(PROCESS
 ${EXECUTABLE}.elf: $(BSP_PATH)/$(PROCESSOR_NAME) ${OBJ} ${LSSCRIPT}
 	@echo Building target: $@
 	@echo Invoking: MicroBlaze gcc linker
-	$(AR) cr libmn.a ${OBJ}
-	$(CC) $(LDFLAGS) -o ${EXECUTABLE}.elf  $(LIBSPATH)
-	
+#	$(AR) cr $(APP_DIR)/lib/libmn.a ${OBJ}
+#	$(CC) $(LDFLAGS)  -o ${EXECUTABLE}.elf  $(LIBSPATH)
+#	$(CC) $(LDFLAGS) $(LIBSPATH) obj/demo_main.o ${LIBS} -o ${EXECUTABLE}.elf
+	$(CC) $(LDFLAGS) $(LIBSPATH) ${OBJ} ${LIBS} -o ${EXECUTABLE}.elf	
 
 #	$(CC) $(LDFLAGS) $(LIBSPATH) ${OBJ} ${LIBS} -o ${EXECUTABLE}.elf
 	@echo Finished building target: $@
