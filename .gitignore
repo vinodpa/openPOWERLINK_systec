@@ -11,3 +11,4 @@ build*
 /tools/xilinx/zynq_sdcard/pcp_PDI.elf
 /tools/xilinx/zynq_sdcard/system.bit
 /tools/xilinx/zynq_sdcard/zynq_fsbl_dualProcessor.elf
+Workspace

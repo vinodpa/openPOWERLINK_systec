@@ -17,38 +17,60 @@ VERSION = 0.3
 
 include makefile.settings
 
-APP_DIR=.
+APP_DIR=${STACK_ROOT}examples/arch/zynq_cortexa9_0/no_os/gnu/demo_mn
 OBJDICT_DIR=${STACK_ROOT}/ObjDicts/CiA302-4_MN
 EDRV_DIR=${STACK_ROOT}/stack/src/kernel/edrv
 TARGET_DIR=${STACK_ROOT}/examples/arch/zynq_cortexa9_0/no_os/gnu/demo_mn
 
 IP_CORE_REPO=${STACK_ROOT}/fpga/ipcore/xilinx
 
-HW_SPEC=$(XPS_DIR)/SDK/SDK_Export/hw
-BSP_PATH=$(APP_DIR)/bsp
+#HW_SPEC=$(XPS_DIR)/SDK/SDK_Export/hw
+#BSP_PATH=$(APP_DIR)/bsp
 
 OBJDIR=obj
 
 ##################################
+#translate dual_processor variable
+ifeq ($(DUAL_PROCESSOR),yes)
+	DESIGN=dual
+else
+	DESIGN=single
+endif
+
+##################################
 #general compile defines
-CC=arm-xilinx-eabi-gcc
-#mb-gcc
-AR=arm-xilinx-eabi-ar
+
+ifeq ($(BOARD_NAME),zynq)
+	CC=arm-xilinx-eabi-gcc
+	AR=arm-xilinx-eabi-ar
 	SIZE=arm-xilinx-eabi-size
 	PROC=ARM_xilinx
-#mb-ar
+else
+	CC=mb-gcc
+	AR=mb-ar
+	SIZE=mb-size
+	PROC=MicroBlaze
+endif
 CP=cp
 RM=rm -rf
 EXECUTABLE=demo_mn
 
-LSSCRIPT=lscript.ld
-#_$(BOARD_NAME)_$(BUS_INTERFACE).ld
+#LSSCRIPT=lscript.ld
+LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE)_$(DESIGN).ld
 MSS_FILE=system.mss
 #_$(BOARD_NAME)_$(BUS_INTERFACE).mss
 MACROS=-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
-CFLAGS=-g3 -Wall -fmessage-length=0 $(PROC_FEATURES) ${MACROS}
+CFLAGS=$(DEBUG_FLAG) -Wall -fmessage-length=0 ${MACROS}
 CPPFLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
-LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} $(PROC_FEATURES) -Wl,-Map,${EXECUTABLE}.map
+LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} -Wl,-Map,${EXECUTABLE}.map
+
+ifeq ($(BOARD_NAME),zynq)
+	CFLAGS+= $(PROC_FEATURES_ARM)
+	LDFLAGS+= $(PROC_FEATURES_ARM)
+else
+	CFLAGS+= $(PROC_FEATURES_MB)
+	LDFLAGS+= $(PROC_FEATURES_MB)
+endif
 
 # Flash defines
 FLASH_IMAGE_NAME= flash_image
@@ -71,7 +93,9 @@ INCLUDES=-I${APP_DIR} \
 -I${STACK_ROOT}/stack/make/lib/libpowerlink_user \
 -I${STACK_ROOT}/objdicts/CiA302-4_MN \
 -I${PROCESSOR_NAME}/include \
--I${APP_DIR}/bsp/ps7_cortexa9_0/include
+-I$${APP_DIR}/arch/
+#-I${APP_DIR}/bsp/ps7_cortexa9_0/include
+
 
 ##################################
 # Source files
@@ -163,8 +187,12 @@ endif
 ###################################
 # libraries
 LIBSPATH=-L$(BSP_PATH)/${PROCESSOR_NAME}/lib -L$(APP_DIR)
-
+ifeq ($(BOARD_NAME),zynq)
+# Note: ARM gcc reports undefined reference unless nested
 #LIBS=-Wl,--start-group,-lxil,-lc,-l$(INCLUDES), -W1,--end-group
+else
+	LIBS=-l$(LIBCNAPI_NAME)
+endif
 
 ###################################
 # objects
