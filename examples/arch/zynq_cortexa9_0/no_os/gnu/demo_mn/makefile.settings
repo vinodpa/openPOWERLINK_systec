@@ -1,38 +1,26 @@
-################################################################################
-# Project       : CNDK PDI AP (Xilinx)
+#  (c) Bernecker + Rainer Industrie-Elektronik Ges.m.b.H.
+#      A-5142 Eggelsberg, B&R Strasse 1
+#      www.br-automation.com
+#
+# Project       : POWERLINK Xilinx Examples
 # Module        : build system settings file
+# Autor         : mairt
+# Date          : 13.02.2012
 # File          : Makefile
-# contents      : Settings file for the build system (AP)
+# contents      : Settings file for the build system
 ################################################################################
-# Version		Autor		Date			Feature
-# V1.0			mairt		13.02.2012		Make file for microblaze based sytems
-# V1.1			abhiramb	11.03.2013		ARM processor integrated for Zynq Projects
-################################################################################
-#Path to the CNDK root directory
-CNDK_DIR=../..
-
-#Path to the directory of the board support package and the hw platform
-BSP_PATH=${CNDK_DIR}/standalone_bsp_zynq_intaxi-ap-axi
-#BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_intaxi-ap-axi
-#BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_intplb-ap-plb
-#BSP_PATH=${CNDK_DIR}/standalone_bsp_lx150t_spi-ap-plb
-#BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_intplb-ap-plb
-#BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_intaxi-ap-axi
-#BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_16bitprll-ap-plb
-#BSP_PATH=${CNDK_DIR}/standalone_bsp_s6plkeb_16bitprll-ap-axi
-
-HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_zynq_intaxi-axi
-#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_intaxi-axi
-#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_intplb-ap-plb
-#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_lx150t_spi-plb
-#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_intplb-plb
-#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_intaxi-axi
-#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_16bitprll-ap-plb
-#HW_PLATFORM_PATH=${CNDK_DIR}/hw_platform_s6plkeb_16bitprll-ap-axi
 
 ##################################
-# Board name: [lx150t, lx9, s6plkeb, zynq]
-# Note: ZED and ZC702 are available evaluation platform for Zynq
+#Path to the openPOWERLINK root directory
+STACK_ROOT=../../../../../..
+
+##################################
+#Path to the XPS project
+XPS_DIR=${STACK_ROOT}/fpga/boards/xilinx/xilinx_z702/zynq_ap_pcp_intaxi-axi
+
+
+##################################
+# Board name: [zynq]
 BOARD_NAME=zynq
 
 ##################################
@@ -41,29 +29,10 @@ BOARD_NAME=zynq
 BUS_INTERFACE=axi
 
 ##################################
-# Processor name: [pcp, ap, ps7_cortexa9_0, ps7_cortexa9_1]
-# Note: Choice between ps7_cortexa9_0 and ps7_cortexa9_1 depends 
-# on the target CPU number (CPU 0 or CPU 1)
+# Processor name: [ps7_cortexa9_0]
 PROCESSOR_NAME=ps7_cortexa9_0
 
 ##################################
-# Two processors in bitstream: [yes, no]
-# Note: Change this if there is a second processor (PCP) in the bitstream
-DUAL_PROCESSOR=yes
-
-##################################
-# Target Processor for build [xilinx_microblaze, Zynq_ARM_CortexA9]
-# Note: Change to Zynq_ARM_CortexA9 if Zynq is the target platform
-TARGET_BUILD=Zynq_ARM_CortexA9
-
-##################################
-# Processor features for MicroBlaze: (more information in the "Embedded Systems Tools Reference Manual")
-# Hardware multiplier: [ -mno-xl-soft-mul = available, -mxl-soft-mul = not available ]
-# Hardware divider: [ -mno-xl-soft-div = available, -mxl-soft-div = not available ]
-# Barel shifter: [ -mno-xl-barrel-shift = available, -mxl-barrel-shift = not available ]
-# Use pattern compare instructions: [-mno-xl-pattern-compare = don't use them, -mxl-pattern-compare = use them ]
-PROC_FEATURES_MB=-mcpu=v8.20.a -mno-xl-pattern-compare -mxl-soft-mul -mxl-soft-div
-
 ##################################
 # Processor features for Zynq: (For more information refer, gcc options for ARM processor)
 # CPU: [-mcpu = cortex-a9 (name of the target ARM processor)]
@@ -71,8 +40,11 @@ PROC_FEATURES_MB=-mcpu=v8.20.a -mno-xl-pattern-compare -mxl-soft-mul -mxl-soft-d
 # ABI (Application Binary Interface) : Procedure call standard for ARM architecture 
 # ABI: [aapcs = EABI (embedded ABI), apcs-gnu = OABI (old ABI, for armv4 cores), atpcs = Thumb ABI (16 bit)]
 # Stack Frame : [-mapcs-frame = Stack frame compliant with AAPCS, -mno-apcs-frame = default 
-PROC_FEATURES_ARM=-mcpu=cortex-a9 -mabi=aapcs -mapcs-frame -march=armv7-a -mlittle-endian
+PROC_FEATURES=-mcpu=cortex-a9 -mabi=aapcs -mapcs-frame -march=armv7-a -mlittle-endian
 
+##################################
+
+#PROC_FEATURES= -mcpu=v8.20.a -mno-xl-pattern-compare -mno-xl-barrel-shift -mxl-soft-mul -mxl-soft-div
 ##################################
 #Debug Level
 # DBG_MODE = [_DEBUG=debug enabled, NDEBUG=debug disabled]
@@ -88,20 +60,14 @@ DBG_MODE=_DEBUG
 # 0x00004000L DEBUG_LVL_15 (= DEBUG_LVL_FWUPDATE)
 # 0x00008000L DEBUG_LVL_16 (= DEBUG_LVL_CNAPI_PDO)
 # 0x00010000L DEBUG_LVL_17 (= DEBUG_LVL_CNAPI_EVENT)
-# 0x00020000L DEBUG_LVL_18 (= DEBUG_LVL_CNAPI_VETH)
 # 0x20000000L DEBUG_LVL_ASSERT
 # 0x40000000L DEBUG_LVL_ERROR
 # 0x80000000L DEBUG_LVL_ALWAYS ]
 DEF_DEBUG_LVL=0xEC000600L
 
 ##################################
-#Optimization level
-# Note: Set this to -O3 to get the best speed
+#Compile options
+# Note: This also influences the fill level of the internal memory
+#      (set this to -O3 to get the best speed)
 OPT_LEVEL=-O3
-
-##################################
-#Debug flag
-# Note: Set this to -g3 when you are debugging. (Increases code size)
-#       Set this to -g0 to disable debugging.
-DEBUG_FLAG=-g3
 
