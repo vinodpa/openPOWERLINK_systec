@@ -321,6 +321,18 @@
         #endif
 
         #include <section-nios2.h>
+
+        //////////////////////////////////////////////////////////////////////
+        //FIXME: Find way for atomic exchange!!!
+        // NOTE: THIS IS NO ATOMIC EXCHANGE!!!
+        #include <alt_types.h>
+        #include <io.h>
+
+        #define ATOMIC_T    alt_u8
+        #define ATOMIC_EXCHANGE(address, newval, oldval) \
+                                oldval = IORD(address, 0); \
+                                IOWR(address, 0, newval)
+        //////////////////////////////////////////////////////////////////////
     #endif
 
     #if (DEV_SYSTEM == _DEV_MICROBLAZE_BIG_ \
@@ -550,6 +562,10 @@
     #define _TIME_OF_DAY_DEFINED_
 
 #endif
+
+/* some standard function pointer types */
+typedef void (*VOIDFUNCPTR)(void);
+typedef int (*INTFUNCPTR)(void);
 
 //---------------------------------------------------------------------------
 //  definition of TRACE
