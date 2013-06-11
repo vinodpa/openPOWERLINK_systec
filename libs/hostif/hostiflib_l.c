@@ -1043,6 +1043,66 @@ void hostif_writeDynBufPcpRpdo (UINT8 *pHostifScBase_p, UINT32 addr_p)
             offsetof(tScDynB, Pcp.rpdoAddr), addr_p);
 }
 
+
+//TODO: Review :Added from old file used in hostlib.c 
+//------------------------------------------------------------------------------
+/**
+\brief  Read dynamic buffers (Host only)
+
+\param  pHostifScBase_p     base address of Status/Control registers
+\param	InstanceId_p		instance id for the resource to be retrieved
+
+\return The function returns the dynamic buffer address. Note that the returned
+address is limited by the address width of the bridge master.
+
+\ingroup module_hostiflib
+*/
+//------------------------------------------------------------------------------
+UINT32 hostif_readDynBufPcp (UINT8 *pHostifScBase_p,tHostifInstanceId InstanceId_p)
+{
+	UINT32 DynBufPcpAddr;
+
+	switch(InstanceId_p)
+	{
+		case kHostifInstIdErrCount:
+			DynBufPcpAddr = hostif_readDynBufPcpErrCnt(pHostifScBase_p);
+			break;
+		case kHostifInstIdTxNmtQueue:
+			printf("why\n");
+			DynBufPcpAddr = hostif_readDynBufPcpTxNmtQ(pHostifScBase_p);
+			break;
+		case kHostifInstIdTxGenQueue:
+			DynBufPcpAddr = hostif_readDynBufPcpTxGenQ(pHostifScBase_p);
+			break;
+		case kHostifInstIdTxSyncQueue:
+			DynBufPcpAddr = hostif_readDynBufPcpTxSyncQ(pHostifScBase_p);
+			break;
+		case kHostifInstIdTxVethQueue:
+			DynBufPcpAddr = hostif_readDynBufPcpTxVethQ(pHostifScBase_p);
+			break;
+		case kHostifInstIdRxVethQueue:
+			DynBufPcpAddr = hostif_readDynBufPcpRxVethQ(pHostifScBase_p);
+			break;
+		case kHostifInstIdK2UQueue:
+			DynBufPcpAddr = hostif_readDynBufPcpK2UQ(pHostifScBase_p);
+			break;
+		case kHostifInstIdU2KQueue:
+			DynBufPcpAddr = hostif_readDynBufPcpU2KQ(pHostifScBase_p);
+			break;
+		case kHostifInstIdTpdo:
+			DynBufPcpAddr = hostif_readDynBufPcpTpdo(pHostifScBase_p);
+			break;
+		case kHostifInstIdRpdo:
+			DynBufPcpAddr = hostif_readDynBufPcpRpdo(pHostifScBase_p);
+			break;
+		default:
+			DynBufPcpAddr = 0;
+			break;
+	}
+	printf("addr:%ld-%ld\n",DynBufPcpAddr,pHostifScBase_p);
+    return DynBufPcpAddr;
+}
+
 //============================================================================//
 //            P R I V A T E   F U N C T I O N S                               //
 //============================================================================//
