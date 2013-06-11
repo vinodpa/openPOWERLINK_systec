@@ -29,19 +29,26 @@ This header file provides specific macros for Xilinx Microblaze CPU.
 // include generated header file for memory structure and version filed
 #include "hostiflib-zynqmem.h"
 
+//TODO: Review
+int hostiflib_RegisterHandler (u32 BaseAddress, int InterruptId,
+	   XInterruptHandler Handler, void *CallBackRef);
 #if defined(XPAR_HOSTINTERFACE_0_BASE)
 
-#define HOSTIF_PCP_BASE
-#define HOSTIF_HOST_BASE
+//TODO: Review
+#define HOSTIF_PCP_BASE		HOSTINTERFACE_0_BASE
+#define HOSTIF_HOST_BASE	HOSTINTERFACE_0_BASE
 
-#define HOSTIF_IRQ_IC_ID
-#define HOSTIF_IRQ
+//TODO: Get IRQ ID from Interrupt Controller
+//TODO: Any intterupt is given to Microblaze from Host Interface ?
+#define HOSTIF_IRQ_IC_ID	0
+#define HOSTIF_IRQ			0
 
 #elif (defined(PCP_0_HOSTINTERFACE_0_PCP_BASE) && \
        defined(PCP_0_HOSTINTERFACE_0_HOST_BASE))
 
-#define HOSTIF_PCP_BASE
-#define HOSTIF_HOST_BASE
+//TODO: Review
+#define HOSTIF_PCP_BASE		PCP_0_HOSTINTERFACE_0_PCP_BASE
+#define HOSTIF_HOST_BASE	PCP_0_HOSTINTERFACE_0_HOST_BASE
 
 #else
 

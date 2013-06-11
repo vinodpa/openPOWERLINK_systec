@@ -41,6 +41,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // includes
 //------------------------------------------------------------------------------
 #include "hostiflib_l.h"
+#include "hostiflib.h" //TODO: Review
 #include "hostiflib_target.h"
 
 
@@ -82,6 +83,13 @@ The offsets of the sub-registers of the status control register
 #define HOSTIF_SC_RES2_OFFS             0x0600U ///< reserved
 #define HOSTIF_SC_RES3_OFFS             0x0700U ///< reserved
 #define HOSTIF_SC_HIGH_ADDR             0x07FFU ///< high address
+
+//TODO: Review , Added from old file..Is it needed in new file ?
+#define HOSTIF_SC_DYNB_OFFS_AP          0x0800U ///< Dynamic buffer
+#define HOSTIF_SC_RES1_OFFS_AP          0x0900U ///< reserved
+#define HOSTIF_SC_RES2_OFFS_AP          0x1000U ///< reserved
+#define HOSTIF_SC_RES3_OFFS_AP          0x1100U ///< reserved
+#define HOSTIF_SC_HIGH_ADDR_AP          0x11FFU ///< high address
 /**@}*/
 
 //------------------------------------------------------------------------------
@@ -671,7 +679,8 @@ address is limited by the address width of the bridge master.
 //------------------------------------------------------------------------------
 UINT32 hostif_readDynBufHost (UINT8 *pHostifScBase_p, UINT8 num_p)
 {
-    return HOSTIF_RD32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
+    //TODO: review
+    return HOSTIF_RD32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS_AP, 
             offsetof(tScDynB, Host.aDynBuf[num_p]));
 }
 
@@ -688,7 +697,8 @@ UINT32 hostif_readDynBufHost (UINT8 *pHostifScBase_p, UINT8 num_p)
 //------------------------------------------------------------------------------
 void hostif_writeDynBufHost (UINT8 *pHostifScBase_p, UINT8 num_p, UINT32 addr_p)
 {
-    HOSTIF_WR32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
+    //TODO: Review
+    HOSTIF_WR32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS_AP,
             offsetof(tScDynB, Host.aDynBuf[num_p]), addr_p);
 }
 
@@ -756,6 +766,7 @@ UINT32 hostif_readDynBufPcpTxNmtQ (UINT8 *pHostifScBase_p)
 //------------------------------------------------------------------------------
 void hostif_writeDynBufPcpTxNmtQ (UINT8 *pHostifScBase_p, UINT32 addr_p)
 {
+	printf("why %ld\n",addr_p); //TODO:Clean
     HOSTIF_WR32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.txNmtQAddr), addr_p);
 }
