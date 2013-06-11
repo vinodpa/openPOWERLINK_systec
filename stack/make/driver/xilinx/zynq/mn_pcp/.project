@@ -80,22 +80,22 @@
 		<link>
 			<name>CiA302-4_MN</name>
 			<type>2</type>
-			<location>D:/Zynq-Hardware-MN/GIT-REPO/openPOWERLINK_2.0_Zelenka/objdicts/CiA302-4_MN</location>
+			<location>E:/MN_PLAYS/my_GitHUb/MN_2.0/objdicts/CiA302-4_MN</location>
 		</link>
 		<link>
 			<name>include</name>
 			<type>2</type>
-			<location>D:/Zynq-Hardware-MN/GIT-REPO/openPOWERLINK_2.0_Zelenka/include</location>
+			<location>E:/MN_PLAYS/my_GitHUb/MN_2.0/include</location>
 		</link>
 		<link>
 			<name>libs</name>
 			<type>2</type>
-			<location>D:/Zynq-Hardware-MN/GIT-REPO/openPOWERLINK_2.0_Zelenka/libs</location>
+			<location>E:/MN_PLAYS/my_GitHUb/MN_2.0/libs</location>
 		</link>
 		<link>
 			<name>src</name>
 			<type>2</type>
-			<location>D:/Zynq-Hardware-MN/GIT-REPO/openPOWERLINK_2.0_Zelenka/stack/src</location>
+			<location>E:/MN_PLAYS/my_GitHUb/MN_2.0/stack/src</location>
 		</link>
 	</linkedResources>
 </projectDescription>

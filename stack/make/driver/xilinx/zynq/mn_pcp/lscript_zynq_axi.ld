@@ -10,14 +10,15 @@
 /*                                                                 */
 /*******************************************************************/
 
-_STACK_SIZE = DEFINED(_STACK_SIZE) ? _STACK_SIZE : 0x400;
-_HEAP_SIZE = DEFINED(_HEAP_SIZE) ? _HEAP_SIZE : 0x400;
+_STACK_SIZE = DEFINED(_STACK_SIZE) ? _STACK_SIZE : 0xA00000;
+_HEAP_SIZE = DEFINED(_HEAP_SIZE) ? _HEAP_SIZE : 0xA00000;
 
 /* Define Memories in the system */
 
 MEMORY
 {
    ps7_ddr_0_S_AXI_HP0_BASEADDR : ORIGIN = 0x30000050, LENGTH = 0x3FFFFFB0
+   local_memory  : ORIGIN = 0x30000050, LENGTH = 0x3FFFFFB0
 }
 
 /* Specify the default entry point to the program */

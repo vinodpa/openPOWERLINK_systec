@@ -87,8 +87,6 @@ ${STACK_ROOT}/libs/omethlib/omethlib_phycfg_generic.c \
 ${STACK_ROOT}/libs/trace/trace-printf.c \
 ${STACK_ROOT}/stack/src/common/dll/dllcal-hostif.c \
 ${STACK_ROOT}/stack/src/common/event/event.c \
-${STACK_ROOT}/stack/src/common/event/eventcal-direct.c \
-${STACK_ROOT}/stack/src/common/event/eventcal-hostif.c \
 ${STACK_ROOT}/stack/src/common/errstring.c \
 ${STACK_ROOT}/stack/src/kernel/ctrl/ctrlk.c \
 ${STACK_ROOT}/stack/src/kernel/ctrl/ctrlkcal-hostif.c \
@@ -99,16 +97,15 @@ ${STACK_ROOT}/stack/src/kernel/edrv/edrv-openmac.c \
 ${STACK_ROOT}/stack/src/kernel/errhnd/errhndk.c \
 ${STACK_ROOT}/stack/src/kernel/errhnd/errhndkcal-hostif.c \
 ${STACK_ROOT}/stack/src/kernel/event/eventk.c \
-${STACK_ROOT}/stack/src/kernel/event/eventkcal.c \
-${STACK_ROOT}/stack/src/kernel/event/eventkcal-direct.c \
-${STACK_ROOT}/stack/src/kernel/event/eventkcal-hostif.c \
+${STACK_ROOT}/stack/src/kernel/event/eventkcal-nooshostif.c \
+${STACK_ROOT}/stack/src/kernel/event/eventkcalintf-hostif.c \
 ${STACK_ROOT}/stack/src/kernel/hrtimer/hrtimer-openmac.c \
 ${STACK_ROOT}/stack/src/kernel/nmt/nmtk.c \
 ${STACK_ROOT}/stack/src/kernel/pdo/pdok.c \
 ${STACK_ROOT}/stack/src/kernel/pdo/pdokcal.c \
-${STACK_ROOT}/stack/src/kernel/pdo/pdokcal-hostif.c \
+${STACK_ROOT}/stack/src/kernel/pdo/pdokcal-triplebufshm.c \
+${STACK_ROOT}/stack/src/kernel/pdo/pdokcalmem-hostif.c \
 ${STACK_ROOT}/stack/src/kernel/pdo/pdokcalsync-hostif.c \
-${STACK_ROOT}/stack/src/kernel/timestamp/timestamp-openmac.c\
 ${STACK_ROOT}/stack/src/arch/xilinx_microblaze/xilinx_irq.c \
 ${STACK_ROOT}/stack/src/arch/xilinx_microblaze/xilinx_usleep.c \
 ${STACK_ROOT}/stack/src/arch/xilinx_microblaze/target-microblaze.c

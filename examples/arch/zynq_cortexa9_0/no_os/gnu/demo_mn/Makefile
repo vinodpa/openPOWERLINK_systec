@@ -17,7 +17,7 @@ VERSION = 0.3
 
 include makefile.settings
 
-APP_DIR=${STACK_ROOT}examples/arch/zynq_cortexa9_0/no_os/gnu/demo_mn
+APP_DIR=.
 OBJDICT_DIR=${STACK_ROOT}/ObjDicts/CiA302-4_MN
 EDRV_DIR=${STACK_ROOT}/stack/src/kernel/edrv
 TARGET_DIR=${STACK_ROOT}/examples/arch/zynq_cortexa9_0/no_os/gnu/demo_mn
@@ -30,47 +30,24 @@ IP_CORE_REPO=${STACK_ROOT}/fpga/ipcore/xilinx
 OBJDIR=obj
 
 ##################################
-#translate dual_processor variable
-ifeq ($(DUAL_PROCESSOR),yes)
-	DESIGN=dual
-else
-	DESIGN=single
-endif
-
-##################################
 #general compile defines
-
-ifeq ($(BOARD_NAME),zynq)
-	CC=arm-xilinx-eabi-gcc
-	AR=arm-xilinx-eabi-ar
+CC=arm-xilinx-eabi-gcc
+#mb-gcc
+AR=arm-xilinx-eabi-ar
 	SIZE=arm-xilinx-eabi-size
 	PROC=ARM_xilinx
-else
-	CC=mb-gcc
-	AR=mb-ar
-	SIZE=mb-size
-	PROC=MicroBlaze
-endif
+#mb-ar
 CP=cp
 RM=rm -rf
 EXECUTABLE=demo_mn
 
-#LSSCRIPT=lscript.ld
-LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE)_$(DESIGN).ld
+LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE)_dual.ld
 MSS_FILE=system.mss
 #_$(BOARD_NAME)_$(BUS_INTERFACE).mss
 MACROS=-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
-CFLAGS=$(DEBUG_FLAG) -Wall -fmessage-length=0 ${MACROS}
+CFLAGS=-g3 -Wall -fmessage-length=0 $(PROC_FEATURES) ${MACROS}
 CPPFLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
-LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} -Wl,-Map,${EXECUTABLE}.map
-
-ifeq ($(BOARD_NAME),zynq)
-	CFLAGS+= $(PROC_FEATURES_ARM)
-	LDFLAGS+= $(PROC_FEATURES_ARM)
-else
-	CFLAGS+= $(PROC_FEATURES_MB)
-	LDFLAGS+= $(PROC_FEATURES_MB)
-endif
+LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} $(PROC_FEATURES) -Wl,-Map,${EXECUTABLE}.map
 
 # Flash defines
 FLASH_IMAGE_NAME= flash_image
@@ -93,14 +70,23 @@ INCLUDES=-I${APP_DIR} \
 -I${STACK_ROOT}/stack/make/lib/libpowerlink_user \
 -I${STACK_ROOT}/objdicts/CiA302-4_MN \
 -I${PROCESSOR_NAME}/include \
--I$${APP_DIR}/arch/
-#-I${APP_DIR}/bsp/ps7_cortexa9_0/include
-
+-I$(BSP_PATH)/ps7_cortexa9_0/include
 
 ##################################
 # Source files
 
 SRCFILES=${APP_DIR}/demo_main.c \
+${STACK_ROOT}/libs/hostif/hostiflib_arm_cache.c \
+${STACK_ROOT}/libs/hostif/hostiflib_arm_exception.c \
+${STACK_ROOT}/libs/hostif/hostiflib_arm_io.c \
+${STACK_ROOT}/libs/hostif/hostiflib_arm.c \
+${STACK_ROOT}/libs/hostif/hostiflib.c \
+${STACK_ROOT}/libs/hostif/hostiflib_l.c \
+${STACK_ROOT}/libs/hostif/lfqueue.c \
+${STACK_ROOT}/libs/hostif/linmem.c \
+${STACK_ROOT}/libs/trace/trace-printf.c \
+${STACK_ROOT}/objdicts/CiA302-4_MN/EplApiProcessImageSetup.c \
+${STACK_ROOT}/objdicts/CiA302-4_MN/Objdict.c \
 ${STACK_ROOT}/stack/src/arch/xilinx_arm/target_arm.c \
 ${STACK_ROOT}/stack/src/common/dll/dllcal-hostif.c \
 ${STACK_ROOT}/stack/src/common/event/event.c \
@@ -118,38 +104,37 @@ ${STACK_ROOT}/stack/src/user/errhnd/errhndu.c \
 ${STACK_ROOT}/stack/src/user/errhnd/errhnducal-hostif.c \
 ${STACK_ROOT}/stack/src/user/event/eventu.c \
 ${STACK_ROOT}/stack/src/user/event/eventucal.c \
-${STACK_ROOT}/stack/src/user/event/eventucal-direct.c \
-${STACK_ROOT}/stack/src/user/event/eventucal-hostif.c \
-${STACK_ROOT}/stack/src/user/nmt/nmtu.c \
+${STACK_ROOT}/stack/src/user/event/eventucal-nooshostif.c \
+${STACK_ROOT}/stack/src/user/event/eventucalintf-hostif.c \
+${STACK_ROOT}/stack/src/user/event/eventucalintf-hostif.c \
 ${STACK_ROOT}/stack/src/user/nmt/nmtucal.c \
-${STACK_ROOT}/stack/src/user/nmt/nmtmnu.c \
 ${STACK_ROOT}/stack/src/user/nmt/identu.c \
+${STACK_ROOT}/stack/src/user/nmt/nmtcnu.c \
+${STACK_ROOT}/stack/src/user/nmt/nmtmnu.c \
+${STACK_ROOT}/stack/src/user/nmt/nmtu.c \
 ${STACK_ROOT}/stack/src/user/nmt/statusu.c \
 ${STACK_ROOT}/stack/src/user/nmt/syncu.c \
 ${STACK_ROOT}/stack/src/user/obd/obd.c \
 ${STACK_ROOT}/stack/src/user/obd/obdcdc.c \
-${STACK_ROOT}/stack/src/user/obd/obdu.c \
-${STACK_ROOT}/stack/src/user/obducal.c \
 ${STACK_ROOT}/stack/src/user/pdo/pdou.c \
 ${STACK_ROOT}/stack/src/user/pdo/pdoucal.c \
-${STACK_ROOT}/stack/src/user/pdo/pdoucal-hostif.c \
+${STACK_ROOT}/stack/src/user/pdo/pdoucal-triplebufshm.c \
+${STACK_ROOT}/stack/src/user/pdo/pdoucalmem-hostif.c \
 ${STACK_ROOT}/stack/src/user/pdo/pdoucalsync-hostif.c \
 ${STACK_ROOT}/stack/src/user/sdo/sdo-asndu.c \
 ${STACK_ROOT}/stack/src/user/sdo/sdo-asysequ.c \
 ${STACK_ROOT}/stack/src/user/sdo/sdo-comu.c \
-${STACK_ROOT}/stack/src/user/sdo/sdo-udpu.c \
-${STACK_ROOT}/stack/src/cfmu.c \
-${STACK_ROOT}/stack/src/ledu.c \
-${STACK_ROOT}/libs/hostif/hostiflib_arm_cache.c \
-${STACK_ROOT}/libs/hostif/hostiflib_arm_exception.c \
-${STACK_ROOT}/libs/hostif/hostiflib_arm_io.c \
-${STACK_ROOT}/libs/hostif/hostiflib_arm.c \
-${STACK_ROOT}/libs/hostif/hostiflib.c \
-${STACK_ROOT}/libs/hostif/hostiflib_l.c \
-${STACK_ROOT}/libs/hostif/lfqueue.c \
-${STACK_ROOT}/libs/hostif/linmem.c \
-${STACK_ROOT}/libs/trace/trace-printf.c
-#${STACK_ROOT}/libs/ami/amiarm.c \
+${STACK_ROOT}/stack/src/user/cfmu.c \
+${STACK_ROOT}/stack/src/user/ledu.c 
+
+
+#${STACK_ROOT}/stack/src/user/event/eventucal-direct.c \
+#${STACK_ROOT}/stack/src/user/event/eventucal-hostif.c \
+#${STACK_ROOT}/stack/src/user/sdo/sdo-udpu.c \
+#${STACK_ROOT}/stack/src/user/obd/obdu.c \
+#${STACK_ROOT}/stack/src/user/obducal.c \
+#${STACK_ROOT}/stack/src/user/pdo/pdoucal-hostif.c \
+#${STACK_ROOT}/libs/ami/amiarm.c 
 
 LIBRARIES = libxil.a
 
@@ -186,13 +171,12 @@ endif
 
 ###################################
 # libraries
-LIBSPATH=-L$(BSP_PATH)/${PROCESSOR_NAME}/lib -L$(APP_DIR)
-ifeq ($(BOARD_NAME),zynq)
-# Note: ARM gcc reports undefined reference unless nested
-#LIBS=-Wl,--start-group,-lxil,-lc,-l$(INCLUDES), -W1,--end-group
-else
-	LIBS=-l$(LIBCNAPI_NAME)
-endif
+LIBCNAPI_NAME =mn
+LIBSPATH=-L$(BSP_PATH)/${PROCESSOR_NAME}/lib 
+#-L$(APP_DIR)/lib
+LIBS=-Wl,--start-group,-lxil,-lc -W1,--end-group
+
+#LIBS=-Wl,--start-group,-lxil,-lc,-l$(LIBCNAPI_NAME), -W1,--end-group
 
 ###################################
 # objects
@@ -260,9 +244,10 @@ $(OBJDIR)/xilinx_usleep.o: xilinx_usleep.c xilinx_usleep.h $(BSP_PATH)/$(PROCESS
 ${EXECUTABLE}.elf: $(BSP_PATH)/$(PROCESSOR_NAME) ${OBJ} ${LSSCRIPT}
 	@echo Building target: $@
 	@echo Invoking: MicroBlaze gcc linker
-	$(AR) cr libmn.a ${OBJ}
-	$(CC) $(LDFLAGS) -o ${EXECUTABLE}.elf  $(LIBSPATH)
-	
+#	$(AR) cr $(APP_DIR)/lib/libmn.a ${OBJ}
+#	$(CC) $(LDFLAGS)  -o ${EXECUTABLE}.elf  $(LIBSPATH)
+#	$(CC) $(LDFLAGS) $(LIBSPATH) obj/demo_main.o ${LIBS} -o ${EXECUTABLE}.elf
+	$(CC) $(LDFLAGS) $(LIBSPATH) ${OBJ} ${LIBS} -o ${EXECUTABLE}.elf	
 
 #	$(CC) $(LDFLAGS) $(LIBSPATH) ${OBJ} ${LIBS} -o ${EXECUTABLE}.elf
 	@echo Finished building target: $@

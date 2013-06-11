@@ -349,8 +349,24 @@
         #include <section-microblaze.h>
     #endif
 
-	#if (DEV_SYSTEM == _DEV_ARM_)//TODO:@John: Added here
+	//FIXME:@Vinod: Atomic Functions copied
+	#if ( (DEV_SYSTEM == _DEV_ARM_) \
+		  || (DEV_SYSTEM == _DEV_MICROBLAZE_BIG_) \
+          || (DEV_SYSTEM == _DEV_MICROBLAZE_LITTLE_)\
+		)
         #include <section-arm.h>
+		//////////////////////////////////////////////////////////////////////
+        //FIXME: Find way for atomic exchange!!!
+        // NOTE: THIS IS NO ATOMIC EXCHANGE!!!
+        //#include <alt_types.h>
+        #include <xil_io.h>
+
+        #define ATOMIC_T    unsigned char
+        #define ATOMIC_EXCHANGE(address, newval, oldval) \
+                                oldval = Xil_In32(address); \
+                                Xil_Out32(address, newval)
+        //////////////////////////////////////////////////////////////////////
+
     #endif
 
 // ------------------ WIN32 ---------------------------------------------
