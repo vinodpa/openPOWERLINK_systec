@@ -473,7 +473,7 @@ tHostifReturn hostif_create (tHostifConfig *pConfig_p, tHostifInstance *ppInstan
 
     if(Ret != kHostifSuccessful)
     {
-    	printf("magic\n"); //TODO: Clean
+    	printf("magic \n"); //TODO: Clean
         goto Exit;
     }
 
@@ -2195,7 +2195,8 @@ static tHostifReturn checkMagic(tHostif *pHostif_p)
 {
    // if(hostif_readMagic(pHostif_p->pBase) == HOSTIF_MAGIC) //TODO: Clean Removed for print
 	UINT32 ret = hostif_readMagic(pHostif_p->pBase); 
-	printf("%ld %X\n",ret,pHostif_p->pBase);
+	//printf("checkMagic %x %X\n",ret,pHostif_p->pBase);
+	printf("checkMagic %x \n",ret);
     if(ret == HOSTIF_MAGIC)
         return kHostifSuccessful;
     else

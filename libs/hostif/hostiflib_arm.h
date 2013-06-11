@@ -73,7 +73,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // const defines
 //------------------------------------------------------------------------------
 //TODO:@John Substitute the ARM specific memory addresses
-#define PCP_0_HOSTINTERFACE_0_BASE	0x2c00000
+#define PCP_0_HOSTINTERFACE_0_BASE	0x2C000000
 #if defined(PCP_0_HOSTINTERFACE_0_BASE)
 
 #define HOSTIF_PCP_BASE             PCP_0_HOSTINTERFACE_0_BASE //XPAR_PS7_DDR_0_S_AXI_HP0_BASEADDR

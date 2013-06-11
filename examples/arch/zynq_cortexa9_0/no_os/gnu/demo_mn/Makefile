@@ -90,8 +90,6 @@ ${STACK_ROOT}/objdicts/CiA302-4_MN/Objdict.c \
 ${STACK_ROOT}/stack/src/arch/xilinx_arm/target_arm.c \
 ${STACK_ROOT}/stack/src/common/dll/dllcal-hostif.c \
 ${STACK_ROOT}/stack/src/common/event/event.c \
-${STACK_ROOT}/stack/src/common/event/eventcal-direct.c \
-${STACK_ROOT}/stack/src/common/event/eventcal-hostif.c \
 ${STACK_ROOT}/stack/src/common/timer/timer-generic.c \
 ${STACK_ROOT}/stack/src/common/debug.c \
 ${STACK_ROOT}/stack/src/common/errstring.c \
@@ -103,9 +101,7 @@ ${STACK_ROOT}/stack/src/user/dll/dllucal.c \
 ${STACK_ROOT}/stack/src/user/errhnd/errhndu.c \
 ${STACK_ROOT}/stack/src/user/errhnd/errhnducal-hostif.c \
 ${STACK_ROOT}/stack/src/user/event/eventu.c \
-${STACK_ROOT}/stack/src/user/event/eventucal.c \
 ${STACK_ROOT}/stack/src/user/event/eventucal-nooshostif.c \
-${STACK_ROOT}/stack/src/user/event/eventucalintf-hostif.c \
 ${STACK_ROOT}/stack/src/user/event/eventucalintf-hostif.c \
 ${STACK_ROOT}/stack/src/user/nmt/nmtucal.c \
 ${STACK_ROOT}/stack/src/user/nmt/identu.c \
@@ -128,7 +124,8 @@ ${STACK_ROOT}/stack/src/user/cfmu.c \
 ${STACK_ROOT}/stack/src/user/ledu.c 
 
 
-#${STACK_ROOT}/stack/src/user/event/eventucal-direct.c \
+#${STACK_ROOT}/stack/src/user/event/eventucal.c \ ## Splited this file ## Not Present in updated design
+#${STACK_ROOT}/stack/src/user/event/eventucal-direct.c \ ## Not Present in updated design
 #${STACK_ROOT}/stack/src/user/event/eventucal-hostif.c \
 #${STACK_ROOT}/stack/src/user/sdo/sdo-udpu.c \
 #${STACK_ROOT}/stack/src/user/obd/obdu.c \

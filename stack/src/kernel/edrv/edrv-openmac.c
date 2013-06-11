@@ -520,7 +520,7 @@ BYTE            abFilterMask[31],
 #endif
 
     //wait some time (phy may not be ready...)
-    EDRV_USLEEP(1*1000*1000);
+    EDRV_USLEEP(1*100*1000);//TODO:@John Reduced the time ?
 
 Exit:
     return Ret;

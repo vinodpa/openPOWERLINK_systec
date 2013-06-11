@@ -54,8 +54,8 @@ int hostiflib_RegisterHandler (u32 BaseAddress, int InterruptId,
 
 #warning "Host Interface base is assumed! Set the correct address!"
 
-#define HOSTIF_PCP_BASE             0x10000000
-#define HOSTIF_HOST_BASE            0x10000000
+#define HOSTIF_PCP_BASE             0x2C000000
+#define HOSTIF_HOST_BASE            0x2C000000
 #define HOSTIF_IRQ_IC_ID            0
 #define HOSTIF_IRQ                  0
 

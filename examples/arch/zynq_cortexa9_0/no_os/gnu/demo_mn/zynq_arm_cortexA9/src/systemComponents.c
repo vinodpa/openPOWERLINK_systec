@@ -72,8 +72,12 @@ void SysComp_initPeripheral(void)
     Xil_Out32(FPGA_RST_CNTRL,0);
     Xil_Out32(SLCR_LOCK, SLCR_LOCK_VAL);
 
-    Xil_ICacheEnable();
-	Xil_DCacheEnable();
+    //TODO: Enable Cache
+    //Xil_ICacheEnable();
+	//Xil_DCacheEnable();
+
+	Xil_DCacheDisable();
+	Xil_ICacheDisable();
         
 #ifdef CN_API_USING_SPI
 	//TODO: To integrate SPI functionality later!

@@ -126,8 +126,10 @@ void SysComp_initPeripheral(void)
    Xil_Out32(FPGA_RST_CNTRL,0);
    Xil_Out32(SLCR_LOCK, SLCR_LOCK_VAL);
 
-   Xil_ICacheEnable();
-	Xil_DCacheEnable();
+   //Xil_ICacheEnable();
+	//Xil_DCacheEnable();
+   Xil_DCacheDisable();//TODO: @John Enable Cache
+   Xil_ICacheDisable();
 
 #ifdef CN_API_USING_SPI
 	//TODO: To integrate SPI functionality later!
@@ -707,6 +709,26 @@ typedef struct sScInfo
     volatile UINT32     initBase;   ///< Init base address
 } tScInfo_arm;
 
+//TODO: Review
+/** 
+\brief Status/Control - Control
+
+The control sub-registers provide basic Pcp-to-Host communication features.
+*/
+typedef struct sScCont
+{
+    volatile UINT16     bridgeEnable; ///< enable the bridge logic
+    volatile UINT16     RESERVED0;   ///< reserved
+    volatile UINT16     command;     ///< command word
+    volatile UINT16     state;       ///< state word
+    volatile UINT16     ret;      ///< return word
+    volatile UINT16     heartbeat;   ///< heart beat word
+    volatile UINT8      nodeId;      ///< node id
+    volatile UINT8      RESERVED2;   ///< reserved
+    volatile UINT16     RESERVED3;   ///< reserved
+    volatile UINT16     ledControl;  ///< led control
+    volatile UINT16     RESERVED4;   ///< reserved
+} tScCont_arm;
 //------------------------------------------------------------------------------
 // local vars
 //------------------------------------------------------------------------------
@@ -834,16 +856,18 @@ tEplKernel target_init(void)
 {
 	u32 version = 0;
 #if defined(__arm__)
-	SysComp_initPeripheral();
-	//target_msleep(1000);
 	HOSTIF_WR32((u8*)HOSTIF_HOST_BASE + HOSTIF_SC_INFO_OFFS_ARM,
 	            offsetof(tScInfo_arm, magic), 0x504C4B00);
     version = ((HOSTIF_VERSION_COUNT) | (HOSTIF_VERSION_REVISION<<8) | (HOSTIF_VERSION_MINOR<<16) | (HOSTIF_VERSION_MAJOR<<24));
     HOSTIF_WR32((u8*)HOSTIF_HOST_BASE + HOSTIF_SC_INFO_OFFS_ARM,
     	            offsetof(tScInfo_arm, version),(u32)version);
+    HOSTIF_WR16((u8*)HOSTIF_HOST_BASE  + HOSTIF_SC_CONT_OFFS_ARM,
+                offsetof(tScCont_arm, command), 0);
     //Xil_DCacheFlush();
     //target_msleep(1000);
     //Xil_DCacheFlush();
+	/*Release MB!*/
+	SysComp_initPeripheral();
     return kEplSuccessful;
 #else
 	return kEplSuccessful;
