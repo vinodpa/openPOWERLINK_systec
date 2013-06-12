@@ -197,7 +197,12 @@ tEplKernel eventk_process (tEplEvent *pEvent_p)
     BOOL                    fStop = FALSE;
     BOOL                    fAlreadyHandled = FALSE;
     tEventDispatchEntry*    pDispatchEntry;
-
+    //TODO: Cleanup
+    printf("Called Process:%d\n", (UINT32)pEvent_p->m_EventType);
+    if(pEvent_p->m_EventType == kEplEventTypeNmtEvent)
+    	printf("Called Process:%d\n", (UINT32)pEvent_p->m_pArg);
+    if ((UINT32)pEvent_p->m_pArg != 0)
+    	printf("Called Process:%d\n", (UINT32)pEvent_p->m_pArg);
     pDispatchEntry = &eventDispatchTbl_l[0];
     while (!fStop)
     {
@@ -277,6 +282,7 @@ tEplKernel eventk_postEvent (tEplEvent *pEvent_p)
         case kEplEventSinkPdok:
         case kEplEventSinkPdokCal:
         case kEplEventSinkErrk:
+        	printf("postevekk:%d\n",pEvent_p->m_EventSink);// TODO: CleanUP
             ret = eventkcal_postKernelEvent(pEvent_p);
             break;
 

@@ -240,10 +240,10 @@ int  main (void)
     {
         goto Exit;
     }
-
-    printf("Initializing process image...\n");
-    printf("Size of input process image: %ld\n", sizeof(PI_IN));
-    printf("Size of output process image: %ld\n", sizeof (PI_OUT));
+    //TODO: CleanUp
+ //   printf("Initializing process image...\n");
+ //   printf("Size of input process image: %ld\n", sizeof(PI_IN));
+ //   printf("Size of output process image: %ld\n", sizeof (PI_OUT));
     EplRet = api_processImageAlloc(sizeof(PI_IN), sizeof(PI_OUT));
     if (EplRet != kEplSuccessful)
     {
@@ -260,6 +260,7 @@ int  main (void)
     }
 
     // start processing
+    printf("stt\n"); //TODO:Cleanup
     EplRet = EplApiExecNmtCommand(kEplNmtEventSwReset);
     if (EplRet != kEplSuccessful)
     {

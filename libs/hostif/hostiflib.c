@@ -699,7 +699,6 @@ tHostifReturn hostif_process (tHostifInstance pInstance_p)
             Ret = kHostifInvalidParameter;
             goto Exit;
         }
-
         if(fQueueEmpty == FALSE && pQueueProcess->pfnCallback != NULL)
         {
             pQueueProcess->pfnCallback(pQueueProcess->pArg);
