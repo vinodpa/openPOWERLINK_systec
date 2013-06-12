@@ -1,8 +1,8 @@
 /**
 ********************************************************************************
-\file   target-nios2.c
+\file   target-arm.c
 
-\brief  target specific functions for Nios II without OS
+\brief  target specific functions for ARM on Zynq without OS
 
 This target depending module provides several functions that are necessary for
 systems without shared buffer and any OS.
@@ -11,7 +11,7 @@ systems without shared buffer and any OS.
 *******************************************************************************/
 
 /*------------------------------------------------------------------------------
-Copyright (c) 2012, Bernecker+Rainer Industrie-Elektronik Ges.m.b.H. (B&R)
+Copyright (c) 2012, Kalycito Infotech Pvt Ltd, Coimbatore
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,9 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ------------------------------------------------------------------------------*/
+/*
+ *  Created on: May 17, 2013       Author: Chidrupaya S
+ */
 
 //------------------------------------------------------------------------------
 // includes
@@ -190,13 +193,14 @@ int SysComp_initSyncInterrupt(void (*callbackFunc)(void*))
 								SYNC_INTR_PRIORITY, TRIGGER_VALUE);
 #endif
 
+#ifdef XPAR_FABRIC_AXI_POWERLINK_0_AP_SYNCIRQ_VEC_ID
 	//register sync irq handler
    XScuGic_Connect(&sGicInstance_l, SYNC_IRQ_NUM,
            (Xil_InterruptHandler)callbackFunc, 0);
 
    //enable the sync interrupt
    XScuGic_Enable(&sGicInstance_l, SYNC_IRQ_NUM);
-
+#endif
    return OK;
 }
 
@@ -208,7 +212,9 @@ SysComp_enableSyncInterrupt() enables the synchronous interrupt.
 *******************************************************************************/
 inline void SysComp_enableSyncInterrupt(void)
 {
+#ifdef XPAR_FABRIC_AXI_POWERLINK_0_AP_SYNCIRQ_VEC_ID
    XScuGic_Enable(&sGicInstance_l, SYNC_IRQ_NUM);
+#endif
 }
 
 /**
@@ -219,8 +225,10 @@ SysComp_disableSyncInterrupt() disable the synchronous interrupt.
 *******************************************************************************/
 inline void SysComp_disableSyncInterrupt(void)
 {
+#ifdef XPAR_FABRIC_AXI_POWERLINK_0_AP_SYNCIRQ_VEC_ID
 	XScuGic_Disable(&sGicInstance_l, SYNC_IRQ_NUM);
 	//TODO: Check if we have to disconnect handler
+#endif
 }
 /**
 ********************************************************************************
@@ -243,13 +251,15 @@ int SysComp_initAsyncInterrupt(void (*callbackFunc)(void*))
 	XScuGic_SetPriorityTriggerType(&sGicInstance_l, SYNC_INTR_ID,
 								ASYNC_INTR_PRIORITY, TRIGGER_VALUE);
 #endif
+
+#ifdef XPAR_FABRIC_AXI_POWERLINK_0_AP_ASYNCIRQ_VEC_ID
 	/* register interrupt handler */
    XScuGic_Connect(&sGicInstance_l, ASYNC_IRQ_NUM,
            (Xil_InterruptHandler)callbackFunc, 0);
 
    //enable the sync interrupt
    XScuGic_Enable(&sGicInstance_l, ASYNC_IRQ_NUM);
-
+#endif
    return OK;
 }
 
@@ -261,7 +271,9 @@ SysComp_enableSyncInterrupt() enables the synchronous interrupt.
 *******************************************************************************/
 inline void SysComp_enableAsyncInterrupt(void)
 {
+#ifdef XPAR_FABRIC_AXI_POWERLINK_0_AP_ASYNCIRQ_VEC_ID
    XScuGic_Enable(&sGicInstance_l, ASYNC_IRQ_NUM);
+#endif
 }
 
 /**
@@ -272,9 +284,10 @@ SysComp_disableSyncInterrupt() disable the synchronous interrupt.
 *******************************************************************************/
 inline void SysComp_disableAsyncInterrupt(void)
 {
-
+#ifdef XPAR_FABRIC_AXI_POWERLINK_0_AP_ASYNCIRQ_VEC_ID
 	XScuGic_Disable(&sGicInstance_l, ASYNC_IRQ_NUM);
 	//TODO: Check if we have to disconnect handler
+#endif
 }
 
 #ifdef CN_API_USING_SPI

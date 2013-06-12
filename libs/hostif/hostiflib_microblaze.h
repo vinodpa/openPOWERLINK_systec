@@ -32,16 +32,16 @@ This header file provides specific macros for Xilinx Microblaze CPU.
 //TODO: Review
 int hostiflib_RegisterHandler (u32 BaseAddress, int InterruptId,
 	   XInterruptHandler Handler, void *CallBackRef);
-#if defined(XPAR_HOSTINTERFACE_0_BASE)
+#if defined(HOSTINTERFACE_0_BASE)
 
 //TODO: Review
 #define HOSTIF_PCP_BASE		HOSTINTERFACE_0_BASE
 #define HOSTIF_HOST_BASE	HOSTINTERFACE_0_BASE
 
 //TODO: Get IRQ ID from Interrupt Controller
-//TODO: Any intterupt is given to Microblaze from Host Interface ?
-#define HOSTIF_IRQ_IC_ID	0
-#define HOSTIF_IRQ			0
+//TODO: Any Intterupt is given to Microblaze from Host Interface ?
+#define HOSTIF_IRQ_IC_ID	-1 //FIXME: On Zynq Host is ARM :-(
+#define HOSTIF_IRQ			-1 //FIXME: On Zynq Host is ARM :-(
 
 #elif (defined(PCP_0_HOSTINTERFACE_0_PCP_BASE) && \
        defined(PCP_0_HOSTINTERFACE_0_HOST_BASE))
@@ -54,8 +54,8 @@ int hostiflib_RegisterHandler (u32 BaseAddress, int InterruptId,
 
 #warning "Host Interface base is assumed! Set the correct address!"
 
-#define HOSTIF_PCP_BASE             0x2C000000
-#define HOSTIF_HOST_BASE            0x2C000000
+#define HOSTIF_PCP_BASE             0x10000000
+#define HOSTIF_HOST_BASE            0x10000000
 #define HOSTIF_IRQ_IC_ID            0
 #define HOSTIF_IRQ                  0
 

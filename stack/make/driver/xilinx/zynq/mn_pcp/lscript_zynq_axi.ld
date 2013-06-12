@@ -18,7 +18,6 @@ _HEAP_SIZE = DEFINED(_HEAP_SIZE) ? _HEAP_SIZE : 0xA00000;
 MEMORY
 {
    ps7_ddr_0_S_AXI_HP0_BASEADDR : ORIGIN = 0x30000050, LENGTH = 0x3FFFFFB0
-   local_memory  : ORIGIN = 0x30000050, LENGTH = 0x3FFFFFB0
 }
 
 /* Specify the default entry point to the program */
@@ -184,6 +183,16 @@ SECTIONS
    *(COMMON)
    . = ALIGN(4);
    __bss_end = .;
+} > ps7_ddr_0_S_AXI_HP0_BASEADDR
+
+.local_memory : {
+
+   __local_memory_start = .;
+
+   *(.local_memory)
+
+   __local_memory_end = .;
+
 } > ps7_ddr_0_S_AXI_HP0_BASEADDR
 
 _SDA_BASE_ = __sdata_start + ((__sbss_end - __sdata_start) / 2 );

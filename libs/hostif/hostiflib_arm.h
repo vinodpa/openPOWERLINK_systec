@@ -79,8 +79,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HOSTIF_PCP_BASE             PCP_0_HOSTINTERFACE_0_BASE //XPAR_PS7_DDR_0_S_AXI_HP0_BASEADDR
 #define HOSTIF_HOST_BASE            PCP_0_HOSTINTERFACE_0_BASE //XPAR_PS7_DDR_0_S_AXI_BASEADDR
 
-#define HOSTIF_IRQ_IC_ID            0 //FIXME: obtain from system.h
-#define HOSTIF_IRQ                  0 //FIXME: obtain from system.h
+#define HOSTIF_IRQ_IC_ID            XPAR_FABRIC_AXI_POWERLINK_0_TCP_IRQ_INTR //FIXME: obtain from system.h
+#define HOSTIF_IRQ                  XPAR_FABRIC_AXI_POWERLINK_0_TCP_IRQ_INTR //FIXME: obtain from system.h
 
 #elif (defined(PCP_0_HOSTINTERFACE_0_PCP_BASE) && \
        defined(PCP_0_HOSTINTERFACE_0_HOST_BASE))

@@ -99,6 +99,7 @@ subject to the License Agreement located at the end of this file below.
 #else
   #ifdef XPAR_FABRIC_AXI_POWERLINK_0_AP_ASYNCIRQ_VEC_ID
    #define ASYNC_IRQ_NUM		XPAR_FABRIC_AXI_POWERLINK_0_AP_ASYNCIRQ_INTR
+#error
    //#define ASYNC_IRQ_NUM_MASK	XPAR_AXI_POWERLINK_0_AP_ASYNCIRQ_MASK
   #endif //XPAR_FABRIC_AXI_POWERLINK_0_AP_ASYNCIRQ_VEC_ID
 #endif
