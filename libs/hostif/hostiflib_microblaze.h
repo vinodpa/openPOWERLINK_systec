@@ -40,8 +40,8 @@ int hostiflib_RegisterHandler (u32 BaseAddress, int InterruptId,
 
 //TODO: Get IRQ ID from Interrupt Controller
 //TODO: Any Intterupt is given to Microblaze from Host Interface ?
-#define HOSTIF_IRQ_IC_ID	-1 //FIXME: On Zynq Host is ARM :-(
-#define HOSTIF_IRQ			-1 //FIXME: On Zynq Host is ARM :-(
+#define HOSTIF_IRQ_IC_ID	-1 //FIXME: @Vinod On Zynq Host is ARM
+#define HOSTIF_IRQ			-1 //FIXME: @Vinod On Zynq Host is ARM
 
 #elif (defined(PCP_0_HOSTINTERFACE_0_PCP_BASE) && \
        defined(PCP_0_HOSTINTERFACE_0_HOST_BASE))

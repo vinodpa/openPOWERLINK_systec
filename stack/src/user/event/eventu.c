@@ -266,7 +266,7 @@ tEplKernel eventu_postEvent (tEplEvent *pEvent_p)
         case kEplEventSinkPdok:
         case kEplEventSinkPdokCal:
         case kEplEventSinkErrk:
-        	printf("Got the Event\n"); //TODO:CleanUp
+        	//printf("AP-Got the Event\n"); //TODO:CleanUp
             ret = eventucal_postKernelEvent(pEvent_p);
             break;
 

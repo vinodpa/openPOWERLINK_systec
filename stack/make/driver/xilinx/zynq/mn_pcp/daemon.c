@@ -109,8 +109,8 @@ int main (void)
 
 
     //TODO: Enable Cache
-    Xil_DCacheDisable();
-    Xil_ICacheDisable();
+   Xil_DCacheDisable();
+   Xil_ICacheDisable();
 
     while(1)
     {

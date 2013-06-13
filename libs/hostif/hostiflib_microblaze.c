@@ -15,7 +15,7 @@ int hostiflib_RegisterHandler (u32 BaseAddress, int InterruptId,
 	   XInterruptHandler Handler, void *CallBackRef)
 {
 	//TODO: Cleanup
-	printf("[PCP]Host IF Register IRQ \n\r");
+	//printf("[PCP]Host IF Register IRQ \n\r");
 	XIntc_RegisterHandler(BaseAddress,InterruptId,Handler,CallBackRef);
 	return 1;
 }

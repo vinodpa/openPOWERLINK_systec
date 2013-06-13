@@ -102,7 +102,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 			u8 u8Data = Data; \
 			while (XUartChanged_IsTransmitFull(u32BaseAddress));\
 			X_mWriteReg(u32BaseAddress, 0x30, u8Data);
-    //#error
 	#endif
 
     #ifdef XPAR_AXI_POWERLINK_0_S_AXI_SMP_PCP_BASEADDR

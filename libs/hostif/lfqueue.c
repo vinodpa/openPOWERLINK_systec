@@ -42,6 +42,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // includes
 //------------------------------------------------------------------------------
 #include "lfqueue.h"
+//#include "event.h" //TODO" CLeanup
+//#include <xil_cache.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -541,7 +543,15 @@ tQueueReturn lfq_entryEnqueue (tQueueInstance pInstance_p,
     tQueue *pQueue = (tQueue*)pInstance_p;
     UINT16 entryPayloadSize;
     tEntryHeader entryHeader;
-
+    //TODO: CLean UP Below
+#if 0
+#if defined(__arm__)
+    ULONG dataSize = sizeof(tEplEvent) - size_p;
+    tEplEvent* Event_p = (tEplEvent*)pData_p;
+    printf("AP:nmt:%x\n",*((UINT8*)(Event_p->m_pArg)));
+    UINT8* Arg = &pData_p[dataSize];
+#endif
+#endif
     if(pQueue == NULL || pData_p == NULL || size_p > QUEUE_MAX_PAYLOAD)
         return kQueueInvalidParameter;
 
@@ -576,7 +586,6 @@ tQueueReturn lfq_entryEnqueue (tQueueInstance pInstance_p,
     writeHeader(pQueue, &entryHeader);
 
     writeData(pQueue, pData_p, entryPayloadSize);
-
     /// new element is written
     pQueue->local.entryIndices.write += 1;
 
@@ -635,7 +644,7 @@ tQueueReturn lfq_entryDequeue (tQueueInstance pInstance_p,
 
     if(checkQueueEmpty(pQueue))
         return kQueueEmpty;
-
+    //Xil_DCacheFlush(); //TODO: @Vinod Cleanup Cache flush
     readHeader(pQueue, &EntryHeader);
 
     if(!checkMagicValid(&EntryHeader))
@@ -655,7 +664,15 @@ tQueueReturn lfq_entryDequeue (tQueueInstance pInstance_p,
 
     /// return entry size
     *pSize_p = size;
-
+    //TODO: Clean Up
+#if 0
+#if defined(__MICROBLAZE__)
+    ULONG dataSize = sizeof(tEplEvent) - size;
+        tEplEvent* Event_p = (tEplEvent*)pData_p;
+        printf("PCP:nmt:%x\n",*((UINT8*)(Event_p->m_pArg)));
+        UINT8* Arg = &pData_p[dataSize];
+#endif
+#endif
     return kQueueSuccessful;
 }
 

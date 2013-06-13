@@ -241,7 +241,7 @@ int  main (void)
         goto Exit;
     }
     //TODO: CleanUp
- //   printf("Initializing process image...\n");
+    printf("Initializing process image...\n");
  //   printf("Size of input process image: %ld\n", sizeof(PI_IN));
  //   printf("Size of output process image: %ld\n", sizeof (PI_OUT));
     EplRet = api_processImageAlloc(sizeof(PI_IN), sizeof(PI_OUT));
@@ -260,13 +260,14 @@ int  main (void)
     }
 
     // start processing
-    printf("stt\n"); //TODO:Cleanup
+    //printf("stt\n"); //TODO:Cleanup
+    printf ("Initializing EplApiExecNmtCommand --> kEplNmtEventSwReset...\n");
     EplRet = EplApiExecNmtCommand(kEplNmtEventSwReset);
     if (EplRet != kEplSuccessful)
     {
         goto ExitShutdown;
     }
-
+    printf("[Host] EplApiExecNmtCommand -> kEplNmtEventSwReset Done \n");
     fShutdown = FALSE;
 
     while(!fShutdown)
@@ -279,7 +280,7 @@ int  main (void)
             checkStack = 0;
             if(!api_checkKernelStack())
             {
-                printf("Kernel is dead!\n");
+                printf("[Host]Kernel is dead!\n");
                 fShutdown = TRUE;
             }
         }
@@ -432,7 +433,7 @@ tEplKernel PUBLIC AppCbEvent (tEplApiEventType EventType_p,
                 case kEplEventSourceDllk:
                 {   // error occurred within the data link layer (e.g. interrupt processing)
                     // the DWORD argument contains the DLL state and the NMT event
-                    printf(" val = %X\n", pEventArg_p->m_InternalError.m_Arg.m_dwArg);
+                    //printf(" val = %X\n", pEventArg_p->m_InternalError.m_Arg.m_dwArg);
                     break;
                 }
 

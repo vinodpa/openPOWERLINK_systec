@@ -442,7 +442,7 @@ tHostifReturn hostif_create (tHostifConfig *pConfig_p, tHostifInstance *ppInstan
 
     if(pHostif == NULL)
     {
-        printf("noresource\n"); //TODO" Clean
+        //printf("noresource\n"); //TODO" Clean
         Ret = kHostifNoResource;
         goto Exit;
     }
@@ -473,7 +473,7 @@ tHostifReturn hostif_create (tHostifConfig *pConfig_p, tHostifInstance *ppInstan
 
     if(Ret != kHostifSuccessful)
     {
-    	printf("magic \n"); //TODO: Clean
+    	//printf("magic \n"); //TODO: Clean
         goto Exit;
     }
 
@@ -482,7 +482,7 @@ tHostifReturn hostif_create (tHostifConfig *pConfig_p, tHostifInstance *ppInstan
 
     if(Ret != kHostifSuccessful)
     {
-    	printf("ver\n");//TODO: Clean
+    	//printf("ver\n");//TODO: Clean
         goto Exit;
     }
 
@@ -493,7 +493,7 @@ tHostifReturn hostif_create (tHostifConfig *pConfig_p, tHostifInstance *ppInstan
 
         if(Ret != kHostifSuccessful)
         {
-        	printf("buf\n"); //TODO:Clean
+        	//printf("buf\n"); //TODO:Clean
             goto Exit;
         }
     }
@@ -512,7 +512,7 @@ tHostifReturn hostif_create (tHostifConfig *pConfig_p, tHostifInstance *ppInstan
 
     if(i == HOSTIF_INSTANCE_COUNT)
     {
-    	printf("inst\n"); //TODO: Clean
+    	//printf("inst\n"); //TODO: Clean
         Ret = kHostifNoResource;
         goto Exit;
     }
@@ -524,7 +524,7 @@ tHostifReturn hostif_create (tHostifConfig *pConfig_p, tHostifInstance *ppInstan
 
         if(Ret != kHostifSuccessful)
         {
-        	printf("bridge\n"); //TODO:Clean
+        	//printf("bridge\n"); //TODO:Clean
             goto Exit;
         }
     }
@@ -534,7 +534,7 @@ tHostifReturn hostif_create (tHostifConfig *pConfig_p, tHostifInstance *ppInstan
         // register isr in system
         if(HOSTIF_IRQ_REG(hostifIrqHandler, (void*)pHostif))
         {
-        	printf("IRQ\n"); //TODO:Clean
+        	//printf("IRQ\n"); //TODO:Clean
             Ret = kHostifNoResource;
             goto Exit;
         }
@@ -1021,10 +1021,12 @@ tHostifReturn hostif_setCommand (tHostifInstance pInstance_p, tHostifCommand cmd
     }
 
     hostif_writeCommand(pHostif->pBase, cmd_p);
+#if 0 //TODO:Cleanup
     if (pHostif->config.ProcInstance== 0) //TODO:Clean
     	printf ("pcp: set%x\n",cmd_p);
     else
     	printf ("ap: set%x\n",cmd_p);
+#endif
 Exit:
     return Ret;
 }
@@ -1055,12 +1057,14 @@ tHostifReturn hostif_getCommand (tHostifInstance pInstance_p, tHostifCommand *pC
     }
 
     *pCmd_p = hostif_readCommand(pHostif->pBase);
-    if (pHostif->config.ProcInstance== 0) //TODO:Clean
+#if 0  //TODO:Clean up   
+	if (pHostif->config.ProcInstance== 0) //TODO:Clean
     {
-    	//printf ("pcp: get%x\n",*pCmd_p);
+    	printf ("pcp: get%x\n",*pCmd_p);
     }
     else
-    	printf ("ap: get%x\n",*pCmd_p);
+    	printf ("ap: get%x\n",*pCmd_p); //TODO: Cleanup
+#endif
 Exit:
     return Ret;
 }
@@ -1424,7 +1428,7 @@ tHostifReturn hostif_queueCreate (tHostifInstance pInstance_p,
     if(pInstance_p == NULL || ppQueueInstance_p == NULL ||
             InstanceId_p >= kHostifInstIdLast)
     {
-    	printf("invparam\n"); //TODO:Clean
+    	//printf("invparam\n"); //TODO:Clean
         Ret = kHostifInvalidParameter;
         goto Exit;
     }
@@ -1434,7 +1438,7 @@ tHostifReturn hostif_queueCreate (tHostifInstance pInstance_p,
 
     if(pHostifQueue == NULL)
     {
-    	printf("nores@11\n"); //TODO:Clean
+    	//printf("nores@11\n"); //TODO:Clean
         Ret = kHostifNoResource;
         goto Exit;
     }
@@ -1445,12 +1449,12 @@ tHostifReturn hostif_queueCreate (tHostifInstance pInstance_p,
 
     if(Ret != kHostifSuccessful)
     {
-    	printf("nores@12\n"); //TODO:Clean
+    	//printf("nores@12\n"); //TODO:Clean
         goto Exit;
     }
 
     qRet = lfq_create(&QueueConfig, &pHostifQueue->pQueueInstance);
-    printf("qret%x:QueueConfig:%ld\n",qRet,QueueConfig.pBase); //TODO:Clean
+    //printf("qret%x:QueueConfig:%ld\n",qRet,QueueConfig.pBase); //TODO:Clean
     switch(qRet)
     {
         case kQueueSuccessful:
@@ -2195,7 +2199,7 @@ static tHostifReturn checkMagic(tHostif *pHostif_p)
    // if(hostif_readMagic(pHostif_p->pBase) == HOSTIF_MAGIC) //TODO: Clean Removed for print
 	UINT32 ret = hostif_readMagic(pHostif_p->pBase); 
 	//printf("checkMagic %x %X\n",ret,pHostif_p->pBase);
-	printf("checkMagic %x \n",ret);
+	//printf("checkMagic %x \n",ret);
     if(ret == HOSTIF_MAGIC)
         return kHostifSuccessful;
     else
@@ -2547,7 +2551,7 @@ static tHostifReturn queueConfig (tHostif *pHostif_p,
         // get buffer in heap
         pQueueConfig_p->pBase =
                 (UINT8*)pHostif_p->pDynBufTbl[InstanceId_p].pBase;
-        printf("pcpBase:%ld\n",pQueueConfig_p->pBase); //TODO:Clean
+        //printf("pcpBase:%x\n",pQueueConfig_p->pBase); //TODO:Clean
     }
     else if(pHostif_p->config.ProcInstance == kHostifProcHost)
     {
@@ -2561,7 +2565,7 @@ static tHostifReturn queueConfig (tHostif *pHostif_p,
     	{
     		pQueueConfig_p->pBase = (UINT8*) hostif_readDynBufPcp(pHostif_p->pBase,
     	    								InstanceId_p);
-    		printf("pBase:%ld\n",pQueueConfig_p->pBase);
+    		//printf("pBase:%x\n",pQueueConfig_p->pBase); //TODO: Cleanup
     	}
     }
     else

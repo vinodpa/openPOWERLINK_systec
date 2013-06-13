@@ -766,7 +766,7 @@ UINT32 hostif_readDynBufPcpTxNmtQ (UINT8 *pHostifScBase_p)
 //------------------------------------------------------------------------------
 void hostif_writeDynBufPcpTxNmtQ (UINT8 *pHostifScBase_p, UINT32 addr_p)
 {
-	printf("Add is 0x%x\n",addr_p); //TODO:Clean
+	//printf("Add is 0x%x\n",addr_p); //TODO:Clean
     HOSTIF_WR32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.txNmtQAddr), addr_p);
 }
@@ -1068,7 +1068,7 @@ UINT32 hostif_readDynBufPcp (UINT8 *pHostifScBase_p,tHostifInstanceId InstanceId
 			DynBufPcpAddr = hostif_readDynBufPcpErrCnt(pHostifScBase_p);
 			break;
 		case kHostifInstIdTxNmtQueue:
-			printf("why\n");
+			//printf("why\n");
 			DynBufPcpAddr = hostif_readDynBufPcpTxNmtQ(pHostifScBase_p);
 			break;
 		case kHostifInstIdTxGenQueue:
@@ -1099,7 +1099,7 @@ UINT32 hostif_readDynBufPcp (UINT8 *pHostifScBase_p,tHostifInstanceId InstanceId
 			DynBufPcpAddr = 0;
 			break;
 	}
-	printf("addr:%ld-%ld\n",DynBufPcpAddr,pHostifScBase_p);
+	//printf("addr:%ld-%ld\n",DynBufPcpAddr,pHostifScBase_p);
     return DynBufPcpAddr;
 }
 

@@ -315,7 +315,7 @@ tEplNmtState            OldNmtState;
 tEplNmtEvent            NmtEvent;
 tEplEvent               Event;
 tEplEventNmtStateChange NmtStateChange;
-printf("Calling:%d\n",pEvent_p->m_EventType); //TODO:Clean up
+//printf("Calling:%d\n",pEvent_p->m_EventType); //TODO:Clean up
     // check for all API function if instance is valid
     EPL_MCO_CHECK_INSTANCE_STATE ();
 

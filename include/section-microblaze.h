@@ -47,7 +47,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 
 //TODO: Avoid Internal memory
-//FIXME: No internal memoery for Zynq  ???
+//FIXME: @Vinod No internal memoery for Zynq  ???
 #define XIL_INTERNAL_RAM    __attribute__((section(".local_memory")))
 //#define XIL_PLK_MN //TODO: @Vinod:From where this define is coming ???
 #ifdef XIL_PLK_MN
