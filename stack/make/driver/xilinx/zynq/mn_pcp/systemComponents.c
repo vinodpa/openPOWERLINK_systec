@@ -61,7 +61,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 // global function prototypes
 //------------------------------------------------------------------------------
-#ifndef __ZYNQ__ ////TODO: check Marco at makefile
+#ifdef __ZYNQ__ ////TODO: check Marco at makefile Its shouldn't be ndef
 	void outbyte(char c)
 	{
 		XUartChanged_SendByte(UART_BASE, c);
