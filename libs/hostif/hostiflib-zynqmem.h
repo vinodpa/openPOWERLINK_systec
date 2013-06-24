@@ -55,6 +55,6 @@ subject to the License Agreement located at the end of this file below.
 #define HOSTIF_SIZE_K2UQ 8208
 #define HOSTIF_SIZE_U2KQ 8208
 #define HOSTIF_SIZE_TPDO 1024
-#define HOSTIF_SIZE_RPDO 1024
+#define HOSTIF_SIZE_RPDO 10240
 
 #endif

@@ -40,6 +40,9 @@ HW_SPEC=${MNDK_DIR}/hw_platform_zynq_intaxi-axi
 #Path to the XPS project
 XPS_DIR=${STACK_ROOT}/fpga/boards/xilinx/xilinx_z702/zynq_ap_pcp_intaxi-axi
 
+##################################
+#Path to the SDCARD image files
+SDCARD_DIR=${STACK_ROOT}/tools/xilinx/zynq_sdcard
 
 ##################################
 # Board name: [zynq]

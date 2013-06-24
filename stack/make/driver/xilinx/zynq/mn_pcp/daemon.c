@@ -109,9 +109,7 @@ int main (void)
 
 
     //TODO: Enable Cache
-   Xil_DCacheDisable();
-   Xil_ICacheDisable();
-
+    target_init();
     while(1)
     {
         PRINTF("\n");
@@ -124,11 +122,6 @@ int main (void)
         if(Ret != kEplSuccessful)
             break;
 
-      //  for(i= 0 ;i<200; i++)
-     //   {
-      //  	printf("%x\n",ucPtr[i]);
-      //  }
-       // usleep(2000000U); //TODO: Clean ?
         bgtPlk();
 
         PRINTF("Background loop stopped.\nShutdown Kernel Stack\n");
