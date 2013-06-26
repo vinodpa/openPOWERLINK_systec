@@ -65,6 +65,8 @@
  PORT Node_Switches_I_pin = Node_Switches_I, DIR = I, VEC = [1:0]
 
 
+# PORT axi_uartlite_0_RX_pin = axi_uartlite_0_RX, DIR = I
+# PORT axi_uartlite_0_TX_pin = axi_uartlite_0_TX, DIR = O
 # PORT axi_powerlink_0_phyMii1_TxEr_pin = axi_powerlink_0_phyMii1_TxEr, DIR = O
 # PORT axi_powerlink_0_phyMii0_TxEr_pin = axi_powerlink_0_phyMii0_TxEr, DIR = O
 BEGIN processing_system7
@@ -264,6 +266,8 @@ BEGIN axi_powerlink
  PARAMETER C_S_AXI_MAC_REG_RNG0_HIGHADDR = 0x7540ffff
  PARAMETER C_S_AXI_MAC_REG_RNG1_BASEADDR = 0x75420000
  PARAMETER C_S_AXI_MAC_REG_RNG1_HIGHADDR = 0x7542ffff
+ PARAMETER C_MAC_NUM_RX_BUFFER_USER = 16
+ PARAMETER C_MAC_PKT_SIZE_TX_USER = 16384
  BUS_INTERFACE S_AXI_MAC_REG = axi4lite_mb_0
  BUS_INTERFACE S_AXI_MAC_PKT = axi4lite_mb_0
  BUS_INTERFACE M_AXI_MAC_DMA = axi4_0
@@ -407,3 +411,13 @@ BEGIN axi_gpio
  PORT GPIO_IO_I = Node_Switches_I
 END
 
+# BEGIN axi_uartlite
+# PARAMETER INSTANCE = RS232_USB
+# PARAMETER HW_VER = 1.02.a
+# PARAMETER C_BASEADDR = 0x42c00000
+# PARAMETER C_HIGHADDR = 0x42c0ffff
+# BUS_INTERFACE S_AXI = axi4lite_mb_0
+# PORT S_AXI_ACLK = clk_100_0000MHz
+# PORT RX = axi_uartlite_0_RX
+# PORT TX = axi_uartlite_0_TX
+# END
