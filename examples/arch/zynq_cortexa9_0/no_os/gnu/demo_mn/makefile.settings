@@ -10,7 +10,7 @@
 # contents      : Settings file for the build system
 ################################################################################
 
-MNDK_DIR=../../../../../../Workspace
+MNDK_DIR=../../../../../..
 ##################################
 #Path to the openPOWERLINK root directory
 STACK_ROOT=../../../../../..
