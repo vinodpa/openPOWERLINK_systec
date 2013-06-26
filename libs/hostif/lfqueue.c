@@ -1065,9 +1065,9 @@ static void writeCirMemory (tQueue *pQueue_p, UINT16 offset_p,
      * invalidate the packet's memory range
      */
 
-	microblaze_flush_dcache_range((DWORD)(pDst + offset_p), srcSpan_p);
+	microblaze_flush_dcache_range((UINT32)(pDst + offset_p), srcSpan_p);
 #elif __arm__
-	Xil_DCacheFlushRange((DWORD)(pDst + offset_p), srcSpan_p);
+	Xil_DCacheFlushRange((UINT32)(pDst + offset_p), srcSpan_p);
 #endif
     }
     else
@@ -1090,11 +1090,11 @@ static void writeCirMemory (tQueue *pQueue_p, UINT16 offset_p,
      * invalidate the packet's memory range
      */
 
-	microblaze_flush_dcache_range((DWORD)(pDst + offset_p), part);
-	microblaze_flush_dcache_range((DWORD)(pDst), srcSpan_p - part);
+	microblaze_flush_dcache_range((UINT32)(pDst + offset_p), part);
+	microblaze_flush_dcache_range((UINT32)(pDst), srcSpan_p - part);
 #elif __arm__
-	Xil_DCacheFlushRange((DWORD)(pDst + offset_p), part);
-	Xil_DCacheFlushRange((DWORD)(pDst), srcSpan_p - part);
+	Xil_DCacheFlushRange((UINT32)(pDst + offset_p), part);
+	Xil_DCacheFlushRange((UINT32)(pDst), srcSpan_p - part);
 #endif
     }
 #ifdef __AP1__
@@ -1211,9 +1211,9 @@ static void readCirMemory (tQueue *pQueue_p, UINT16 offset_p,
      * before handing over the received packet to the stack
      * invalidate the packet's memory range
      */
-    microblaze_invalidate_dcache_range((DWORD)(pSrc + offset_p), dstSpan_p);
+    microblaze_invalidate_dcache_range((UINT32)(pSrc + offset_p), dstSpan_p);
 #elif __arm__
-    Xil_DCacheInvalidateRange((DWORD)(pSrc + offset_p), dstSpan_p);
+    Xil_DCacheInvalidateRange((UINT32)(pSrc + offset_p), dstSpan_p);
 #endif
         memcpy(pDst_p, pSrc + offset_p, dstSpan_p);
     }
@@ -1227,11 +1227,11 @@ static void readCirMemory (tQueue *pQueue_p, UINT16 offset_p,
      * before handing over the received packet to the stack
      * invalidate the packet's memory range
      */
-    microblaze_invalidate_dcache_range((DWORD)(pSrc + offset_p), part);
-    microblaze_invalidate_dcache_range((DWORD)(pSrc),dstSpan_p - part);
+    microblaze_invalidate_dcache_range((UINT32)(pSrc + offset_p), part);
+    microblaze_invalidate_dcache_range((UINT32)(pSrc),dstSpan_p - part);
 #elif __arm__
-    Xil_DCacheInvalidateRange((DWORD)(pSrc + offset_p), part);
-    Xil_DCacheInvalidateRange((DWORD)(pSrc),dstSpan_p - part);
+    Xil_DCacheInvalidateRange((UINT32)(pSrc + offset_p), part);
+    Xil_DCacheInvalidateRange((UINT32)(pSrc),dstSpan_p - part);
 #endif
         /// copy until the buffer's end
         memcpy(pDst_p, pSrc + offset_p, part);
