@@ -3,6 +3,7 @@ XmpVersion: 14.4
 VerMgmt: 14.4
 IntStyle: default
 Flow: ise
+ModuleSearchPath: E:/MN_PLAYS/my_GitHUb/openPOWERLINK_systec/fpga/ipcore/xilinx/library/pcores/axi_powerlink_v0_29_a/../../../
 MHS File: system.mhs
 Architecture: zynq
 Device: xc7z020
