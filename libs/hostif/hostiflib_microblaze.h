@@ -62,7 +62,7 @@ int hostiflib_RegisterHandler (u32 BaseAddress, int InterruptId,
 #endif
 
 
-#define HOSTIF_MAKE_NONCACHEABLE(ptr) ptr
+#define HOSTIF_MAKE_NONCACHEABLE(ptr) 		(void *) ptr
 
 #define HOSTIF_UNCACHED_MALLOC(size) 	    malloc(size)
 #define HOSTIF_UNCACHED_FREE(ptr)		    free(ptr)
@@ -71,13 +71,13 @@ int hostiflib_RegisterHandler (u32 BaseAddress, int InterruptId,
 #define HOSTIF_USLEEP(x)					usleep(x)
 
 /// hw access
-#define HOSTIF_RD32(base, offset) 			Xil_In32(base+offset)
-#define HOSTIF_RD16(base, offset)			Xil_In16(base+offset)
-#define HOSTIF_RD8(base, offset)			Xil_In8(base+offset)
+#define HOSTIF_RD32(base, offset) 			Xil_In32((u8 *)base+offset)
+#define HOSTIF_RD16(base, offset)			Xil_In16((u8 *)base+offset)
+#define HOSTIF_RD8(base, offset)			Xil_In8((u8 *)base+offset)
 
-#define HOSTIF_WR32(base, offset, dword)	Xil_Out32((base+offset),dword)
-#define HOSTIF_WR16(base, offset, word)		Xil_Out16((base+offset),word)
-#define HOSTIF_WR8(base, offset, byte)		Xil_Out8((base+offset),byte)
+#define HOSTIF_WR32(base, offset, dword)	Xil_Out32(((u8 *)base+offset),dword)
+#define HOSTIF_WR16(base, offset, word)		Xil_Out16(((u8 *)base+offset),word)
+#define HOSTIF_WR8(base, offset, byte)		Xil_Out8(((u8 *)base+offset),byte)
 
 #define HOSTIF_IRQ_REG(cb, arg)  hostiflib_RegisterHandler(HOSTIF_IRQ_IC_ID,HOSTIF_IRQ,cb,arg)
 #define HOSTIF_IRQ_ENABLE()		 XIntc_EnableIntr(HOSTIF_IRQ_IC_ID,HOSTIF_IRQ) //FIXME: Change the base address and mask as required

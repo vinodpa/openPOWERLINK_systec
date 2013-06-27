@@ -129,10 +129,10 @@ void SysComp_initPeripheral(void)
    Xil_Out32(FPGA_RST_CNTRL,0);
    Xil_Out32(SLCR_LOCK, SLCR_LOCK_VAL);
 
-   //Xil_ICacheEnable();
-	//Xil_DCacheEnable();
-   Xil_DCacheDisable();//TODO: @John Enable Cache
-   Xil_ICacheDisable();
+   Xil_ICacheEnable();
+   Xil_DCacheEnable();
+  //Xil_DCacheDisable();//TODO: @John Enable Cache
+   //Xil_ICacheDisable();
 
 #ifdef CN_API_USING_SPI
 	//TODO: To integrate SPI functionality later!
@@ -780,7 +780,7 @@ DWORD PUBLIC EplTgtGetTickCountMs(void)
 
     XTime_GetTime(ticks);//TODO:@John see if global timer usage is ok. replace the hard coded frequency with some macro from xparameters
     /*Select the lower 32 bit of the timer value*/
-    dwTicks = (DWORD)((2 * (*ticks))/XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ);
+    dwTicks = (DWORD)(((2000 * (*ticks))/XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ));
     //TODO:@John substitute the constant '2' with the ratio of the prescalar values for the timers or Set an IRQ*/
     return dwTicks;
 }
@@ -876,7 +876,7 @@ tEplKernel target_init(void)
     	            offsetof(tScInfo_arm, version),(u32)version);
     HOSTIF_WR16((u8*)HOSTIF_HOST_BASE  + HOSTIF_SC_CONT_OFFS_ARM,
                 offsetof(tScCont_arm, command), 0);
-    //Xil_DCacheFlush();
+    Xil_DCacheFlush();
     //target_msleep(1000);
     //Xil_DCacheFlush();
 	/*Release MB!*/

@@ -43,8 +43,8 @@ EXECUTABLE=mn_pcp
 
 LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE).ld
 MSS_FILE=system_$(BOARD_NAME)_$(BUS_INTERFACE).mss
-MACROS+=-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
-CFLAGS=-g3 -Wall -fmessage-length=0 $(PROC_FEATURES) ${MACROS}
+MACROS+=-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL} -D__PCP__
+CFLAGS=-g3 -Wall -fmessage-length=0 $(PROC_FEATURES) ${MACROS} -fno-short-enums
 CPPFLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} $(PROC_FEATURES) -Wl,-Map,${EXECUTABLE}.map
 
@@ -295,5 +295,20 @@ download-bits: $(XPS_DIR)/system.make
 .PHONY: download-elf
 download-elf: application
 	xmd -hw $(HW_SPEC)/system.xml -tcl download-elf.tcl
-
+####################################################
+# SD_IMAGE
+####################################################
+.PHONY: transfer
+transfer: 
+	-@echo "Transfering"
+	$(MAKE) -C $(SDCARD_DIR) transfer
+	-@echo "BOOT.bin Transferred Succesfully"
+	
+.PHONY: build-sd
+build-sd: 
+	-@echo "Creating Sd Image..."
+	$(MAKE) -C $(SDCARD_DIR) build
+	-@echo "BOOT.bin Created Succesfully"
+	
+	$(MAKE) -C $(SDCARD_DIR) transfer
 -include $(OBJD)

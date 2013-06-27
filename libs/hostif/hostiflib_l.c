@@ -45,6 +45,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "hostiflib_target.h"
 
 
+
 //============================================================================//
 //            G L O B A L   D E F I N I T I O N S                             //
 //============================================================================//
@@ -214,6 +215,15 @@ typedef union sScDynB
 //------------------------------------------------------------------------------
 UINT32 hostif_readMagic (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_INFO_OFFS), sizeof(tScInfo));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_INFO_OFFS), sizeof(tScInfo));
+#endif
     return HOSTIF_RD32(pHostifScBase_p + HOSTIF_SC_INFO_OFFS,
             offsetof(tScInfo, magic));
 }
@@ -231,6 +241,15 @@ UINT32 hostif_readMagic (UINT8 *pHostifScBase_p)
 //------------------------------------------------------------------------------
 UINT32 hostif_readVersion (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_INFO_OFFS), sizeof(tScInfo));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_INFO_OFFS), sizeof(tScInfo));
+#endif
     return HOSTIF_RD32(pHostifScBase_p + HOSTIF_SC_INFO_OFFS,
             offsetof(tScInfo, version));
 }
@@ -248,6 +267,15 @@ UINT32 hostif_readVersion (UINT8 *pHostifScBase_p)
 //------------------------------------------------------------------------------
 UINT32 hostif_readBootBase (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_INFO_OFFS), sizeof(tScInfo));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_INFO_OFFS), sizeof(tScInfo));
+#endif
     return HOSTIF_RD32(pHostifScBase_p + HOSTIF_SC_INFO_OFFS,
             offsetof(tScInfo, bootBase));
 }
@@ -264,8 +292,18 @@ UINT32 hostif_readBootBase (UINT8 *pHostifScBase_p)
 //------------------------------------------------------------------------------
 void hostif_writeBootBase (UINT8 *pHostifScBase_p, UINT32 val_p)
 {
+
     HOSTIF_WR32(pHostifScBase_p + HOSTIF_SC_INFO_OFFS,
             offsetof(tScInfo, bootBase), val_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_INFO_OFFS), sizeof(tScInfo));
+#elif __arm__
+	Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_INFO_OFFS), sizeof(tScInfo));
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -281,6 +319,15 @@ void hostif_writeBootBase (UINT8 *pHostifScBase_p, UINT32 val_p)
 //------------------------------------------------------------------------------
 UINT32 hostif_readInitBase (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_INFO_OFFS), sizeof(tScInfo));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_INFO_OFFS), sizeof(tScInfo));
+#endif
     return HOSTIF_RD32(pHostifScBase_p + HOSTIF_SC_INFO_OFFS,
             offsetof(tScInfo, initBase));
 }
@@ -297,8 +344,18 @@ UINT32 hostif_readInitBase (UINT8 *pHostifScBase_p)
 //------------------------------------------------------------------------------
 void hostif_writeInitBase (UINT8 *pHostifScBase_p, UINT32 val_p)
 {
+
     HOSTIF_WR32(pHostifScBase_p + HOSTIF_SC_INFO_OFFS,
             offsetof(tScInfo, initBase), val_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_INFO_OFFS), sizeof(tScInfo));
+#elif __arm__
+	Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_INFO_OFFS), sizeof(tScInfo));
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -314,6 +371,15 @@ void hostif_writeInitBase (UINT8 *pHostifScBase_p, UINT32 val_p)
 //------------------------------------------------------------------------------
 UINT16 hostif_readBridgeEnable (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#endif
     return HOSTIF_RD16(pHostifScBase_p + HOSTIF_SC_CONT_OFFS,
             offsetof(tScCont, bridgeEnable));
 }
@@ -332,6 +398,15 @@ void hostif_writeBridgeEnable (UINT8 *pHostifScBase_p, UINT16 val_p)
 {
     HOSTIF_WR16(pHostifScBase_p + HOSTIF_SC_CONT_OFFS,
             offsetof(tScCont, bridgeEnable), val_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#elif __arm__
+	Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -347,6 +422,15 @@ void hostif_writeBridgeEnable (UINT8 *pHostifScBase_p, UINT16 val_p)
 //------------------------------------------------------------------------------
 UINT16 hostif_readCommand (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#endif
     return HOSTIF_RD16(pHostifScBase_p + HOSTIF_SC_CONT_OFFS,
             offsetof(tScCont, command));
 }
@@ -365,6 +449,15 @@ void hostif_writeCommand (UINT8 *pHostifScBase_p, UINT16 val_p)
 {
     HOSTIF_WR16(pHostifScBase_p + HOSTIF_SC_CONT_OFFS,
             offsetof(tScCont, command), val_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+    microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#elif __arm__
+    Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -380,6 +473,15 @@ void hostif_writeCommand (UINT8 *pHostifScBase_p, UINT16 val_p)
 //------------------------------------------------------------------------------
 UINT16 hostif_readState (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#endif
     return HOSTIF_RD16(pHostifScBase_p + HOSTIF_SC_CONT_OFFS,
             offsetof(tScCont, state));
 }
@@ -398,6 +500,16 @@ void hostif_writeState (UINT8 *pHostifScBase_p, UINT16 val_p)
 {
     HOSTIF_WR16(pHostifScBase_p + HOSTIF_SC_CONT_OFFS,
             offsetof(tScCont, state), val_p);
+
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#elif __arm__
+	Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -413,6 +525,15 @@ void hostif_writeState (UINT8 *pHostifScBase_p, UINT16 val_p)
 //------------------------------------------------------------------------------
 UINT16 hostif_readReturn (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#endif
     return HOSTIF_RD16(pHostifScBase_p + HOSTIF_SC_CONT_OFFS,
             offsetof(tScCont, ret));
 }
@@ -431,6 +552,15 @@ void hostif_writeReturn (UINT8 *pHostifScBase_p, UINT16 val_p)
 {
     HOSTIF_WR16(pHostifScBase_p + HOSTIF_SC_CONT_OFFS,
             offsetof(tScCont, ret), val_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#elif __arm__
+	Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -446,6 +576,15 @@ void hostif_writeReturn (UINT8 *pHostifScBase_p, UINT16 val_p)
 //------------------------------------------------------------------------------
 UINT16 hostif_readHeartbeat (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#endif
     return HOSTIF_RD16(pHostifScBase_p + HOSTIF_SC_CONT_OFFS,
             offsetof(tScCont, heartbeat));
 }
@@ -464,6 +603,16 @@ void hostif_writeHeartbeat (UINT8 *pHostifScBase_p, UINT16 val_p)
 {
     HOSTIF_WR16(pHostifScBase_p + HOSTIF_SC_CONT_OFFS,
             offsetof(tScCont, heartbeat), val_p);
+
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#elif __arm__
+	Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -479,6 +628,15 @@ void hostif_writeHeartbeat (UINT8 *pHostifScBase_p, UINT16 val_p)
 //------------------------------------------------------------------------------
 UINT8 hostif_readNodeId (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#endif
     return HOSTIF_RD8(pHostifScBase_p + HOSTIF_SC_CONT_OFFS,
             offsetof(tScCont, nodeId));
 }
@@ -496,6 +654,15 @@ UINT8 hostif_readNodeId (UINT8 *pHostifScBase_p)
 //------------------------------------------------------------------------------
 UINT16 hostif_readLed (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#endif
     return HOSTIF_RD16(pHostifScBase_p + HOSTIF_SC_CONT_OFFS,
             offsetof(tScCont, ledControl));
 }
@@ -514,6 +681,15 @@ void hostif_writeLed (UINT8 *pHostifScBase_p, UINT16 val_p)
 {
     HOSTIF_WR16(pHostifScBase_p + HOSTIF_SC_CONT_OFFS,
             offsetof(tScCont, ledControl), val_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#elif __arm__
+	Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_CONT_OFFS), sizeof(tScCont));
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -529,6 +705,15 @@ void hostif_writeLed (UINT8 *pHostifScBase_p, UINT16 val_p)
 //------------------------------------------------------------------------------
 UINT16 hostif_readIrqEnable (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS), sizeof(tScSync));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS), sizeof(tScSync));
+#endif
     return HOSTIF_RD16(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS,
             offsetof(tScSync, irqEnable));
 }
@@ -547,6 +732,16 @@ void hostif_writeIrqEnable (UINT8 *pHostifScBase_p, UINT16 val_p)
 {
     HOSTIF_WR16(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS,
             offsetof(tScSync, irqEnable), val_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+    microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS), sizeof(tScSync));
+#elif __arm__
+    Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS), sizeof(tScSync));
+#endif
+
 }
 
 //------------------------------------------------------------------------------
@@ -562,6 +757,15 @@ void hostif_writeIrqEnable (UINT8 *pHostifScBase_p, UINT16 val_p)
 //------------------------------------------------------------------------------
 UINT16 hostif_readIrqPending (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS), sizeof(tScSync));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS), sizeof(tScSync));
+#endif
     return HOSTIF_RD16(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS,
             offsetof(tScSync, irqPending));
 }
@@ -579,6 +783,15 @@ UINT16 hostif_readIrqPending (UINT8 *pHostifScBase_p)
 //------------------------------------------------------------------------------
 UINT16 hostif_readIrqMasterEnable (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS), sizeof(tScSync));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS), sizeof(tScSync));
+#endif
     return HOSTIF_RD16(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS,
             offsetof(tScSync, irqMasterEnable));
 }
@@ -597,6 +810,15 @@ void hostif_writeIrqMasterEnable (UINT8 *pHostifScBase_p, UINT16 val_p)
 {
     HOSTIF_WR16(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS,
             offsetof(tScSync, irqMasterEnable), val_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+    microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS), sizeof(tScSync));
+#elif __arm__
+    Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS), sizeof(tScSync));
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -613,6 +835,15 @@ void hostif_ackIrq (UINT8 *pHostifScBase_p, UINT16 val_p)
 {
     HOSTIF_WR16(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS,
             offsetof(tScSync, irqAck), val_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+    microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS), sizeof(tScSync));
+#elif __arm__
+    Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS), sizeof(tScSync));
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -629,6 +860,15 @@ void hostif_setIrq (UINT8 *pHostifScBase_p, UINT16 val_p)
 {
     HOSTIF_WR16(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS,
             offsetof(tScSync, irqSet), val_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+    microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS), sizeof(tScSync));
+#elif __arm__
+    Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS), sizeof(tScSync));
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -644,6 +884,15 @@ void hostif_setIrq (UINT8 *pHostifScBase_p, UINT16 val_p)
 //------------------------------------------------------------------------------
 UINT16 hostif_readSyncConfig (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS), sizeof(tScSync));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS), sizeof(tScSync));
+#endif
     return HOSTIF_RD16(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS,
             offsetof(tScSync, syncConfig));
 }
@@ -662,6 +911,15 @@ void hostif_writeSyncConfig (UINT8 *pHostifScBase_p, UINT16 val_p)
 {
     HOSTIF_WR16(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS,
             offsetof(tScSync, syncConfig), val_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+    microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS), sizeof(tScSync));
+#elif __arm__
+    Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_SYNC_OFFS), sizeof(tScSync));
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -680,6 +938,15 @@ address is limited by the address width of the bridge master.
 UINT32 hostif_readDynBufHost (UINT8 *pHostifScBase_p, UINT8 num_p)
 {
     //TODO: review
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS_AP), sizeof(tScDynB));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS_AP), sizeof(tScDynB));
+#endif
     return HOSTIF_RD32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS_AP, 
             offsetof(tScDynB, Host.aDynBuf[num_p]));
 }
@@ -700,6 +967,16 @@ void hostif_writeDynBufHost (UINT8 *pHostifScBase_p, UINT8 num_p, UINT32 addr_p)
     //TODO: Review
     HOSTIF_WR32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS_AP,
             offsetof(tScDynB, Host.aDynBuf[num_p]), addr_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+    microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS_AP), sizeof(tScDynB));
+#elif __arm__
+    Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS_AP), sizeof(tScDynB));
+#endif
+
 }
 
 //------------------------------------------------------------------------------
@@ -716,6 +993,15 @@ address is limited by the address width of the bridge master.
 //------------------------------------------------------------------------------
 UINT32 hostif_readDynBufPcpErrCnt (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
     return HOSTIF_RD32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.errorCounterAddr));
 }
@@ -734,6 +1020,16 @@ void hostif_writeDynBufPcpErrCnt (UINT8 *pHostifScBase_p, UINT32 addr_p)
 {
     HOSTIF_WR32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.errorCounterAddr), addr_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+    microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+    Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
+
 }
 
 //------------------------------------------------------------------------------
@@ -750,6 +1046,15 @@ address is limited by the address width of the bridge master.
 //------------------------------------------------------------------------------
 UINT32 hostif_readDynBufPcpTxNmtQ (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
     return HOSTIF_RD32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.txNmtQAddr));
 }
@@ -769,6 +1074,16 @@ void hostif_writeDynBufPcpTxNmtQ (UINT8 *pHostifScBase_p, UINT32 addr_p)
 	//printf("Add is 0x%x\n",addr_p); //TODO:Clean
     HOSTIF_WR32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.txNmtQAddr), addr_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+    microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+    Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
+
 }
 
 //------------------------------------------------------------------------------
@@ -785,8 +1100,18 @@ address is limited by the address width of the bridge master.
 //------------------------------------------------------------------------------
 UINT32 hostif_readDynBufPcpTxGenQ (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
     return HOSTIF_RD32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.txGenQAddr));
+
 }
 
 //------------------------------------------------------------------------------
@@ -803,6 +1128,16 @@ void hostif_writeDynBufPcpTxGenQ (UINT8 *pHostifScBase_p, UINT32 addr_p)
 {
     HOSTIF_WR32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.txGenQAddr), addr_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+    microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+    Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
+
 }
 
 //------------------------------------------------------------------------------
@@ -819,6 +1154,15 @@ address is limited by the address width of the bridge master.
 //------------------------------------------------------------------------------
 UINT32 hostif_readDynBufPcpTxSyncQ (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
     return HOSTIF_RD32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.txSyncQAddr));
 }
@@ -837,6 +1181,16 @@ void hostif_writeDynBufPcpTxSyncQ (UINT8 *pHostifScBase_p, UINT32 addr_p)
 {
     HOSTIF_WR32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.txSyncQAddr), addr_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+    microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+    Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
+
 }
 
 //------------------------------------------------------------------------------
@@ -853,6 +1207,15 @@ address is limited by the address width of the bridge master.
 //------------------------------------------------------------------------------
 UINT32 hostif_readDynBufPcpTxVethQ (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
     return HOSTIF_RD32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.txVethQAddr));
 }
@@ -871,6 +1234,16 @@ void hostif_writeDynBufPcpTxVethQ (UINT8 *pHostifScBase_p, UINT32 addr_p)
 {
     HOSTIF_WR32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.txVethQAddr), addr_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+    microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+    Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
+
 }
 
 //------------------------------------------------------------------------------
@@ -887,6 +1260,15 @@ address is limited by the address width of the bridge master.
 //------------------------------------------------------------------------------
 UINT32 hostif_readDynBufPcpRxVethQ (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
     return HOSTIF_RD32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.rxVethQAddr));
 }
@@ -905,6 +1287,16 @@ void hostif_writeDynBufPcpRxVethQ (UINT8 *pHostifScBase_p, UINT32 addr_p)
 {
     HOSTIF_WR32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.rxVethQAddr), addr_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+    microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+    Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
+
 }
 
 //------------------------------------------------------------------------------
@@ -921,6 +1313,15 @@ address is limited by the address width of the bridge master.
 //------------------------------------------------------------------------------
 UINT32 hostif_readDynBufPcpK2UQ (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
     return HOSTIF_RD32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.K2UQAddr));
 }
@@ -939,6 +1340,16 @@ void hostif_writeDynBufPcpK2UQ (UINT8 *pHostifScBase_p, UINT32 addr_p)
 {
     HOSTIF_WR32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.K2UQAddr), addr_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+    microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+    Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
+
 }
 
 //------------------------------------------------------------------------------
@@ -955,6 +1366,15 @@ address is limited by the address width of the bridge master.
 //------------------------------------------------------------------------------
 UINT32 hostif_readDynBufPcpU2KQ (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
     return HOSTIF_RD32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.U2KQAddr));
 }
@@ -973,6 +1393,16 @@ void hostif_writeDynBufPcpU2KQ (UINT8 *pHostifScBase_p, UINT32 addr_p)
 {
     HOSTIF_WR32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.U2KQAddr), addr_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+    microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+    Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
+
 }
 
 //------------------------------------------------------------------------------
@@ -989,6 +1419,15 @@ address is limited by the address width of the bridge master.
 //------------------------------------------------------------------------------
 UINT32 hostif_readDynBufPcpTpdo (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
     return HOSTIF_RD32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.tpdoAddr));
 }
@@ -1007,6 +1446,16 @@ void hostif_writeDynBufPcpTpdo (UINT8 *pHostifScBase_p, UINT32 addr_p)
 {
     HOSTIF_WR32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.tpdoAddr), addr_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+    microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+    Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
+
 }
 
 //------------------------------------------------------------------------------
@@ -1023,6 +1472,15 @@ address is limited by the address width of the bridge master.
 //------------------------------------------------------------------------------
 UINT32 hostif_readDynBufPcpRpdo (UINT8 *pHostifScBase_p)
 {
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+	microblaze_invalidate_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+	Xil_DCacheInvalidateRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
     return HOSTIF_RD32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.rpdoAddr));
 }
@@ -1041,6 +1499,16 @@ void hostif_writeDynBufPcpRpdo (UINT8 *pHostifScBase_p, UINT32 addr_p)
 {
     HOSTIF_WR32(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS,
             offsetof(tScDynB, Pcp.rpdoAddr), addr_p);
+#if XPAR_MICROBLAZE_USE_DCACHE
+    /*
+     * before handing over the received packet to the stack
+     * invalidate the packet's memory range
+     */
+    microblaze_flush_dcache_range((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#elif __arm__
+    Xil_DCacheFlushRange((UINT32)(pHostifScBase_p + HOSTIF_SC_DYNB_OFFS), sizeof(tScDynB));
+#endif
+
 }
 
 

@@ -44,8 +44,8 @@ EXECUTABLE=demo_mn
 LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE)_dual.ld
 MSS_FILE=system.mss
 #_$(BOARD_NAME)_$(BUS_INTERFACE).mss
-MACROS=-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
-CFLAGS=-g3 -Wall -fmessage-length=0 $(PROC_FEATURES) ${MACROS}
+MACROS=-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL} -D__AP__ 
+CFLAGS=$(DEBUG_FLAG) -Wall -fmessage-length=0 $(PROC_FEATURES) ${MACROS} -fno-short-enums
 CPPFLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} $(PROC_FEATURES) -Wl,-Map,${EXECUTABLE}.map
 

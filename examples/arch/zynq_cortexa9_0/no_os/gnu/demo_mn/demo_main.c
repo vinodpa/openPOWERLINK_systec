@@ -70,7 +70,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // const defines
 //------------------------------------------------------------------------------
 #define NODEID      0xF0                //=> MN
-#define CYCLE_LEN   1000                // us
+#define CYCLE_LEN   500                // us
 #define IP_ADDR     0xc0a86401          // 192.168.100.1
 #define SUBNET_MASK 0xFFFFFF00          // 255.255.255.0
 #define HOSTNAME    "openPOWERLINK Stack    "
@@ -90,7 +90,7 @@ const BYTE abMacAddr[] = {0x00, 0x12, 0x34, 0x56, 0x78, NODEID};
 // local vars
 //------------------------------------------------------------------------------
 static unsigned int uiNodeId_g = EPL_C_ADR_INVALID;
-static unsigned int uiCycleLen_g = 0;
+static unsigned int uiCycleLen_g = 500;
 static unsigned int uiCurCycleLen_g = 0;
 static BOOL fShutdown = FALSE;
 

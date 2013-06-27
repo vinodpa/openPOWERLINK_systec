@@ -49,6 +49,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "xparameters.h"
 #include "xilinx_irq.h"
+#include "xil_cache.h"
 #include "xilinx_usleep.h"
 #include <Epl.h>
 
@@ -159,6 +160,12 @@ openPOWERLINK stack.
 //------------------------------------------------------------------------------
 tEplKernel target_init(void)
 {
+	//Xil_DCacheDisable();
+	//Xil_ICacheDisable();
+	Xil_DCacheEnable();
+	Xil_ICacheEnable();
+	enableInterrupts();
+	enableInterruptMaster();
     return kEplSuccessful;
 }
 //------------------------------------------------------------------------------

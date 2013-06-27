@@ -197,8 +197,7 @@ tEplKernel eventk_process (tEplEvent *pEvent_p)
     BOOL                    fStop = FALSE;
     BOOL                    fAlreadyHandled = FALSE;
     tEventDispatchEntry*    pDispatchEntry;
-    //TODO: Cleanup
-    //printf("Called Process pEvent_p->m_EventType :%x\n", (UINT32)pEvent_p->m_EventType);
+
 #if 0
     if(pEvent_p->m_EventType == kEplEventTypeNmtEvent)
     	printf("[NmtEvnt]Called Process pEvent_p->m_pArg:%x\n", (UINT32)pEvent_p->m_pArg);
@@ -214,6 +213,7 @@ tEplKernel eventk_process (tEplEvent *pEvent_p)
         {
                 if (!fAlreadyHandled)
                 {
+
                     // Unknown sink, provide error event to API layer
                     eventk_postError(kEplEventSourceEventk, ret,
                                      sizeof(pEvent_p->m_EventSink),
@@ -274,6 +274,7 @@ tEplKernel eventk_postEvent (tEplEvent *pEvent_p)
         case kEplEventSinkDlluCal:
         case kEplEventSinkErru:
         case kEplEventSinkLedu:
+        	//printf("Sink %x\n",pEvent_p->m_EventSink);
             ret = eventkcal_postUserEvent(pEvent_p);
             break;
 
@@ -284,7 +285,7 @@ tEplKernel eventk_postEvent (tEplEvent *pEvent_p)
         case kEplEventSinkPdok:
         case kEplEventSinkPdokCal:
         case kEplEventSinkErrk:
-        	printf("postevekk:%d\n",pEvent_p->m_EventSink);// TODO: CleanUP
+        	//printf("postevekk:%x\n",pEvent_p->m_EventSink);// TODO: CleanUP
             ret = eventkcal_postKernelEvent(pEvent_p);
             break;
 
@@ -322,7 +323,7 @@ tEplKernel eventk_postError (tEplEventSource eventSource_p, tEplKernel eplError_
     tEplEvent           eplEvent;
 
     ret = kEplSuccessful;
-
+    printf("%s Source %x Error %x \n",__func__,eventSource_p,eplError_p);
     // create argument
     eventError.m_EventSource = eventSource_p;
     eventError.m_EplError = eplError_p;
@@ -366,7 +367,6 @@ the DLLk module.
 static tEplKernel handleNmtEventinDll(tEplEvent* pEvent_p)
 {
     tEplKernel          ret = kEplSuccessful;
-
     BENCHMARK_MOD_27_RESET(0);
 
     if ((pEvent_p->m_EventType == kEplEventTypeNmtEvent) &&
