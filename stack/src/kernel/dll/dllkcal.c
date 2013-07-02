@@ -42,6 +42,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <kernel/eventk.h>
 
+#include "Benchmark.h" //TODO :Review
+
 #if (EPL_DLL_PRES_CHAINING_MN != FALSE) && (CONFIG_DLLCAL_QUEUE == EPL_QUEUE_DIRECT)
 #error "DLLCal module does not support direct calls with PRC MN"
 #endif
@@ -416,8 +418,9 @@ tEplKernel dllkcal_asyncFrameReceived(tEplFrameInfo* pFrameInfo_p)
     event.m_EventType = kEplEventTypeAsndRx;
     event.m_pArg = pFrameInfo_p->m_pFrame;
     event.m_uiSize = pFrameInfo_p->m_uiFrameSize;
-
+    BENCHMARK_MOD_02_TOGGLE(3);
     ret = eventk_postEvent(&event);
+    BENCHMARK_MOD_02_TOGGLE(3);
     if (ret != kEplSuccessful)
     {
         instance_l.statistics.curRxFrameCount++;

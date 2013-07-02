@@ -329,7 +329,7 @@ UINT16 ctrlucal_getStatus(void)
     UINT16 status;
 
     hifret = hostif_getState(instance_l.hifInstance, (tHostifState*)&status);
-    if(hifret != kEplSuccessful)
+    if(hifret != kHostifSuccessful)
         status = kCtrlStatusUnavailable;
 
     return status;
@@ -352,7 +352,7 @@ UINT16 ctrlucal_getHeartbeat(void)
     UINT16 heartbeat;
 
     hifret = hostif_getHeartbeat(instance_l.hifInstance, &heartbeat);
-    if(hifret != kEplSuccessful)
+    if(hifret != kHostifSuccessful)
         heartbeat = 0; // return constant heartbeat, so the user recognizes issue
 
     return heartbeat;
@@ -376,8 +376,8 @@ void ctrlucal_storeInitParam(tCtrlInitParam* pInitParam_p)
 
     if(pDst != NULL)
         EPL_MEMCPY(pDst, pInitParam_p, sizeof(tCtrlInitParam));
-#ifdef __arm__
-    Xil_DCacheFlushRange((UINT32)pDst, sizeof(tCtrlInitParam));
+#if (HOSTIF_USE_DCACHE != FALSE)
+    hostif_FlushDCacheRange((UINT32)pDst, sizeof(tCtrlInitParam));
 #endif
     memInitParamFreeDynBuff();
 }
@@ -402,8 +402,8 @@ tEplKernel ctrlucal_readInitParam(tCtrlInitParam* pInitParam_p)
 
     if(pSrc == NULL)
         return kEplNoResource;
-#ifdef __arm__
-	Xil_DCacheInvalidateRange((UINT32)(pSrc), sizeof(tCtrlInitParam));
+#if (HOSTIF_USE_DCACHE != FALSE)
+    hostif_InvalidateDCacheRange((UINT32)(pSrc), sizeof(tCtrlInitParam));
 #endif
     EPL_MEMCPY(pInitParam_p, pSrc, sizeof(tCtrlInitParam));
 

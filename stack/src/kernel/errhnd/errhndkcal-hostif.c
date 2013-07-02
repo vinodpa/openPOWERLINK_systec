@@ -119,7 +119,7 @@ tEplKernel errhndkcal_init (void)
     hostifRet = hostif_limCreate(pHostifInstance, kHostifInstIdErrCount,
                                 &pLimInstance_l);
 
-    if(Ret != kHostifSuccessful)
+    if(hostifRet != kHostifSuccessful)
     {
         Ret = kEplNoResource;
         goto Exit;
@@ -128,7 +128,7 @@ tEplKernel errhndkcal_init (void)
     /// get error counter buffer
     hostifRet = hostif_limGetBuffer(pLimInstance_l, &pBase, &span);
 
-    if(Ret != kHostifSuccessful)
+    if(hostifRet != kHostifSuccessful)
     {
         Ret = kEplNoResource;
         goto Exit;

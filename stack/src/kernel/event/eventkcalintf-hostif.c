@@ -49,6 +49,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //TODO : Clean
 #include "dllcal.h"
 
+#include <Benchmark.h> // TODO: Review
 //============================================================================//
 //            G L O B A L   D E F I N I T I O N S                             //
 //============================================================================//
@@ -235,7 +236,9 @@ tEplKernel eventkcal_postEventHostif (tEventQueue eventQueue_p, tEplEvent *pEven
     dataSize = sizeof(tEplEvent);
 
     // copy event into post buffer
+
     EPL_MEMCPY(pPostBuffer, pEvent_p, dataSize);
+
 
     // copy argument data if present
     if(pEvent_p->m_pArg != NULL)
@@ -244,8 +247,10 @@ tEplKernel eventkcal_postEventHostif (tEventQueue eventQueue_p, tEplEvent *pEven
         // add optional argument data size
         dataSize += pEvent_p->m_uiSize;
     }
+
    // printf("%s",__func__);
     hifRet = hostif_queueInsert(instance_l[eventQueue_p], pPostBuffer, dataSize);
+
     if(hifRet != kHostifSuccessful)
     {
         ret = kEplEventPostError;

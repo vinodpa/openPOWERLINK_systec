@@ -133,7 +133,7 @@ tEplKernel errhnducal_init (tErrHndObjects *pLocalObjects_p)
     // get linear buffer and check span
     hostifRet = hostif_limGetBuffer(pLimInstance_l, &pBase, &span);
 
-    if(Ret != kHostifSuccessful)
+    if(hostifRet != kHostifSuccessful)
     {
         Ret = kEplNoResource;
         goto Exit;
