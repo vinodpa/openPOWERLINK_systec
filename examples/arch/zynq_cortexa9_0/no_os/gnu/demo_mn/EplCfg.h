@@ -110,7 +110,7 @@ The queue defines determine the stack's queues.
 The Data Link Layer (DLL) defines determine the POWERLINK DLL module.
 */
 /**@{*/
-#define EPL_DLL_PRES_CHAINING_MN            FALSE
+#define EPL_DLL_PRES_CHAINING_MN            TRUE
     ///< support PRes-Chaining (PRC) for MN
 /**@}*/
 

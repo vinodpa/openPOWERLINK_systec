@@ -736,7 +736,7 @@ DWORD            udwNextTimerIrqNs = EdrvCyclicInstance_l.m_dwCycleLenUs * 1000U
         //note: otherwise openMAC is confused if time-trig TX starts within other time-trig TX!
         if( (fFirstPkt == FALSE) && (udwNextOffNs > pTxBuffer->m_dwTimeOffsetNs) )
         {
-        	//BENCHMARK_MOD_01_SET(0);
+        	//BENCHMARK_MOD_01_SET(1);
             udwAbsTime += OMETH_NS_2_TICKS(udwNextOffNs); //accumulate offset
             //BENCHMARK_MOD_01_RESET(0);
         }

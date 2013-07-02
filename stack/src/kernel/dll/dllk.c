@@ -2691,9 +2691,9 @@ unsigned int    uiNextTxBufferOffset = EplDllkInstance_g.m_bCurTxBufferOffsetCyc
 BENCHMARK_MOD_02_SET(3);
     if (EplDllkInstance_g.m_pfnCbSync != NULL)
     {
-    	BENCHMARK_MOD_02_TOGGLE(7);
+    	BENCHMARK_MOD_02_TOGGLE(3);
         Ret = EplDllkInstance_g.m_pfnCbSync();
-        BENCHMARK_MOD_02_TOGGLE(7);
+        BENCHMARK_MOD_02_TOGGLE(3);
 
         if (Ret == kEplReject)
         {
@@ -2864,9 +2864,9 @@ BENCHMARK_MOD_02_SET(3);
 
         // $$$ d.k. fEnableInvitation_p = ((NmtState_p != kEplNmtMsPreOperational1) || (EplDllkInstance_g.m_uiCycleCount >= EPL_C_DLL_PREOP1_START_CYCLES))
         //          currently, EplDllkProcessSync is not called in PreOp1
-        BENCHMARK_MOD_02_RESET(3);
+      //  BENCHMARK_MOD_02_RESET(3);
         Ret = EplDllkUpdateFrameSoa(pTxBuffer, NmtState_p, TRUE, EplDllkInstance_g.m_bSyncLastSoaReq);
-        BENCHMARK_MOD_02_SET(3);
+      //  BENCHMARK_MOD_02_SET(3);
         EplDllkInstance_g.m_ppTxBufferList[uiIndex] = pTxBuffer;
         //store SoA index
         uiSoaIndex = uiIndex;
@@ -2982,9 +2982,9 @@ BENCHMARK_MOD_02_SET(3);
         // set last list element to NULL
         EplDllkInstance_g.m_ppTxBufferList[uiIndex] = NULL;
         uiIndex++;
-        BENCHMARK_MOD_02_RESET(3);
+       // BENCHMARK_MOD_02_RESET(3);
         Ret = EdrvCyclicSetNextTxBufferList(EplDllkInstance_g.m_ppTxBufferList, uiIndex);
-        BENCHMARK_MOD_02_SET(3);
+      //  BENCHMARK_MOD_02_SET(3);
 #endif
     }
     else
@@ -3005,18 +3005,18 @@ BENCHMARK_MOD_02_SET(3);
             // process TPDO
             FrameInfo.m_pFrame = pTxFrame;
             FrameInfo.m_uiFrameSize = pTxBuffer->m_uiTxMsgLen;
-            BENCHMARK_MOD_02_RESET(3);
+           // BENCHMARK_MOD_02_RESET(3);
             Ret = EplDllkProcessTpdo(&FrameInfo, fReadyFlag);
-            BENCHMARK_MOD_02_SET(3);
+          //  BENCHMARK_MOD_02_SET(3);
             if (Ret != kEplSuccessful)
             {
                 goto Exit;
             }
 
 //                        BENCHMARK_MOD_02_TOGGLE(7);
-            BENCHMARK_MOD_02_RESET(3);
+           // BENCHMARK_MOD_02_RESET(3);
             Ret = EplDllkUpdateFramePres(pTxBuffer, NmtState_p);
-            BENCHMARK_MOD_02_SET(3);
+            //BENCHMARK_MOD_02_SET(3);
             if (Ret != kEplSuccessful)
             {
                 goto Exit;
@@ -3027,8 +3027,9 @@ BENCHMARK_MOD_02_SET(3);
         }
 
     }
-    BENCHMARK_MOD_02_RESET(3);
+
 Exit:
+	BENCHMARK_MOD_02_RESET(3);
     return Ret;
 }
 //---------------------------------------------------------------------------
@@ -3947,8 +3948,10 @@ tErrHndkEvent  DllEvent;
                 case kEplNmtEventDllMeAsndTimeout:
                 {   // SoC has been sent, so ASnd should have been received
                     // report if SoA was correctly answered
+                	BENCHMARK_MOD_02_TOGGLE(3);
                     Ret = EplDllkAsyncFrameNotReceived(EplDllkInstance_g.m_aLastReqServiceId[EplDllkInstance_g.m_bCurLastSoaReq],
                                                        EplDllkInstance_g.m_auiLastTargetNodeId[EplDllkInstance_g.m_bCurLastSoaReq]);
+                    BENCHMARK_MOD_02_TOGGLE(3);
                     // switch SoAReq buffer
                     EplDllkInstance_g.m_bCurLastSoaReq++;
                     if (EplDllkInstance_g.m_bCurLastSoaReq >= EPL_DLLK_SOAREQ_COUNT)
@@ -4011,7 +4014,7 @@ TGT_DLLK_DECLARE_FLAGS;
 
     TGT_DLLK_ENTER_CRITICAL_SECTION();
 
-    BENCHMARK_MOD_02_SET(3);
+    //BENCHMARK_MOD_02_SET(2);
     NmtState = EplDllkInstance_g.m_NmtState;
 
     if (NmtState <= kEplNmtGsResetConfiguration)
@@ -4201,7 +4204,7 @@ Exit:
                         sizeof(dwArg),
                         &dwArg);
     }
-    BENCHMARK_MOD_02_RESET(3);
+ //   BENCHMARK_MOD_02_RESET(2);
 
     TGT_DLLK_LEAVE_CRITICAL_SECTION();
 
@@ -5765,7 +5768,7 @@ tEplKernel      Ret = kEplSuccessful;
 tEplNmtState    NmtState;
 unsigned int    uiHandle = EPL_DLLK_TXFRAME_SOC;
 TGT_DLLK_DECLARE_FLAGS;
-
+//BENCHMARK_MOD_02_SET(3);
     UNUSED_PARAMETER(pTxBuffer_p);
 
     TGT_DLLK_ENTER_CRITICAL_SECTION();
@@ -5785,11 +5788,13 @@ TGT_DLLK_DECLARE_FLAGS;
 #if EPL_TIMER_USE_HIGHRES != FALSE
         if (EplDllkInstance_g.m_DllConfigParam.m_dwWaitSocPreq != 0)
         {   // start WaitSoCPReq Timer
+        	//BENCHMARK_MOD_02_TOGGLE(3);
             Ret = EplTimerHighReskModifyTimerNs(&EplDllkInstance_g.m_TimerHdlResponse,
                 EplDllkInstance_g.m_DllConfigParam.m_dwWaitSocPreq,
                 EplDllkCbMnTimerResponse,
                 0L,
                 FALSE);
+            //BENCHMARK_MOD_02_TOGGLE(3);
             if (Ret != kEplSuccessful)
             {
                 goto Exit;
@@ -5798,7 +5803,9 @@ TGT_DLLK_DECLARE_FLAGS;
         else
 #endif
         {   // immediately send first PReq
+        	BENCHMARK_MOD_02_TOGGLE(3);
             Ret = EplDllkChangeState(kEplNmtEventDllMePresTimeout, NmtState);
+            BENCHMARK_MOD_02_TOGGLE(3);
             if (Ret != kEplSuccessful)
             {
                 goto Exit;
@@ -5806,7 +5813,9 @@ TGT_DLLK_DECLARE_FLAGS;
         }
     }
 #else
+
     Ret = EplDllkChangeState(kEplNmtEventDllMeAsndTimeout, NmtState);
+
     if (Ret != kEplSuccessful)
     {
         goto Exit;
@@ -5830,7 +5839,7 @@ Exit:
     }
 
     TGT_DLLK_LEAVE_CRITICAL_SECTION();
-
+   // BENCHMARK_MOD_02_RESET(3);
     return;
 }
 #endif
@@ -7741,7 +7750,9 @@ tEplFrameInfo   FrameInfo;
                 FrameInfo.m_pFrame = pFrame;
                 FrameInfo.m_uiFrameSize = 18;   // empty non existing ASnd frame
                 // forward frame via async receive FIFO to userspace
+
                 Ret = dllkcal_asyncFrameReceived(&FrameInfo);
+
             }
             break;
         default:

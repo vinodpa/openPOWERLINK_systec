@@ -72,5 +72,5 @@ DEF_DEBUG_LVL=0xEC000600L
 #Compile options
 # Note: This also influences the fill level of the internal memory
 #      (set this to -O3 to get the best speed)
-OPT_LEVEL=-O3
+OPT_LEVEL=-O2
 

@@ -90,7 +90,7 @@ const BYTE abMacAddr[] = {0x00, 0x12, 0x34, 0x56, 0x78, NODEID};
 // local vars
 //------------------------------------------------------------------------------
 static unsigned int uiNodeId_g = EPL_C_ADR_INVALID;
-static unsigned int uiCycleLen_g = 500;
+static unsigned int uiCycleLen_g = 2000;
 static unsigned int uiCurCycleLen_g = 0;
 static BOOL fShutdown = FALSE;
 
@@ -433,7 +433,7 @@ tEplKernel PUBLIC AppCbEvent (tEplApiEventType EventType_p,
                 case kEplEventSourceDllk:
                 {   // error occurred within the data link layer (e.g. interrupt processing)
                     // the DWORD argument contains the DLL state and the NMT event
-                    //printf(" val = %X\n", pEventArg_p->m_InternalError.m_Arg.m_dwArg);
+                    printf(" val = %X\n", pEventArg_p->m_InternalError.m_Arg.m_dwArg);
                     break;
                 }
 
