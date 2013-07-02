@@ -294,6 +294,7 @@ tEplKernel eventucal_processEventHostif(tEventQueue eventQueue_p)
     hifRet = hostif_queueExtract(instance_l[eventQueue_p], pRxBuffer, &dataSize);
     if(hifRet != kHostifSuccessful)
     {
+    	printf("Error: %x\n",hifRet);
         eventu_postError(kEplEventSourceEventk, kEplEventReadError,
                          sizeof (hifRet), &hifRet);
         goto Exit;

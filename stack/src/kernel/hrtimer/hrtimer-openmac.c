@@ -522,7 +522,7 @@ static void EplTimerHighReskInterruptHandler (void* pArg_p
         )
 {
 
-    BENCHMARK_MOD_01_SET(4);
+  //  BENCHMARK_MOD_01_SET(4);
     // printf("Cb\n");
     EplTimerHighReskSetCompareValue(0);
     EplTimerHighReskCompareInterruptDisable();
@@ -533,7 +533,7 @@ static void EplTimerHighReskInterruptHandler (void* pArg_p
         EplTimerHighReskInstance_l.m_TimerInfo.m_pfnCallback(&EplTimerHighReskInstance_l.m_TimerInfo.m_EventArg);
     }
 
-    BENCHMARK_MOD_01_RESET(4);
+ //   BENCHMARK_MOD_01_RESET(4);
 
     return;
 

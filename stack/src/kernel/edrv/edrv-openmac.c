@@ -1336,7 +1336,9 @@ static void EdrvCbSendAck(ometh_packet_typ *pPacket, void *arg, unsigned long ti
 
         if (pTxBuffer->m_pfnTxHandler != NULL)
         {
+        	BENCHMARK_MOD_01_SET(4);
             pTxBuffer->m_pfnTxHandler(pTxBuffer);
+            BENCHMARK_MOD_01_RESET(4);
         }
     }
 }
@@ -1367,7 +1369,7 @@ tEdrvRxBuffer       rxBuffer;
 unsigned int        uiIndex;
 #endif
 tEplTgtTimeStamp    TimeStamp;
-BENCHMARK_MOD_01_TOGGLE(6);
+BENCHMARK_MOD_01_SET(5);
     rxBuffer.m_BufferInFrame = kEdrvBufferLastInFrame;
     rxBuffer.m_pbBuffer = (BYTE *) &pPacket->data;
     rxBuffer.m_uiRxMsgLen = pPacket->length;
@@ -1397,7 +1399,7 @@ BENCHMARK_MOD_01_TOGGLE(6);
         BENCHMARK_MOD_01_RESET(5);
     }
 #endif
-    BENCHMARK_MOD_01_TOGGLE(6);
+    BENCHMARK_MOD_01_RESET(5);
     return 0;
 }
 

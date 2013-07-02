@@ -32,6 +32,9 @@ This header file provides specific macros for Xilinx Microblaze CPU.
 //TODO: Review
 int hostiflib_RegisterHandler (u32 BaseAddress, int InterruptId,
 	   XInterruptHandler Handler, void *CallBackRef);
+void hostif_FlushDCacheRange(u32 dwAddr_p,u16 span_p);
+void hostif_InvalidateDCacheRange(u32 dwAddr_p,u16 span_p);
+
 #if defined(HOSTINTERFACE_0_BASE)
 
 //TODO: Review
@@ -60,7 +63,11 @@ int hostiflib_RegisterHandler (u32 BaseAddress, int InterruptId,
 #define HOSTIF_IRQ                  0
 
 #endif
-
+#if (XPAR_MICROBLAZE_USE_DCACHE == 1)
+#define HOSTIF_USE_DCACHE			TRUE
+#else
+#define HOSTIF_USE_DCACHE			FALSE
+#endif
 
 #define HOSTIF_MAKE_NONCACHEABLE(ptr) 		(void *) ptr
 
@@ -71,18 +78,22 @@ int hostiflib_RegisterHandler (u32 BaseAddress, int InterruptId,
 #define HOSTIF_USLEEP(x)					usleep(x)
 
 /// hw access
-#define HOSTIF_RD32(base, offset) 			Xil_In32((u8 *)base+offset)
-#define HOSTIF_RD16(base, offset)			Xil_In16((u8 *)base+offset)
-#define HOSTIF_RD8(base, offset)			Xil_In8((u8 *)base+offset)
+#define HOSTIF_RD32(base, offset) 			MB_READ32((u32)(base), offset);
+#define HOSTIF_RD16(base, offset)			MB_READ16((u32)(base), offset);
+#define HOSTIF_RD8(base, offset)			MB_READ8((u32)(base), offset);
 
-#define HOSTIF_WR32(base, offset, dword)	Xil_Out32(((u8 *)base+offset),dword)
-#define HOSTIF_WR16(base, offset, word)		Xil_Out16(((u8 *)base+offset),word)
-#define HOSTIF_WR8(base, offset, byte)		Xil_Out8(((u8 *)base+offset),byte)
+#define HOSTIF_WR32(base, offset, dword)	MB_WRITE32((u32)(base),offset,dword);
+#define HOSTIF_WR16(base, offset, word)		MB_WRITE16((u32)(base),offset,word);
+#define HOSTIF_WR8(base, offset, byte)		MB_WRITE8((u32)(base),offset,byte);
+
+
 
 #define HOSTIF_IRQ_REG(cb, arg)  hostiflib_RegisterHandler(HOSTIF_IRQ_IC_ID,HOSTIF_IRQ,cb,arg)
 #define HOSTIF_IRQ_ENABLE()		 XIntc_EnableIntr(HOSTIF_IRQ_IC_ID,HOSTIF_IRQ) //FIXME: Change the base address and mask as required
 
 #define HOSTIF_IRQ_DISABLE()	XIntc_DisableIntr(HOSTIF_IRQ_IC_ID,HOSTIF_IRQ) //FIXME: Change the base address and mask as required
+
+
 
 
 #endif /* _INC_HOST_IF_MICROBLAZE_H_ */

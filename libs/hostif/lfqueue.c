@@ -50,6 +50,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //TODO clean
 #include "dllcal.h"
+
+#include <Benchmark.h> // TODO: Review
 //============================================================================//
 //            G L O B A L   D E F I N I T I O N S                             //
 //============================================================================//
@@ -569,6 +571,7 @@ tQueueReturn lfq_entryEnqueue (tQueueInstance pInstance_p,
         return kQueueAlignment;
 
     getHwQueueBufferHeader(pQueue);
+
 #ifdef __AP__
   //  printf("EN AP get Local %x Hif %x B %x\n",pQueue->local.spaceIndices.bothIndices,
     	//	pQueue->pQueueBuffer->header.spaceIndices.get,pQueue->pQueueBuffer);
@@ -584,10 +587,12 @@ tQueueReturn lfq_entryEnqueue (tQueueInstance pInstance_p,
     /// prepare header
     entryHeader.magic = QUEUE_MAGIC;
     entryHeader.payloadSize = entryPayloadSize;
+    BENCHMARK_MOD_02_SET(2);
     memset(entryHeader.aReserved, 0, sizeof(entryHeader.aReserved));
-
+    BENCHMARK_MOD_02_RESET(2);
+    BENCHMARK_MOD_02_SET(2);
     writeHeader(pQueue, &entryHeader);
-
+    BENCHMARK_MOD_02_RESET(2);
     writeData(pQueue, pData_p, entryPayloadSize);
     /// new element is written
     pQueue->local.entryIndices.write += 1;
@@ -722,15 +727,6 @@ This ensures reading queue indices consistently.
 //------------------------------------------------------------------------------
 static void getHwQueueBufferHeader (tQueue *pQueue_p)
 {
-#if XPAR_MICROBLAZE_USE_DCACHE
-    /*
-     * before handing over the received packet to the stack
-     * invalidate the packet's memory range
-     */
-	microblaze_invalidate_dcache_range((DWORD)pQueue_p->pQueueBuffer, sizeof(tQueueBufferHdr));
-#elif __arm__
-	Xil_DCacheInvalidateRange((DWORD)pQueue_p->pQueueBuffer, sizeof(tQueueBufferHdr));
-#endif
 
     pQueue_p->local.spaceIndices.bothIndices =
             HOSTIF_RD32(pQueue_p->pQueueBuffer,
@@ -762,15 +758,6 @@ static void getHwQueueBufferHeader (tQueue *pQueue_p)
 //------------------------------------------------------------------------------
 static tQueueState getHwQueueState (tQueue *pQueue_p)
 {
-#if XPAR_MICROBLAZE_USE_DCACHE
-    /*
-     * before handing over the received packet to the stack
-     * invalidate the packet's memory range
-     */
-	microblaze_invalidate_dcache_range((DWORD)pQueue_p->pQueueBuffer, sizeof(tQueueBufferHdr));
-#elif __arm__
-	Xil_DCacheInvalidateRange((DWORD)pQueue_p->pQueueBuffer, sizeof(tQueueBufferHdr));
-#endif
     return (tQueueState)HOSTIF_RD8(pQueue_p->pQueueBuffer,
             offsetof(tQueueBuffer, header.state));
 }
@@ -788,15 +775,7 @@ static void setHwQueueState (tQueue *pQueue_p, tQueueState State_p)
 
     HOSTIF_WR8(pQueue_p->pQueueBuffer,
             offsetof(tQueueBuffer, header.state), (UINT8)State_p);
-#if XPAR_MICROBLAZE_USE_DCACHE
-    /*
-     * before handing over the received packet to the stack
-     * invalidate the packet's memory range
-     */
-	microblaze_flush_dcache_range((DWORD)pQueue_p->pQueueBuffer, sizeof(tQueueBufferHdr));
-#elif __arm__
-	Xil_DCacheFlushRange((DWORD)pQueue_p->pQueueBuffer, sizeof(tQueueBufferHdr));
-#endif
+
 }
 
 //------------------------------------------------------------------------------
@@ -820,14 +799,10 @@ static void setHwQueueWrite (tQueue *pQueue_p)
             offsetof(tQueueBuffer, header.entryIndices.set.write),
             pQueue_p->local.entryIndices.write);
 
-#if XPAR_MICROBLAZE_USE_DCACHE
-    /*
-     * before handing over the received packet to the stack
-     * invalidate the packet's memory range
-     */
-	microblaze_flush_dcache_range((DWORD)pQueue_p->pQueueBuffer,sizeof(tQueueBufferHdr));
-#elif __arm__
-	Xil_DCacheFlushRange((DWORD)pQueue_p->pQueueBuffer, sizeof(tQueueBufferHdr));
+#if (HOSTIF_USE_DCACHE != FALSE)
+
+    hostif_FlushDCacheRange((DWORD)pQueue_p->pQueueBuffer,sizeof(tQueueBufferHdr));
+
 #endif
 
 }
@@ -851,14 +826,10 @@ static void setHwQueueRead (tQueue *pQueue_p)
     HOSTIF_WR16(pQueue_p->pQueueBuffer,
             offsetof(tQueueBuffer, header.entryIndices.set.read),
             pQueue_p->local.entryIndices.read);
-#if XPAR_MICROBLAZE_USE_DCACHE
-    /*
-     * before handing over the received packet to the stack
-     * invalidate the packet's memory range
-     */
-	microblaze_flush_dcache_range((DWORD)pQueue_p->pQueueBuffer, sizeof(tQueueBufferHdr));
-#elif __arm__
-	Xil_DCacheFlushRange((DWORD)pQueue_p->pQueueBuffer, sizeof(tQueueBufferHdr));
+#if (HOSTIF_USE_DCACHE != FALSE)
+
+    hostif_FlushDCacheRange((DWORD)pQueue_p->pQueueBuffer, sizeof(tQueueBufferHdr));
+
 #endif
 
 }
@@ -881,14 +852,9 @@ static void resetHwQueue (tQueue *pQueue_p)
 
     HOSTIF_WR32(pQueue_p->pQueueBuffer, offsetof(tQueueBuffer,
             header.entryIndices.reset), 0);
-#if XPAR_MICROBLAZE_USE_DCACHE
-    /*
-     * before handing over the received packet to the stack
-     * invalidate the packet's memory range
-     */
-	microblaze_flush_dcache_range((DWORD)pQueue_p->pQueueBuffer, sizeof(tQueueBufferHdr));
-#elif __arm__
-	Xil_DCacheFlushRange((DWORD)pQueue_p->pQueueBuffer, sizeof(tQueueBufferHdr));
+#if (HOSTIF_USE_DCACHE != FALSE)
+
+    hostif_FlushDCacheRange((DWORD)pQueue_p->pQueueBuffer, sizeof(tQueueBufferHdr));
 #endif
 }
 
@@ -1014,6 +980,7 @@ static void writeData (tQueue *pQueue_p, UINT8 *pData_p, UINT16 size_p)
 
     writeCirMemory(pQueue_p, offset, pData_p, size_p);
 
+
     pQueue_p->local.spaceIndices.write += size_p / ENTRY_MIN_SIZE;
 }
 
@@ -1059,15 +1026,10 @@ static void writeCirMemory (tQueue *pQueue_p, UINT16 offset_p,
     {
 
         memcpy(pDst + offset_p, pSrc_p, srcSpan_p);
-#if XPAR_MICROBLAZE_USE_DCACHE
-    /*
-     * before handing over the received packet to the stack
-     * invalidate the packet's memory range
-     */
+#if (HOSTIF_USE_DCACHE != FALSE)
 
-	microblaze_flush_dcache_range((UINT32)(pDst + offset_p), srcSpan_p);
-#elif __arm__
-	Xil_DCacheFlushRange((UINT32)(pDst + offset_p), srcSpan_p);
+        hostif_FlushDCacheRange((UINT32)(pDst + offset_p), srcSpan_p);
+
 #endif
     }
     else
@@ -1084,17 +1046,9 @@ static void writeCirMemory (tQueue *pQueue_p, UINT16 offset_p,
 
         /// copy the rest starting at the buffer's head
         memcpy(pDst, pSrc_p + part, srcSpan_p - part);
-#if XPAR_MICROBLAZE_USE_DCACHE
-    /*
-     * before handing over the received packet to the stack
-     * invalidate the packet's memory range
-     */
-
-	microblaze_flush_dcache_range((UINT32)(pDst + offset_p), part);
-	microblaze_flush_dcache_range((UINT32)(pDst), srcSpan_p - part);
-#elif __arm__
-	Xil_DCacheFlushRange((UINT32)(pDst + offset_p), part);
-	Xil_DCacheFlushRange((UINT32)(pDst), srcSpan_p - part);
+#if (HOSTIF_USE_DCACHE != FALSE)
+        hostif_FlushDCacheRange((UINT32)(pDst + offset_p), part);
+        hostif_FlushDCacheRange((UINT32)(pDst), srcSpan_p - part);
 #endif
     }
 #ifdef __AP1__
@@ -1206,14 +1160,8 @@ static void readCirMemory (tQueue *pQueue_p, UINT16 offset_p,
 
     if(offset_p + dstSpan_p <= pQueue_p->queueBufferSpan)
     {
-#if XPAR_MICROBLAZE_USE_DCACHE
-    /*
-     * before handing over the received packet to the stack
-     * invalidate the packet's memory range
-     */
-    microblaze_invalidate_dcache_range((UINT32)(pSrc + offset_p), dstSpan_p);
-#elif __arm__
-    Xil_DCacheInvalidateRange((UINT32)(pSrc + offset_p), dstSpan_p);
+#if (HOSTIF_USE_DCACHE != FALSE)
+       	hostif_InvalidateDCacheRange((UINT32)(pSrc + offset_p), dstSpan_p);
 #endif
         memcpy(pDst_p, pSrc + offset_p, dstSpan_p);
     }
@@ -1222,16 +1170,11 @@ static void readCirMemory (tQueue *pQueue_p, UINT16 offset_p,
 
         /// mind the circular nature of this buffer!
         part = pQueue_p->queueBufferSpan - offset_p;
-#if XPAR_MICROBLAZE_USE_DCACHE
-    /*
-     * before handing over the received packet to the stack
-     * invalidate the packet's memory range
-     */
-    microblaze_invalidate_dcache_range((UINT32)(pSrc + offset_p), part);
-    microblaze_invalidate_dcache_range((UINT32)(pSrc),dstSpan_p - part);
-#elif __arm__
-    Xil_DCacheInvalidateRange((UINT32)(pSrc + offset_p), part);
-    Xil_DCacheInvalidateRange((UINT32)(pSrc),dstSpan_p - part);
+#if (HOSTIF_USE_DCACHE != FALSE)
+
+        hostif_InvalidateDCacheRange((UINT32)(pSrc + offset_p), part);
+        hostif_InvalidateDCacheRange((UINT32)(pSrc),dstSpan_p - part);
+
 #endif
         /// copy until the buffer's end
         memcpy(pDst_p, pSrc + offset_p, part);

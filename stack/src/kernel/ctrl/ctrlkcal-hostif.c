@@ -317,12 +317,8 @@ void ctrlkcal_storeInitParam(tCtrlInitParam* pInitParam_p)
 {
     if(instance_l.pInitParamBase != NULL)
         EPL_MEMCPY(instance_l.pInitParamBase, pInitParam_p, sizeof(tCtrlInitParam));
-#if XPAR_MICROBLAZE_USE_DCACHE
-    /*
-     * before handing over the received packet to the stack
-     * invalidate the packet's memory range
-     */
-    microblaze_flush_dcache_range((UINT32)(instance_l.pInitParamBase), sizeof(tCtrlInitParam));
+#if (HOSTIF_USE_DCACHE != FALSE)
+    hostif_FlushDCacheRange((UINT32)(instance_l.pInitParamBase), sizeof(tCtrlInitParam));
 #endif
 }
 
@@ -343,12 +339,8 @@ tEplKernel ctrlkcal_readInitParam(tCtrlInitParam* pInitParam_p)
 {
     if(instance_l.pInitParamBase == NULL)
         return kEplNoResource;
-#if XPAR_MICROBLAZE_USE_DCACHE
-    /*
-     * before handing over the received packet to the stack
-     * invalidate the packet's memory range
-     */
-	microblaze_invalidate_dcache_range((UINT32)(instance_l.pInitParamBase), sizeof(tCtrlInitParam));
+#if (HOSTIF_USE_DCACHE != FALSE)
+    hostif_FlushDCacheRange((UINT32)(instance_l.pInitParamBase), sizeof(tCtrlInitParam));
 #endif
     EPL_MEMCPY(pInitParam_p, instance_l.pInitParamBase, sizeof(tCtrlInitParam));
 
