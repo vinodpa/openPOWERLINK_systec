@@ -69,6 +69,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // include generated header file for memory structure and version filed
 #include "hostiflib-zynqmem.h"//TODO:@John include the zynq specific file
 
+void hostif_FlushDCacheRange(u32 dwAddr_p,u16 span_p);
+void hostif_InvalidateDCacheRange(u32 dwAddr_p,u16 span_p);
+
 //------------------------------------------------------------------------------
 // const defines
 //------------------------------------------------------------------------------
@@ -89,7 +92,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HOSTIF_HOST_BASE            PCP_0_HOSTINTERFACE_0_HOST_BASE
 
 #endif
-
+#define HOSTIF_USE_DCACHE 	TRUE
 /*By pass Dcache*/
 /* Can not be implemented on Zynq*/
 #define ARM_BYPASS_DCACHE_MASK    (0x0 << 31)//Memory allocation used upto 31st bit, so 32nd bit is free
@@ -129,6 +132,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HOSTIF_IRQ_DISABLE()        \
 		XScuGic_DisableIntr(HOSTIF_IRQ_IC_ID, HOSTIF_IRQ);
 //    alt_ic_irq_disable(HOSTIF_IRQ_IC_ID, HOSTIF_IRQ)
+
 
 //------------------------------------------------------------------------------
 // typedef
