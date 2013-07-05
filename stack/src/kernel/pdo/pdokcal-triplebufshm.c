@@ -50,6 +50,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <EplInc.h>
 #include <pdo.h>
 #include <kernel/pdokcal.h>
+#include "mb_interface.h" //TODO: review
 
 //============================================================================//
 //            G L O B A L   D E F I N I T I O N S                             //
@@ -199,20 +200,21 @@ tEplKernel pdokcal_writeRxPdo(UINT channelId_p, BYTE *pPayload_p, UINT16 pdoSize
 {
     BYTE*           pPdo;
     ATOMIC_T        temp;
-
+// TODO : Review
+    microblaze_invalidate_dcache_range((u32)&pPdoMem_l->rxChannelInfo[channelId_p],sizeof(tPdoBufferInfo ));
     pPdo = pTripleBuf_l[pPdoMem_l->rxChannelInfo[channelId_p].writeBuf] +
            pPdoMem_l->rxChannelInfo[channelId_p].channelOffset;
-    //TRACE ("%s() chan:%d wi:%d\n", __func__, channelId_p, pPdoMem_l->rxChannelInfo[channelId_p].writeBuf);
+  //  TRACE ("%s() chan:%d wi:%d\n", __func__, channelId_p, pPdoMem_l->rxChannelInfo[channelId_p].writeBuf);
 
     memcpy(pPdo, pPayload_p, pdoSize_p);
-
+    microblaze_flush_dcache_range((u32)pPdo,pdoSize_p);
     temp = pPdoMem_l->rxChannelInfo[channelId_p].writeBuf;
     ATOMIC_EXCHANGE(&pPdoMem_l->rxChannelInfo[channelId_p].cleanBuf,
                     temp,
                     pPdoMem_l->rxChannelInfo[channelId_p].writeBuf);
 
     pPdoMem_l->rxChannelInfo[channelId_p].newData = 1;
-
+    microblaze_flush_dcache_range((u32)&pPdoMem_l->rxChannelInfo[channelId_p],sizeof(tPdoBufferInfo ));
     //TRACE ("%s() chan:%d new wi:%d\n", __func__, channelId_p, pPdoMem_l->rxChannelInfo[channelId_p].writeBuf);
     //TRACE ("%s() *pPayload_p:%02x\n", __func__, *pPayload_p);
     return kEplSuccessful;
@@ -237,7 +239,8 @@ tEplKernel pdokcal_readTxPdo(UINT channelId_p, BYTE* pPayload_p, UINT16 pdoSize_
 {
     BYTE*           pPdo;
     ATOMIC_T        readBuf;
-
+// TODO: Review
+    microblaze_invalidate_dcache_range((u32)&pPdoMem_l->txChannelInfo[channelId_p],sizeof(tPdoBufferInfo ));
     if (pPdoMem_l->txChannelInfo[channelId_p].newData)
     {
         readBuf = pPdoMem_l->txChannelInfo[channelId_p].readBuf;
@@ -252,9 +255,9 @@ tEplKernel pdokcal_readTxPdo(UINT channelId_p, BYTE* pPayload_p, UINT16 pdoSize_
     //TRACE ("%s() chan:%d ri:%d\n", __func__, channelId_p, pPdoMem_l->txChannelInfo[channelId_p].readBuf);
     pPdo =  pTripleBuf_l[pPdoMem_l->txChannelInfo[channelId_p].readBuf] +
             pPdoMem_l->txChannelInfo[channelId_p].channelOffset;
-
+    microblaze_invalidate_dcache_range((u32)pPdo,pdoSize_p);
     memcpy (pPayload_p, pPdo, pdoSize_p);
-
+    microblaze_flush_dcache_range((u32)&pPdoMem_l->txChannelInfo[channelId_p],sizeof(tPdoBufferInfo ));
     return kEplSuccessful;
 }
 
@@ -309,6 +312,8 @@ static void setupPdoMemInfo(tPdoChannelSetup* pPdoChannels_p, tPdoMemRegion* pPd
         offset += pPdoChannel->pdoSize;
     }
     pPdoMemRegion_p->pdoMemSize = offset;
+// TODO: Review
+    microblaze_flush_dcache_range((u32)pPdoMemRegion_p,sizeof(tPdoMemRegion));
 }
 ///\}
 
