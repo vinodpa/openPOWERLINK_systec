@@ -51,7 +51,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <string.h>
 
-#include <Benchmark.h> // TODO: Review
+#include "Benchmark.h" // TODO: Review
 
 //============================================================================//
 //            G L O B A L   D E F I N I T I O N S                             //
@@ -1719,7 +1719,9 @@ tHostifReturn hostif_queueInsert (tHostifQueueInstance pQueueInstance_p,
     tHostifReturn Ret = kHostifSuccessful;
     tHostifQueue *pHostifQueue = (tHostifQueue*)pQueueInstance_p;
     tQueueReturn qRet;
-
+#ifdef __MICROBLAZE__
+    BENCHMARK_MOD_02_SET(3);
+#endif
     if(pQueueInstance_p == NULL)
     {
         Ret = kHostifInvalidParameter;
@@ -1731,7 +1733,9 @@ tHostifReturn hostif_queueInsert (tHostifQueueInstance pQueueInstance_p,
         Ret = kHostifBridgeDisabled;
         goto Exit;
     }
-
+   //  // TODO: Review
+    //BENCHMARK_MOD_02_RESET(2);
+   // BENCHMARK_MOD_02_SET(2);
     qRet = lfq_entryEnqueue(pHostifQueue->pQueueInstance, pData_p, size_p);
 
     switch(qRet)
@@ -1749,7 +1753,9 @@ tHostifReturn hostif_queueInsert (tHostifQueueInstance pQueueInstance_p,
             Ret = kHostifUnspecError;
             goto Exit;
     }
-
+#ifdef __MICROBLAZE__
+    BENCHMARK_MOD_02_RESET(3);
+#endif
 Exit:
     return Ret;
 }
@@ -2146,12 +2152,12 @@ static void hostifIrqHandler (void *pArg_p)
     UINT16 pendings;
     UINT16 mask;
     int i;
-
+   // printf("i1\n");
     if(pArg_p == NULL)
     {
         goto Exit;
     }
-
+//printf("i\n");
     pendings = hostif_readIrqPending(pHostif->pBase);
 
     for(i=0; i<kHostifIrqSrcLast; i++)

@@ -65,7 +65,8 @@ INCLUDES=-I${APP_DIR} \
 -I${STACK_ROOT}/libs/sharedbuff \
 -I${STACK_ROOT}/libs/hostif \
 -I${STACK_ROOT}/stack/include/target/openmac \
--I${STACK_ROOT}/stack/src \
+-I${STACK_ROOT}/stack/src/ \
+-I${STACK_ROOT}/stack/src/arch/xilinx_arm \
 -I${STACK_ROOT}/examples/arch/zynq_cortexa9_0/no_os/gnu/demo_mn \
 -I${STACK_ROOT}/stack/make/lib/libpowerlink_user \
 -I${STACK_ROOT}/objdicts/CiA302-4_MN \
@@ -77,8 +78,6 @@ INCLUDES=-I${APP_DIR} \
 
 SRCFILES=${APP_DIR}/demo_main.c \
 ${STACK_ROOT}/libs/hostif/hostiflib_arm_cache.c \
-${STACK_ROOT}/libs/hostif/hostiflib_arm_exception.c \
-${STACK_ROOT}/libs/hostif/hostiflib_arm_io.c \
 ${STACK_ROOT}/libs/hostif/hostiflib_arm.c \
 ${STACK_ROOT}/libs/hostif/hostiflib.c \
 ${STACK_ROOT}/libs/hostif/hostiflib_l.c \

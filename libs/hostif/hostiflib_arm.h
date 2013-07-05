@@ -60,7 +60,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <xil_types.h>
 
 #include "hostiflib_arm_cache.h"
-#include "hostiflib_arm_io.h"
+
 
 // include section header file for special functions in
 // tightly-coupled memory
@@ -82,7 +82,7 @@ void hostif_InvalidateDCacheRange(u32 dwAddr_p,u16 span_p);
 #define HOSTIF_PCP_BASE             PCP_0_HOSTINTERFACE_0_BASE //XPAR_PS7_DDR_0_S_AXI_HP0_BASEADDR
 #define HOSTIF_HOST_BASE            PCP_0_HOSTINTERFACE_0_BASE //XPAR_PS7_DDR_0_S_AXI_BASEADDR
 
-#define HOSTIF_IRQ_IC_ID            XPAR_FABRIC_AXI_POWERLINK_0_TCP_IRQ_INTR //FIXME: @Vinod Check Parameter is correct
+#define HOSTIF_IRQ_IC_ID            XPAR_PS7_SCUGIC_0_DEVICE_ID			 //FIXME: @Vinod Check Parameter is correct
 #define HOSTIF_IRQ                  XPAR_FABRIC_AXI_POWERLINK_0_TCP_IRQ_INTR //FIXME: @Vinod Check Parameter is correct
 
 #elif (defined(PCP_0_HOSTINTERFACE_0_PCP_BASE) && \
@@ -122,7 +122,7 @@ void hostif_InvalidateDCacheRange(u32 dwAddr_p,u16 span_p);
 
 /// irq handling
 #define HOSTIF_IRQ_REG(cb, arg)     \
-	arm_register_handler(HOSTIF_IRQ_IC_ID, HOSTIF_IRQ, cb, arg)
+		target_RegisterHandler(HOSTIF_IRQ, cb, arg)
     //alt_ic_isr_register(HOSTIF_IRQ_IC_ID, HOSTIF_IRQ, cb, arg, NULL)
 
 #define HOSTIF_IRQ_ENABLE()         \

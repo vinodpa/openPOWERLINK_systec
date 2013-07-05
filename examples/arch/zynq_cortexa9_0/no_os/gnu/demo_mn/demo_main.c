@@ -90,7 +90,7 @@ const BYTE abMacAddr[] = {0x00, 0x12, 0x34, 0x56, 0x78, NODEID};
 // local vars
 //------------------------------------------------------------------------------
 static unsigned int uiNodeId_g = EPL_C_ADR_INVALID;
-static unsigned int uiCycleLen_g = 2000;
+static unsigned int uiCycleLen_g = 1000;
 static unsigned int uiCurCycleLen_g = 0;
 static BOOL fShutdown = FALSE;
 
@@ -625,7 +625,8 @@ tEplKernel PUBLIC AppCbSync(void)
 {
     tEplKernel          EplRet;
     //int                 i;
-
+    char test[10];
+    memset(test,0xFF,10);
     EplRet = api_processImageExchangeOut();
     if (EplRet != kEplSuccessful)
     {
@@ -711,6 +712,10 @@ tEplKernel PUBLIC AppCbSync(void)
     //pProcessImageIn_l->CN1_M00_Digital_Ouput_32_Bit_DWORD_01 = nodeVar_g[0].m_uiLeds;
     pProcessImageIn_l->CN1_M00_Digital_Ouput_32_Bit_DWORD_03 = uiCnt_g;
     pProcessImageIn_l->CN1_M00_Digital_Ouput_32_Bit_DWORD_01 = pProcessImageOut_l->CN1_M00_Digital_Input_32_Bit_DWORD_01 ;
+   memcpy(pProcessImageIn_l,test,10);
+   memset(test,0xFA,10);
+   memcpy(pProcessImageOut_l,test,10);
+
     EplRet = api_processImageExchangeIn();
 
     return EplRet;
