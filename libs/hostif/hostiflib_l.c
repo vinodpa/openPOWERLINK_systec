@@ -315,8 +315,10 @@ void hostif_writeInitBase (UINT8 *pHostifScBase_p, UINT32 val_p)
 //------------------------------------------------------------------------------
 UINT16 hostif_readBridgeEnable (UINT8 *pHostifScBase_p)
 {
+
     return HOSTIF_RD16(pHostifScBase_p + HOSTIF_SC_CONT_OFFS,
             offsetof(tScCont, bridgeEnable));
+
 }
 
 //------------------------------------------------------------------------------

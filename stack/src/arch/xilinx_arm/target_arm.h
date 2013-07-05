@@ -112,6 +112,12 @@ subject to the License Agreement located at the end of this file below.
 	#define INPORT_AP_BASE_ADDRESS		XPAR_AP_INPUT_BASEADDR
 #endif
 
+#ifdef XPAR_PS7_SCUGIC_0_BASEADDR
+	#define	ARM_IRQ_IC_BASE				XPAR_PS7_SCUGIC_0_BASEADDR
+#endif
+#ifdef XPAR_PS7_SCUGIC_0_DIST_BASEADDR
+	#define	ARM_IRQ_IC_DIST_BASE		XPAR_PS7_SCUGIC_0_DIST_BASEADDR
+#endif
 /******************************************************************************/
 /* typedefs */
 
@@ -130,7 +136,7 @@ inline void SysComp_enableInterrupts(void);
 inline void SysComp_disableInterrupts(void);
 void SysComp_freeProcessorCache(void);
 
-int SysComp_initSyncInterrupt(void (*callbackFunc)(void*));
+int SysComp_initSyncInterrupt(void (*callbackFunc)(void* arg),void* arg);
 int SysComp_initAsyncInterrupt(void (*callbackFunc)(void*));
 
 inline void SysComp_enableSyncInterrupt(void);

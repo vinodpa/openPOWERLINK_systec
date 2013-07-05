@@ -226,6 +226,7 @@ tEplKernel eventkcal_postEventHostif (tEventQueue eventQueue_p, tEplEvent *pEven
     BYTE*               pPostBuffer = aPostBuffer;
     ULONG               dataSize;
 
+    //BENCHMARK_MOD_02_SET(2);
     if (eventQueue_p > kEventQueueNum)
         return kEplInvalidInstanceParam;
 
@@ -247,8 +248,9 @@ tEplKernel eventkcal_postEventHostif (tEventQueue eventQueue_p, tEplEvent *pEven
         // add optional argument data size
         dataSize += pEvent_p->m_uiSize;
     }
-
+   // BENCHMARK_MOD_02_RESET(2);
    // printf("%s",__func__);
+
     hifRet = hostif_queueInsert(instance_l[eventQueue_p], pPostBuffer, dataSize);
 
     if(hifRet != kHostifSuccessful)
@@ -258,6 +260,7 @@ tEplKernel eventkcal_postEventHostif (tEventQueue eventQueue_p, tEplEvent *pEven
     }
 
 Exit:
+//BENCHMARK_MOD_02_RESET(2);
     return ret;
 }
 

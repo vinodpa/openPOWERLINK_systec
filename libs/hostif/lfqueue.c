@@ -549,8 +549,6 @@ tQueueReturn lfq_entryEnqueue (tQueueInstance pInstance_p,
     tEntryHeader entryHeader;
     //TODO: CLean UP Below
 
-
-
     if(pQueue == NULL || pData_p == NULL || size_p > QUEUE_MAX_PAYLOAD)
         return kQueueInvalidParameter;
 
@@ -587,12 +585,10 @@ tQueueReturn lfq_entryEnqueue (tQueueInstance pInstance_p,
     /// prepare header
     entryHeader.magic = QUEUE_MAGIC;
     entryHeader.payloadSize = entryPayloadSize;
-    BENCHMARK_MOD_02_SET(2);
+
     memset(entryHeader.aReserved, 0, sizeof(entryHeader.aReserved));
-    BENCHMARK_MOD_02_RESET(2);
-    BENCHMARK_MOD_02_SET(2);
+
     writeHeader(pQueue, &entryHeader);
-    BENCHMARK_MOD_02_RESET(2);
     writeData(pQueue, pData_p, entryPayloadSize);
     /// new element is written
     pQueue->local.entryIndices.write += 1;
@@ -609,7 +605,9 @@ tQueueReturn lfq_entryEnqueue (tQueueInstance pInstance_p,
     //printf("PCP Set Write Local %x Hif %x B %x\n",pQueue->local.spaceIndices.bothIndices,
     	//	pQueue->pQueueBuffer->header.spaceIndices.set,pQueue->pQueueBuffer);
 #endif
+
     return kQueueSuccessful;
+
 }
 
 //------------------------------------------------------------------------------
