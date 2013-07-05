@@ -712,9 +712,10 @@ tEplKernel PUBLIC AppCbSync(void)
     //pProcessImageIn_l->CN1_M00_Digital_Ouput_32_Bit_DWORD_01 = nodeVar_g[0].m_uiLeds;
     pProcessImageIn_l->CN1_M00_Digital_Ouput_32_Bit_DWORD_03 = uiCnt_g;
     pProcessImageIn_l->CN1_M00_Digital_Ouput_32_Bit_DWORD_01 = pProcessImageOut_l->CN1_M00_Digital_Input_32_Bit_DWORD_01 ;
-   memcpy(pProcessImageIn_l,test,10);
-   memset(test,0xFA,10);
-   memcpy(pProcessImageOut_l,test,10);
+
+    //memcpy(pProcessImageIn_l,test,10);
+   //memset(test,0xFA,10);
+   //memcpy(pProcessImageOut_l,test,10);
 
     EplRet = api_processImageExchangeIn();
 
