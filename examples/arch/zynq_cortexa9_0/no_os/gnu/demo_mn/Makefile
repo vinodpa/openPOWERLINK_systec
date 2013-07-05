@@ -66,6 +66,7 @@ INCLUDES=-I${APP_DIR} \
 -I${STACK_ROOT}/libs/hostif \
 -I${STACK_ROOT}/stack/include/target/openmac \
 -I${STACK_ROOT}/stack/src \
+-I${STACK_ROOT}/stack/src/arch/xilinx_arm \
 -I${STACK_ROOT}/examples/arch/zynq_cortexa9_0/no_os/gnu/demo_mn \
 -I${STACK_ROOT}/stack/make/lib/libpowerlink_user \
 -I${STACK_ROOT}/objdicts/CiA302-4_MN \
