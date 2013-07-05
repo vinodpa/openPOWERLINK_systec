@@ -70,7 +70,7 @@ subject to the License Agreement located at the end of this file below.
 /*******************************************************************************/
 /* includes */
 //#include "systemComponents.h"
-#include "arch/xilinx_arm/target_arm.h"
+#include "target_arm.h"
 #include "xil_cache.h"
 #include "xil_types.h"
 #include "xscugic.h"
@@ -125,7 +125,7 @@ void SysComp_initPeripheral(void)
 {
 	/*Release MB!*/
 
-	Xil_Out32(SLCR_UNLOCK, SLCR_UNLOCK_VAL);
+   Xil_Out32(SLCR_UNLOCK, SLCR_UNLOCK_VAL);
    Xil_Out32(FPGA_RST_CNTRL,0);
    Xil_Out32(SLCR_LOCK, SLCR_LOCK_VAL);
 
@@ -184,7 +184,7 @@ will be enabled.
 \retval OK                      on success
 \retval ERROR                   if interrupt couldn't be connected
 *******************************************************************************/
-int SysComp_initSyncInterrupt(void (*callbackFunc)(void*))
+int target_RegisterHandler(int Int_p, Xil_InterruptHandler callbackFunc,void* Arg)
 {
 
 #ifdef _USE_HIGH_PRIO_
@@ -193,14 +193,13 @@ int SysComp_initSyncInterrupt(void (*callbackFunc)(void*))
 								SYNC_INTR_PRIORITY, TRIGGER_VALUE);
 #endif
 
-#ifdef XPAR_FABRIC_AXI_POWERLINK_0_AP_SYNCIRQ_VEC_ID
+//#ifdef XPAR_FABRIC_AXI_POWERLINK_0_AP_SYNCIRQ_VEC_ID
 	//register sync irq handler
-   XScuGic_Connect(&sGicInstance_l, SYNC_IRQ_NUM,
-           (Xil_InterruptHandler)callbackFunc, 0);
-
+    XScuGic_RegisterHandler(ARM_IRQ_IC_BASE, Int_p,	callbackFunc, Arg);
+   	XScuGic_EnableIntr(ARM_IRQ_IC_DIST_BASE, Int_p);
    //enable the sync interrupt
-   XScuGic_Enable(&sGicInstance_l, SYNC_IRQ_NUM);
-#endif
+
+//#endif
    return OK;
 }
 
@@ -665,6 +664,7 @@ void SysComp_InitInterrupts(void)
 				&sGicInstance_l);
 
 	Xil_ExceptionEnable();
+
 }
 
 
