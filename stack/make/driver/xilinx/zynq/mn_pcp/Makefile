@@ -60,7 +60,7 @@ EXECUTABLE=mn_pcp
 
 LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE)_$(DESIGN).ld
 MACROS+=-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL}
-CFLAGS=$(DEBUG_FLAG) -Wall -fmessage-length=0 ${MACROS}
+CFLAGS=$(DEBUG_FLAG) -Wall -fmessage-length=0 ${MACROS} -DUSE_CACHE
 CPPFLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} -Wl,-Map,${EXECUTABLE}.map
 
@@ -85,7 +85,6 @@ BITSTREAM= download
 # Include directory
 INCLUDES=-I${APP_DIR} \
 -I${STACK_ROOT}/include \
--I${STACK_ROOT}/include/kernel \
 -I${STACK_ROOT}/libs/dualprocshm \
 -I${STACK_ROOT}/libs/circbuf \
 -I${STACK_ROOT}/libs/omethlib \

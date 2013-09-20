@@ -173,6 +173,7 @@ tEplKernel ctrlucal_init(void)
                                     &instance_l.initParamBase,&instance_l.initParamBuffSize,FALSE);
     if(dualRet != kDualprocSuccessful)
     {
+        EPL_DBGLVL_ERROR_TRACE("Error Retrieving dynamic buff\n ");
         ret = kEplNoResource;
         goto Exit;
     }
@@ -182,6 +183,7 @@ tEplKernel ctrlucal_init(void)
 
     if(target_regIrqHdl(targetInterruptHandler, (void*)&instance_l) != 0)
     {
+        EPL_DBGLVL_ERROR_TRACE("Interrupt\n ");
         ret = kEplNoResource;
         goto Exit;
     }

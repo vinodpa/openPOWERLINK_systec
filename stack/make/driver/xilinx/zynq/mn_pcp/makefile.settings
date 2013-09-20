@@ -97,13 +97,13 @@ PROC_FEATURES_MB= -mcpu=v8.20.a -mno-xl-pattern-compare -mno-xl-barrel-shift -mx
 
 ##################################
 # Settings for Debugging with optimized compilation
-DBG_MODE=_DEBUG
-OPT_LEVEL=-O2
+#DBG_MODE=_DEBUG
+#OPT_LEVEL=-O2
 
 ##################################
 # Settings for Release
-#DBG_MODE=NDEBUG
-#OPT_LEVEL=-O2
+DBG_MODE=NDEBUG
+OPT_LEVEL=-O2
 
 ##################################
 # DEF_DEBUG_LVL = [

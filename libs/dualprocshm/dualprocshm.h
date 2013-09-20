@@ -136,6 +136,12 @@ typedef struct sDualprocDynRes
     UINT8*            pBase;           ///< base of the dynamic buffer
     tDualprocMemInst* memInst; ///< pointer to memory instance
 } tDualprocDynResConfig;
+
+typedef struct
+{
+    tDualprocDrvInstance    dualProcDrvInstance;  ///< dual processor driver instance
+    BOOL                    fAlloc;
+}tCircBufArchInstance;
 //------------------------------------------------------------------------------
 // function prototypes
 //------------------------------------------------------------------------------
@@ -164,6 +170,8 @@ tDualprocReturn dualprocshm_writeDataCommon(tDualprocDrvInstance pInstance_p,UIN
 tDualprocReturn dualprocshm_acquireBuffLock(tDualprocDrvInstance pInstance_p, UINT8 Id_p);
 tDualprocReturn dualprocshm_releaseBuffLock(tDualprocDrvInstance pInstance_p, UINT8 Id_p);
 
+
+UINT8 dualprocshm_ReadBuffLock(tDualprocDrvInstance pInstance_p, UINT8 Id_p);
 #ifdef __cplusplus
 }
 #endif

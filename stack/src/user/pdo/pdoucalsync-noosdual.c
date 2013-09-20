@@ -165,5 +165,6 @@ tEplKernel pdoucal_waitSyncEvent(ULONG timeout_p)
 //------------------------------------------------------------------------------
 static void IrqSyncCb()
 {
+        //printf("Interrupt\n");
     pfnSyncCb_l();
 }

@@ -59,7 +59,7 @@ PERL=xilperl
 EXECUTABLE=demo_mn
 LSSCRIPT=lscript_$(BOARD_NAME)_$(BUS_INTERFACE)_$(DESIGN).ld
 MACROS+=-D${DBG_MODE} -DDEF_DEBUG_LVL=${DEF_DEBUG_LVL} 
-CFLAGS=$(DEBUG_FLAG) -Wall -fmessage-length=0 ${MACROS} -D__ZYNQ__
+CFLAGS=$(DEBUG_FLAG) -Wall -fmessage-length=0 ${MACROS} -D__ZYNQ__ -DUSE_CACHE
 CPPFLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 LDFLAGS=-Wl,-T -Wl,${LSSCRIPT} -Wl,-Map,${EXECUTABLE}.map
 

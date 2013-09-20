@@ -49,7 +49,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 // const defines
 //------------------------------------------------------------------------------
-
+#define DEFAULT_LOCK_ID             0x00
 //------------------------------------------------------------------------------
 // module global vars
 //------------------------------------------------------------------------------
@@ -152,6 +152,7 @@ void dualprocshm_targetReadData(UINT8* pBase_p, UINT16 Size_p, UINT8* pData_p)
 {
     if(pBase_p == NULL || pData_p == NULL)
     {
+        printf("Unhandled\n");
         return;
     }
 
@@ -174,6 +175,7 @@ void dualprocshm_targetWriteData(UINT8* pBase_p, UINT16 Size_p, UINT8* pData_p)
 {
     if(pBase_p == NULL || pData_p == NULL)
     {
+        printf("Unhandled\n");
         return;
     }
 
@@ -183,6 +185,39 @@ void dualprocshm_targetWriteData(UINT8* pBase_p, UINT16 Size_p, UINT8* pData_p)
 
 }
 
+void dualprocshm_targetAcquireLock(UINT8* pBase_p, UINT8 lockToken_p)
+{
+    UINT8 lock = 0;
+    if(pBase_p == NULL)
+    {
+        printf("Unhandled\n");
+        return;
+    }
+
+    do{
+        DUALPROCSHM_INVALIDATE_DCACHE_RANGE((UINT32)pBase_p,1);
+        lock = DPSHM_READ8(pBase_p);
+
+        if(lock == DEFAULT_LOCK_ID)
+        {
+            DPSHM_WRITE8(pBase_p,lockToken_p);
+            DUALPROCSHM_FLUSH_DCACHE_RANGE((UINT32)pBase_p,1);
+            continue;
+        }
+      }while(lock != lockToken_p);
+}
+
+void dualprocshm_targetReleaseLock(UINT8* pBase_p)
+{
+    if(pBase_p == NULL)
+    {
+        printf("Unhandled\n");
+        return;
+    }
+
+    DPSHM_WRITE8(pBase_p,DEFAULT_LOCK_ID);
+    DUALPROCSHM_FLUSH_DCACHE_RANGE((UINT32)pBase_p,1);
+}
 /**
  * EOF
  */

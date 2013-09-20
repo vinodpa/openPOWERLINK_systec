@@ -71,9 +71,13 @@ void SysComp_initPeripheral(void)
     Xil_Out32(FPGA_RST_CNTRL,0);
     Xil_Out32(SLCR_LOCK, SLCR_LOCK_VAL);
 
+#ifdef USE_CACHE
     Xil_ICacheEnable();
     Xil_DCacheEnable();
-
+#else
+    Xil_ICacheEnable();
+    Xil_DCacheDisable();
+#endif
     // Initialize Interrupts
 	SysComp_InitInterrupts();
 

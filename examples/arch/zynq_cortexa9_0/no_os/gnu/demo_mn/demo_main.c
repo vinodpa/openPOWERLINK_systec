@@ -95,7 +95,7 @@ const BYTE abMacAddr[] = {0x00, 0x12, 0x34, 0x56, 0x78, NODEID};
 //------------------------------------------------------------------------------
 static unsigned int uiNodeId_g = EPL_C_ADR_INVALID;
 static unsigned int uiCycleLen_g = CYCLE_LEN;
-static BOOL fShutdown = FALSE;
+static BOOL fShutdown = TRUE;
 
 static PI_IN* pProcessImageIn_l;
 static PI_OUT* pProcessImageOut_l;
@@ -267,6 +267,7 @@ int  main (void)
     EplRet = oplk_allocProcessImage(sizeof(PI_IN), sizeof(PI_OUT));
     if (EplRet != kEplSuccessful)
     {
+    	printf("Error in alloc\n");
         goto Exit;
     }
 
@@ -288,7 +289,7 @@ int  main (void)
 
     initEvents(&fShutdown);
 
-    while(!fShutdown)
+    while(fShutdown)
     {
         if((EplRet = oplk_process()) != kEplSuccessful)
             goto ExitShutdown;
@@ -299,7 +300,7 @@ int  main (void)
             if(!oplk_checkKernelStack())
             {
                 printf("Kernel is dead!\n");
-                fShutdown = TRUE;
+                fShutdown = FALSE;
             }
         }
     }
@@ -374,7 +375,7 @@ tEplKernel PUBLIC AppCbSync(void)
 {
     tEplKernel          EplRet;
     int                 i;
-
+//printf("sync\n");
     EplRet = oplk_exchangeProcessImageOut();
     if (EplRet != kEplSuccessful)
     {

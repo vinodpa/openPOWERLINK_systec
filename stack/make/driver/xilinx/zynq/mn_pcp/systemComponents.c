@@ -111,8 +111,15 @@ void SysComp_initPeripheral(void)
     #endif
 
     #if XPAR_MICROBLAZE_USE_DCACHE
-        microblaze_invalidate_dcache();
-        microblaze_enable_dcache();
+
+        #ifdef USE_CACHE
+            microblaze_invalidate_dcache();
+            microblaze_enable_dcache();
+        #else
+           // microblaze_invalidate_dcache();
+            microblaze_disable_dcache();
+        #endif
+
     #endif
 
     #ifdef XPAR_LEDS_OUTPUT_BASEADDR

@@ -76,11 +76,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 // const defines
 //------------------------------------------------------------------------------
-typedef struct
-{
-    tDualprocDrvInstance    dualProcDrvInstance;  ///< dual processor driver instance
-    BOOL                    fAlloc;
-}tCircBufArchInstance;
+//typedef struct
+//{
+ //   tDualprocDrvInstance    dualProcDrvInstance;  ///< dual processor driver instance
+ //   BOOL                    fAlloc;
+//}tCircBufArchInstance;
 //------------------------------------------------------------------------------
 // local types
 //------------------------------------------------------------------------------
@@ -183,12 +183,14 @@ tCircBufError circbuf_allocBuffer(tCircBufInstance* pInstance_p, size_t size_p)
     }
 
     pInstance_p->pCircBufHeader = (tCircBufHeader*)pBuffAddr;
+
     if (pInstance_p->pCircBufHeader == NULL)
     {
         return kCircBufNoResource;
     }
 
     pInstance_p->pCircBuf = ((BYTE*)pInstance_p->pCircBufHeader) + sizeof(tCircBufHeader);
+
 
     return kCircBufOk;
 }

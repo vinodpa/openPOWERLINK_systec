@@ -59,7 +59,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // includes
 //------------------------------------------------------------------------------
 #include "circbuf-arch.h"
-
+#include "event.h"
+#include "dualprocshm.h"
 //============================================================================//
 //            G L O B A L   D E F I N I T I O N S                             //
 //============================================================================//
@@ -147,6 +148,7 @@ tCircBufError circbuf_alloc (UINT8 id_p, size_t size_p, tCircBufInstance** ppIns
     pInstance->pCircBufHeader->dataCount = 0;
     pInstance->pfnSigCb = NULL;
 
+    TARGET_FLUSH_DCACHE(pInstance->pCircBufHeader,sizeof(tCircBufHeader));
     *ppInstance_p = pInstance;
 
     return kCircBufOk;
@@ -248,10 +250,12 @@ void circbuf_reset (tCircBufInstance* pInstance_p)
     tCircBufHeader*     pHeader = pInstance_p->pCircBufHeader;
 
     circbuf_lock(pInstance_p);
+    TARGET_INVALIDATE_DCACHE(pInstance_p->pCircBufHeader,sizeof(tCircBufHeader));
     pHeader->readOffset = 0;
     pHeader->writeOffset = 0;
     pHeader->freeSize = pHeader->bufferSize;
     pHeader->dataCount = 0;
+    TARGET_FLUSH_DCACHE(pInstance_p->pCircBufHeader,sizeof(tCircBufHeader));
     circbuf_unlock(pInstance_p);
 }
 
@@ -279,6 +283,11 @@ tCircBufError circbuf_writeData (tCircBufInstance* pInstance_p, const void* pDat
     tCircBufHeader*     pHeader = pInstance_p->pCircBufHeader;
     BYTE*               pCircBuf = pInstance_p->pCircBuf;
 
+    tEplEvent           *event;
+    size_t              freesize;
+    UINT32              datacount;
+    UINT8               lock;
+        tCircBufArchInstance    *pArch = (tCircBufArchInstance*)pInstance_p->pCircBufArchInstance;
     if ((pData_p == NULL) || (size_p == 0))
         return kCircBufOk;
 
@@ -286,6 +295,9 @@ tCircBufError circbuf_writeData (tCircBufInstance* pInstance_p, const void* pDat
     fullBlockSize  = blockSize + sizeof(UINT32);
 
     circbuf_lock(pInstance_p);
+
+    TARGET_INVALIDATE_DCACHE(pHeader,sizeof(tCircBufHeader));
+
     if (fullBlockSize > pHeader->freeSize)
     {
         circbuf_unlock(pInstance_p);
@@ -298,6 +310,9 @@ tCircBufError circbuf_writeData (tCircBufInstance* pInstance_p, const void* pDat
 
         memcpy (pCircBuf + pHeader->writeOffset + sizeof(UINT32),
                 pData_p, size_p);
+
+        TARGET_FLUSH_DCACHE((pCircBuf + pHeader->writeOffset),fullBlockSize);
+
         if (pHeader->writeOffset + fullBlockSize == pHeader->bufferSize)
             pHeader->writeOffset = 0;
         else
@@ -310,11 +325,41 @@ tCircBufError circbuf_writeData (tCircBufInstance* pInstance_p, const void* pDat
 
         memcpy (pCircBuf + pHeader->writeOffset + sizeof(UINT32),
                 pData_p, chunkSize);
+
+        TARGET_FLUSH_DCACHE((pCircBuf + pHeader->writeOffset ),chunkSize + sizeof(UINT32));
+
         memcpy (pCircBuf, (UINT8*)pData_p + chunkSize, size_p - chunkSize);
+
+        TARGET_FLUSH_DCACHE((pCircBuf),(size_p - chunkSize));
+
         pHeader->writeOffset = blockSize - chunkSize;
     }
+
+    datacount = pHeader->dataCount;
+       freesize = pHeader->freeSize;
+
     pHeader->freeSize -= fullBlockSize;
     pHeader->dataCount++;
+
+    TARGET_FLUSH_DCACHE(pHeader,sizeof(tCircBufHeader));
+#ifdef __MICROBLAZE__
+    if( pHeader->dataCount != (datacount + 1) || pHeader->freeSize != (freesize - fullBlockSize))
+            {
+                printf("MError in Write while writing data\n");
+                printf("C %d %d S %d %d %d\n",datacount,pHeader->dataCount,freesize,(freesize + fullBlockSize),pHeader->freeSize);
+                lock = dualprocshm_ReadBuffLock(pArch->dualProcDrvInstance,pInstance_p->bufferId);
+                              printf("lock %d\n",lock);
+            }
+#else
+    if( pHeader->dataCount != (datacount + 1) || pHeader->freeSize != (freesize - fullBlockSize))
+            {
+                printf("AError in Write while writing data\n");
+                printf("C %d %d S %d %d %d\n",datacount,pHeader->dataCount,freesize,(freesize + fullBlockSize),pHeader->freeSize);
+                lock = dualprocshm_ReadBuffLock(pArch->dualProcDrvInstance,pInstance_p->bufferId);
+                              printf("lock %d\n",lock);
+            }
+#endif
+
     circbuf_unlock(pInstance_p);
 
     if (pInstance_p->pfnSigCb != NULL)
@@ -352,7 +397,11 @@ tCircBufError circbuf_writeMultipleData(tCircBufInstance* pInstance_p,
     size_t              partSize;
     tCircBufHeader*     pHeader = pInstance_p->pCircBufHeader;
     BYTE*               pCircBuf = pInstance_p->pCircBuf;
-
+    tEplEvent           *event;
+    size_t              freesize;
+    UINT32              datacount;
+    UINT8               lock;
+    tCircBufArchInstance    *pArch = (tCircBufArchInstance*)pInstance_p->pCircBufArchInstance;
     if ((pData_p == NULL) || (size_p == 0) || (pData2_p == NULL) || (size2_p == 0))
     {
         TRACE("%s() Invalid pointer or size!\n");
@@ -362,15 +411,17 @@ tCircBufError circbuf_writeMultipleData(tCircBufInstance* pInstance_p,
     blockSize       = (size_p + size2_p + (CIRCBUF_BLOCK_ALIGNMENT - 1)) & ~(CIRCBUF_BLOCK_ALIGNMENT - 1);
     fullBlockSize  = blockSize + sizeof(UINT32);
 
-    //TRACE("%s() size:%d wroff:%d\n", __func__, pHeader->bufferSize, pHeader->writeOffset);
-    //TRACE("%s() ptr1:%p size1:%d ptr2:%p size2:%d\n", __func__, pData_p, size_p, pData2_p, size2_p);
     circbuf_lock(pInstance_p);
+
+    TARGET_INVALIDATE_DCACHE(pHeader,sizeof(tCircBufHeader));
     if (fullBlockSize > pHeader->freeSize)
     {
         circbuf_unlock(pInstance_p);
+
+        printf("fullBlockSize > pHeader->freeSize\n");
         return kCircBufOutOfMem;
     }
-
+   // event = (tEplEvent*)pData_p;
     if (pHeader->writeOffset + fullBlockSize <= pHeader->bufferSize)
     {
         *(UINT32 *)(pCircBuf + pHeader->writeOffset) = size_p + size2_p;
@@ -379,6 +430,11 @@ tCircBufError circbuf_writeMultipleData(tCircBufInstance* pInstance_p,
                 pData_p, size_p);
         memcpy (pCircBuf + pHeader->writeOffset + sizeof(UINT32) + size_p,
                 pData2_p, size2_p);
+      // if(event->m_EventType == kEplEventTypePdokSetupPdoBuf || event->m_EventType == kEplEventTypePdokConfig)
+      // printf("write:%x\n",pHeader->writeOffset);
+
+        TARGET_FLUSH_DCACHE((pCircBuf + pHeader->writeOffset),fullBlockSize);
+
         if (pHeader->writeOffset + fullBlockSize == pHeader->bufferSize)
             pHeader->writeOffset = 0;
         else
@@ -396,23 +452,58 @@ tCircBufError circbuf_writeMultipleData(tCircBufInstance* pInstance_p,
             partSize = chunkSize - size_p;
             memcpy (pCircBuf + pHeader->writeOffset + size_p + sizeof(UINT32),
                     pData2_p, partSize);
+
+            TARGET_FLUSH_DCACHE((pCircBuf + pHeader->writeOffset),chunkSize + sizeof(UINT32));
+
             memcpy (pCircBuf, (UINT8*)pData2_p + partSize, size2_p - partSize);
+
+            TARGET_FLUSH_DCACHE((pCircBuf),size2_p - partSize);
         }
         else
         {
             partSize = size_p - chunkSize;
             memcpy (pCircBuf + pHeader->writeOffset + sizeof(UINT32),
                     pData_p, chunkSize);
+
+            TARGET_FLUSH_DCACHE((pCircBuf + pHeader->writeOffset),chunkSize + sizeof(UINT32));
+
             memcpy (pCircBuf, (UINT8*)pData_p + chunkSize, partSize);
             memcpy (pCircBuf + partSize, pData2_p, size2_p);
+
+            TARGET_FLUSH_DCACHE((pCircBuf),partSize + size2_p);
         }
         pHeader->writeOffset = blockSize - chunkSize;
 
     }
+
+    datacount = pHeader->dataCount;
+    freesize = pHeader->freeSize;
+
     pHeader->freeSize -= fullBlockSize;
     pHeader->dataCount++;
 
+    TARGET_FLUSH_DCACHE(pHeader,sizeof(tCircBufHeader));
+#ifdef __MICROBLAZE__
+
+    if( pHeader->dataCount != (datacount + 1) || pHeader->freeSize != (freesize - fullBlockSize))
+        {
+            printf("MError in MWrite while writing data\n");
+            printf("C %d %d S %d %d %d\n",datacount,pHeader->dataCount,freesize,(freesize + fullBlockSize),pHeader->freeSize);
+            lock = dualprocshm_ReadBuffLock(pArch->dualProcDrvInstance,pInstance_p->bufferId);
+                          printf("lock %d\n",lock);
+        }
+
+#else
+    if( pHeader->dataCount != (datacount + 1) || pHeader->freeSize != (freesize - fullBlockSize))
+          {
+              printf("AError in MWrite while writing data\n");
+              printf("C %d %d S %d %d %d\n",datacount,pHeader->dataCount,freesize,(freesize + fullBlockSize),pHeader->freeSize);
+             lock = dualprocshm_ReadBuffLock(pArch->dualProcDrvInstance,pInstance_p->bufferId);
+              printf("lock %d\n",lock);
+          }
+#endif
     circbuf_unlock(pInstance_p);
+
     if (pInstance_p->pfnSigCb != NULL)
     {
         pInstance_p->pfnSigCb();
@@ -445,28 +536,49 @@ tCircBufError circbuf_readData(tCircBufInstance* pInstance_p, void* pData_p,
     size_t              chunkSize;
     tCircBufHeader*     pHeader = pInstance_p->pCircBufHeader;
     BYTE*               pCircBuf = pInstance_p->pCircBuf;
-
+    tEplEvent           *event;
+    size_t              freesize;
+    UINT32              datacount;
+    UINT8               lock;
+        tCircBufArchInstance    *pArch = (tCircBufArchInstance*)pInstance_p->pCircBufArchInstance;
     if ((pData_p == NULL) || (size_p == 0))
         return kCircBufOk;
 
     circbuf_lock(pInstance_p);
+
+    TARGET_INVALIDATE_DCACHE(pHeader,sizeof(tCircBufHeader));
+
     if (pHeader->freeSize == pHeader->bufferSize)
     {
         circbuf_unlock(pInstance_p);
+     //   printf("Check %d-%d-%d\n",pHeader->freeSize,pHeader->bufferSize,pHeader->dataCount);
+      //  printf("HA ha ha ERROR freesize == bufferesize\n");
         return kCircBufNoReadableData;
     }
+
+    TARGET_INVALIDATE_DCACHE((pCircBuf + pHeader->readOffset),sizeof(UINT32));
 
     dataSize = *(UINT32*)(pCircBuf + pHeader->readOffset);
     blockSize = (dataSize + (CIRCBUF_BLOCK_ALIGNMENT - 1)) & ~(CIRCBUF_BLOCK_ALIGNMENT - 1);
     fullBlockSize  = blockSize + sizeof(UINT32);
 
     if (dataSize > size_p)
-        return kCircBufReadsizeTooSmall;
+    {
+            circbuf_unlock(pInstance_p);
+            printf("Com'a ya mizy allocate so'memory!\n");
+            return kCircBufReadsizeTooSmall;
+    }
+
 
     if (pHeader->readOffset + fullBlockSize <= pHeader->bufferSize)
     {
+        TARGET_INVALIDATE_DCACHE((pCircBuf + pHeader->readOffset + sizeof(UINT32)) \
+                                    ,blockSize);
         memcpy (pData_p, pCircBuf + pHeader->readOffset + sizeof(UINT32),
                 dataSize);
+     //   event = (tEplEvent*)pData_p;
+      //  if(event->m_EventType == kEplEventTypePdokSetupPdoBuf || event->m_EventType == kEplEventTypePdokConfig)
+      //  printf("Read:%x\n",pHeader->readOffset);
         if (pHeader->readOffset + fullBlockSize == pHeader->bufferSize)
             pHeader->readOffset = 0;
         else
@@ -475,13 +587,46 @@ tCircBufError circbuf_readData(tCircBufInstance* pInstance_p, void* pData_p,
     else
     {
         chunkSize = pHeader->bufferSize - pHeader->readOffset - sizeof(UINT32);
-        memcpy (pData_p, pCircBuf + pHeader->readOffset + sizeof(UINT32),
+
+        TARGET_INVALIDATE_DCACHE((pCircBuf + pHeader->readOffset + sizeof(UINT32)), \
+                                    chunkSize);
+        memcpy (pData_p, (pCircBuf + pHeader->readOffset + sizeof(UINT32)),
                 chunkSize);
+
+        TARGET_INVALIDATE_DCACHE(pCircBuf, dataSize - chunkSize);
+
         memcpy ((UINT8*)pData_p + chunkSize, pCircBuf, dataSize - chunkSize);
+
+        //event = (tEplEvent*)pData_p;
+      //  if(event->m_EventType == kEplEventTypePdokSetupPdoBuf || event->m_EventType == kEplEventTypePdokConfig)
+      //  printf("Read2:%x\n",pHeader->readOffset);
         pHeader->readOffset = blockSize - chunkSize;
     }
+    datacount = pHeader->dataCount;
+    freesize = pHeader->freeSize;
     pHeader->freeSize += fullBlockSize;
     pHeader->dataCount--;
+
+
+    TARGET_FLUSH_DCACHE(pHeader,sizeof(tCircBufHeader));
+#ifdef __MICROBLAZE__
+    if(pHeader->dataCount != (datacount - 1) || pHeader->freeSize != (freesize + fullBlockSize))
+    {
+        printf("MError in read while writing data\n");
+        printf("C %d %d S %d %d %d\n",datacount,pHeader->dataCount,freesize,(freesize + fullBlockSize),pHeader->freeSize);
+        lock = dualprocshm_ReadBuffLock(pArch->dualProcDrvInstance,pInstance_p->bufferId);
+                      printf("lock %d\n",lock);
+    }
+#else
+    if(pHeader->dataCount != (datacount - 1) || pHeader->freeSize != (freesize + fullBlockSize))
+        {
+            printf("AError in read while writing data\n");
+            printf("C %d %d S %d %d %d\n",datacount,pHeader->dataCount,freesize,(freesize + fullBlockSize),pHeader->freeSize);
+            lock = dualprocshm_ReadBuffLock(pArch->dualProcDrvInstance,pInstance_p->bufferId);
+                          printf("lock %d\n",lock);
+        }
+#endif
+
     circbuf_unlock(pInstance_p);
 
     *pDataBlockSize_p = dataSize;
@@ -505,6 +650,9 @@ The function returns the available data count
 UINT32 circbuf_getDataCount(tCircBufInstance* pInstance_p)
 {
     tCircBufHeader*     pHeader = pInstance_p->pCircBufHeader;
+   // circbuf_lock(pInstance_p);
+    TARGET_INVALIDATE_DCACHE(&pHeader->dataCount,sizeof(UINT32));
+    //circbuf_unlock(pInstance_p);
     return pHeader->dataCount;
 }
 

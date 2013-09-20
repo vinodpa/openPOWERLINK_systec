@@ -41,7 +41,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // includes
 //------------------------------------------------------------------------------
 #include "dualprocshm.h"
-#include "dualprocshm_l.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -55,7 +54,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define DUALPROC_INSTANCE_COUNT     2   ///< number of supported instances
 #define MEM_LOCK_SIZE               1
 #define DYN_MEM_TABLE_ENTRY_SIZE    4
-#define DEFAULT_LOCK_ID             0x00
+
 //------------------------------------------------------------------------------
 // module global vars
 //------------------------------------------------------------------------------
@@ -345,7 +344,7 @@ tDualprocReturn dualprocshm_getMemory(tDualprocDrvInstance pInstance_p, UINT8 Id
         pDrvInst->pDynResTbl[Id_p].pBase = pMemBase + sizeof(tDualprocMemInst);
         pDrvInst->pDynResTbl[Id_p].memInst->span = (UINT16)*pSize_p;
         if(Id_p == 8)
-        TRACE("Kernel Id %d Base %x MemBase %x\n",Id_p,pDrvInst->pDynResTbl[Id_p].pBase,pMemBase);
+        printf("Kernel Id %d Base %x MemBase %x\n",Id_p,pDrvInst->pDynResTbl[Id_p].pBase,pMemBase);
         // write the address in mapping table
         pDrvInst->pDynResTbl[Id_p].pfnSetDynAddr(pDrvInst,Id_p,(UINT32)pMemBase);
     }
@@ -360,7 +359,7 @@ tDualprocReturn dualprocshm_getMemory(tDualprocDrvInstance pInstance_p, UINT8 Id
         pDrvInst->pDynResTbl[Id_p].pBase = pMemBase + sizeof(tDualprocMemInst);
         *pSize_p = (size_t) pDrvInst->pDynResTbl[Id_p].memInst->span;
         if(Id_p == 8)
-        TRACE("Id %d Base %x MemBase %x\n",Id_p,pDrvInst->pDynResTbl[Id_p].pBase,pMemBase);
+        printf("Id %d Base %x MemBase %x\n",Id_p,pDrvInst->pDynResTbl[Id_p].pBase,pMemBase);
     }
 
     *ppAddr_p = pDrvInst->pDynResTbl[Id_p].pBase;
@@ -574,15 +573,7 @@ tDualprocReturn dualprocshm_acquireBuffLock(tDualprocDrvInstance pInstance_p, UI
     if(pInstance_p == NULL )
         return kDualprocInvalidParameter;
 
-    do{
-        dualprocshm_targetReadData(&pDrvInst->pDynResTbl[Id_p].memInst->lock, 1, &lock);
-        if(lock == DEFAULT_LOCK_ID)
-        {
-            lock = pDrvInst->config.procId;
-            dualprocshm_targetWriteData(&pDrvInst->pDynResTbl[Id_p].memInst->lock, 1, &lock);
-        }
-    }while(lock != pDrvInst->config.procId);
-
+    dualprocshm_targetAcquireLock(&pDrvInst->pDynResTbl[Id_p].memInst->lock,pDrvInst->config.procId);
     return kDualprocSuccessful;
 }
 //------------------------------------------------------------------------------
@@ -603,12 +594,27 @@ tDualprocReturn dualprocshm_acquireBuffLock(tDualprocDrvInstance pInstance_p, UI
 tDualprocReturn dualprocshm_releaseBuffLock(tDualprocDrvInstance pInstance_p, UINT8 Id_p)
 {
     tDualProcDrv    *pDrvInst = (tDualProcDrv *) pInstance_p;
-    UINT8           lock ;
 
-    lock = DEFAULT_LOCK_ID;
-    dualprocshm_targetWriteData(&pDrvInst->pDynResTbl[Id_p].memInst->lock, 1, &lock);
+    dualprocshm_targetReleaseLock(&pDrvInst->pDynResTbl[Id_p].memInst->lock);
 
     return kDualprocSuccessful;
+}
+
+UINT8 dualprocshm_ReadBuffLock(tDualprocDrvInstance pInstance_p, UINT8 Id_p)
+{
+    tDualProcDrv    *pDrvInst = (tDualProcDrv *) pInstance_p;
+    UINT8           lock ;
+
+    if(pInstance_p == NULL )
+    {
+        printf("Error Reading Lock\n");
+        return -1;
+    }
+
+    dualprocshm_targetReadData(&pDrvInst->pDynResTbl[Id_p].memInst->lock, 1, &lock);
+
+    return lock;
+
 }
 //============================================================================//
 //            P R I V A T E   F U N C T I O N S                               //
@@ -629,8 +635,8 @@ static void setDynBuffAddr (tDualprocDrvInstance  pInstance_p,UINT16 index_p,UIN
     tDualProcDrv    *pDrvInst = (tDualProcDrv *) pInstance_p;
     UINT8* tableBase = pDrvInst->pAddrTableBase;
     UINT32 tableEntryOffs = index_p * DYN_MEM_TABLE_ENTRY_SIZE;
-    if(index_p == 8)
-    TRACE("Set Id %d Base %x Off:%x\n",index_p,addr_p,tableEntryOffs);
+   // if(index_p == 8)
+    //TRACE("Set Id %d Base %x Off:%x\n",index_p,addr_p,tableEntryOffs);
     dualprocshm_targetWriteData(tableBase + tableEntryOffs,DYN_MEM_TABLE_ENTRY_SIZE,(UINT8 *)&addr_p);
 }
 //------------------------------------------------------------------------------
@@ -653,7 +659,7 @@ static UINT32 getDynBuffAddr (tDualprocDrvInstance pInstance_p,UINT16 index_p)
     UINT32 buffAddr;
 
     dualprocshm_targetReadData(tableBase + tableEntryOffs,DYN_MEM_TABLE_ENTRY_SIZE,(UINT8 *)&buffAddr);
-    if(index_p == 8)
-    TRACE("Get Id %d Base %x Off:%x\n",index_p,buffAddr,tableEntryOffs);
+   // if(index_p == 8)
+    //TRACE("Get Id %d Base %x Off:%x\n",index_p,buffAddr,tableEntryOffs);
     return buffAddr;
 }
