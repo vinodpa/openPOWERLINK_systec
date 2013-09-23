@@ -179,15 +179,15 @@ tEplKernel eventucal_postKernelEvent (tEplEvent *pEvent_p)
 {
     tEplKernel      ret;
    // printf("%s\n",__func__);
-    TRACE("U2K type:%s(%d) sink:%s(%d) size:%d!\n",
+   /* TRACE("U2K type:%s(%d) sink:%s(%d) size:%d!\n",
                    EplGetEventTypeStr(pEvent_p->m_EventType), pEvent_p->m_EventType,
                    EplGetEventSinkStr(pEvent_p->m_EventSink), pEvent_p->m_EventSink,
-                   pEvent_p->m_uiSize);
-    //usleep(30);
+                   pEvent_p->m_uiSize);*/
+
     EplTgtEnableGlobalInterrupt(FALSE);
     ret = eventucal_postEventCircbuf(kEventQueueU2K,pEvent_p);
     EplTgtEnableGlobalInterrupt(TRUE);
-   //usleep(30);
+
     return ret;
 }
 
@@ -233,10 +233,7 @@ void eventucal_process(void)
 {
     if (eventucal_getEventCountCircbuf(kEventQueueK2U) > 0)
     {
-      //  BENCHMARK_MOD_32_SET(3);
-        //    printf("Here I am in event\n");
         eventucal_processEventCircbuf(kEventQueueK2U);
-      //  BENCHMARK_MOD_32_RESET(3);
     }
 }
 

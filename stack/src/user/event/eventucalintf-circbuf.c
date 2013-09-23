@@ -364,7 +364,7 @@ static tEplKernel postEvent (tCircBufInstance* pCircBufInstance_p, tEplEvent *pE
 
     if (pEvent_p->m_uiSize == 0)
     {
-            printf("write\n");
+           // printf("write\n");
         circError = circbuf_writeData(pCircBufInstance_p, pEvent_p, sizeof(tEplEvent));
     }
     else

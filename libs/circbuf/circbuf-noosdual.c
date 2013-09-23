@@ -76,11 +76,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 // const defines
 //------------------------------------------------------------------------------
-//typedef struct
-//{
- //   tDualprocDrvInstance    dualProcDrvInstance;  ///< dual processor driver instance
- //   BOOL                    fAlloc;
-//}tCircBufArchInstance;
+typedef struct
+{
+    tDualprocDrvInstance    dualProcDrvInstance;  ///< dual processor driver instance
+    BOOL                    fAlloc;
+}tCircBufArchInstance;
 //------------------------------------------------------------------------------
 // local types
 //------------------------------------------------------------------------------

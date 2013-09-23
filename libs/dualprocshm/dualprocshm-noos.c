@@ -343,8 +343,7 @@ tDualprocReturn dualprocshm_getMemory(tDualprocDrvInstance pInstance_p, UINT8 Id
         pDrvInst->pDynResTbl[Id_p].memInst = (tDualprocMemInst*) pMemBase;
         pDrvInst->pDynResTbl[Id_p].pBase = pMemBase + sizeof(tDualprocMemInst);
         pDrvInst->pDynResTbl[Id_p].memInst->span = (UINT16)*pSize_p;
-        if(Id_p == 8)
-        printf("Kernel Id %d Base %x MemBase %x\n",Id_p,pDrvInst->pDynResTbl[Id_p].pBase,pMemBase);
+
         // write the address in mapping table
         pDrvInst->pDynResTbl[Id_p].pfnSetDynAddr(pDrvInst,Id_p,(UINT32)pMemBase);
     }
@@ -358,9 +357,7 @@ tDualprocReturn dualprocshm_getMemory(tDualprocDrvInstance pInstance_p, UINT8 Id
         pDrvInst->pDynResTbl[Id_p].memInst = (tDualprocMemInst*) pMemBase;
         pDrvInst->pDynResTbl[Id_p].pBase = pMemBase + sizeof(tDualprocMemInst);
         *pSize_p = (size_t) pDrvInst->pDynResTbl[Id_p].memInst->span;
-        if(Id_p == 8)
-        printf("Id %d Base %x MemBase %x\n",Id_p,pDrvInst->pDynResTbl[Id_p].pBase,pMemBase);
-    }
+     }
 
     *ppAddr_p = pDrvInst->pDynResTbl[Id_p].pBase;
 
@@ -574,6 +571,7 @@ tDualprocReturn dualprocshm_acquireBuffLock(tDualprocDrvInstance pInstance_p, UI
         return kDualprocInvalidParameter;
 
     dualprocshm_targetAcquireLock(&pDrvInst->pDynResTbl[Id_p].memInst->lock,pDrvInst->config.procId);
+
     return kDualprocSuccessful;
 }
 //------------------------------------------------------------------------------
