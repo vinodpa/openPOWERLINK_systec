@@ -165,7 +165,14 @@ static tEplKernel initPlk (void)
 Exit:
     return Ret;
 }
+//------------------------------------------------------------------------------
+/**
+\brief    openPOWERLINK stack shutdown
 
+This function stops the kernel stack.
+
+*/
+//------------------------------------------------------------------------------
 static void shtdPlk (void)
 {
     ctrlk_exit();

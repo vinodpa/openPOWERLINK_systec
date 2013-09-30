@@ -107,35 +107,7 @@ typedef struct sDualprocMemInst
 */
 typedef void* tDualprocDrvInstance;
 
-/**
-\brief Function type to set the address of a Buffer
 
-This function type enables to set the corresponding dynamic shared memory address
-register for a dynamic buffer.
-*/
-typedef void (*tSetDynRes) (tDualprocDrvInstance  pDrvInst_p, UINT16 index_p,UINT32 addr_p);
-
-/**
-\brief Function type to get the address of a Buffer
-
-This function type enables to get the address set in the dynamic shared buffer
-address register.
-*/
-typedef UINT32 (*tGetDynRes) (tDualprocDrvInstance  pDrvInst_p, UINT16 index_p);
-
-/**
-\brief Structure for dual processor dynamic resources(queue/buffers)
-
-This structure defines for each dynamic resources instance the set and get
-functions. Additionally the base and span is provided.
-*/
-typedef struct sDualprocDynRes
-{
-    tSetDynRes        pfnSetDynAddr;   ///< this function sets the dynamic buffer base to hardware
-    tGetDynRes        pfnGetDynAddr;   ///< this function gets the dynamic buffer base to hardware
-    UINT8*            pBase;           ///< base of the dynamic buffer
-    tDualprocMemInst* memInst; ///< pointer to memory instance
-} tDualprocDynResConfig;
 //------------------------------------------------------------------------------
 // function prototypes
 //------------------------------------------------------------------------------

@@ -162,7 +162,7 @@ tCircBufError circbuf_allocBuffer(tCircBufInstance* pInstance_p, size_t size_p)
     tDualprocReturn             Ret;
     size_t                      size;
     tDualprocDrvInstance        dualProcDrvInst;
-    BYTE                        *pBuffAddr;
+    UINT8                       *pBuffAddr;
     tCircBufArchInstance        *pArch = (tCircBufArchInstance*)pInstance_p->pCircBufArchInstance;
     size = size_p + sizeof(tCircBufHeader);
 
@@ -189,8 +189,7 @@ tCircBufError circbuf_allocBuffer(tCircBufInstance* pInstance_p, size_t size_p)
         return kCircBufNoResource;
     }
 
-    pInstance_p->pCircBuf = ((BYTE*)pInstance_p->pCircBufHeader) + sizeof(tCircBufHeader);
-
+    pInstance_p->pCircBuf = ((UINT8*)pInstance_p->pCircBufHeader) + sizeof(tCircBufHeader);
 
     return kCircBufOk;
 }
@@ -238,7 +237,7 @@ tCircBufError circbuf_connectBuffer(tCircBufInstance* pInstance_p)
     tDualprocReturn             Ret;
     size_t                      size;
     tDualprocDrvInstance        dualProcDrvInst;
-    BYTE                        *pBuffAddr;
+    UINT8                        *pBuffAddr;
     tCircBufArchInstance        *pArch = (tCircBufArchInstance*)pInstance_p->pCircBufArchInstance;
 
     dualProcDrvInst = dualprocshm_getDrvInst(kDualProcHost);
@@ -263,7 +262,7 @@ tCircBufError circbuf_connectBuffer(tCircBufInstance* pInstance_p)
         return kCircBufNoResource;
     }
 
-    pInstance_p->pCircBuf = ((BYTE*)pInstance_p->pCircBufHeader) + sizeof(tCircBufHeader);
+    pInstance_p->pCircBuf = ((UINT8*)pInstance_p->pCircBufHeader) + sizeof(tCircBufHeader);
 
     return kCircBufOk;
 }

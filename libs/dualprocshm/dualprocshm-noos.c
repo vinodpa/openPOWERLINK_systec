@@ -73,6 +73,35 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 // local types
 //------------------------------------------------------------------------------
+/**
+\brief Function type to set the address of a Buffer
+
+This function type enables to set the corresponding dynamic shared memory address
+register for a dynamic buffer.
+*/
+typedef void (*tSetDynRes) (tDualprocDrvInstance  pDrvInst_p, UINT16 index_p,UINT32 addr_p);
+
+/**
+\brief Function type to get the address of a Buffer
+
+This function type enables to get the address set in the dynamic shared buffer
+address register.
+*/
+typedef UINT32 (*tGetDynRes) (tDualprocDrvInstance  pDrvInst_p, UINT16 index_p);
+
+/**
+\brief Structure for dual processor dynamic resources(queue/buffers)
+
+This structure defines for each dynamic resources instance the set and get
+functions. Additionally the base and span is provided.
+*/
+typedef struct sDualprocDynRes
+{
+    tSetDynRes        pfnSetDynAddr;   ///< this function sets the dynamic buffer base to hardware
+    tGetDynRes        pfnGetDynAddr;   ///< this function gets the dynamic buffer base to hardware
+    UINT8*            pBase;           ///< base of the dynamic buffer
+    tDualprocMemInst* memInst; ///< pointer to memory instance
+} tDualprocDynResConfig;
 
 /**
 \brief Dynamic buffer configuration
@@ -94,11 +123,7 @@ typedef struct sDualProcDrv
                                             ///< memory address table
     int                     iMaxDynBuffEntries; ///< number of dynamic buffers (Pcp/Host)
     tDualprocDynResConfig*  pDynResTbl;     ///< dynamic buffer table (Pcp/Host)
-    //    UINT8*                  apDynBufHost[DUALPROC_DYNBUF_COUNT]; ///< DynBuf acquired by Host
-    //TODO: gks: decide on using process queue for circular buffer based queues
 
-    //   tQueueProcess       aQueueProcessTable[DUALPROCSHM_QUEUE_COUNT]; ///< queue process table, processed by dualprocshm_process()
-    //    int                 iQueueProcessEntries; ///< number of entries in aQueueProcessTable
 } tDualProcDrv;
 
 
@@ -543,6 +568,7 @@ tDualprocReturn dualprocshm_writeDataCommon(tDualprocDrvInstance pInstance_p,UIN
     if(pInstance_p == NULL || pData_p == NULL)
         return kDualprocInvalidParameter;
 
+
     dualprocshm_targetWriteData(base + offset_p, Size_p, pData_p);
 
     return kDualprocSuccessful;
@@ -565,13 +591,15 @@ tDualprocReturn dualprocshm_writeDataCommon(tDualprocDrvInstance pInstance_p,UIN
 tDualprocReturn dualprocshm_acquireBuffLock(tDualprocDrvInstance pInstance_p, UINT8 Id_p)
 {
     tDualProcDrv    *pDrvInst = (tDualProcDrv *) pInstance_p;
-    UINT8           lock ;
 
     if(pInstance_p == NULL )
         return kDualprocInvalidParameter;
+    //printf("b4\n");
+    target_acquireMasterLock(pDrvInst->config.procId,Id_p);
+    dualprocshm_targetAcquireLock(&pDrvInst->pDynResTbl[Id_p].memInst->lock,pDrvInst->config.procId,Id_p);
+    target_releaseMasterLock();
 
-    dualprocshm_targetAcquireLock(&pDrvInst->pDynResTbl[Id_p].memInst->lock,pDrvInst->config.procId);
-
+   // printf("after\n");
     return kDualprocSuccessful;
 }
 //------------------------------------------------------------------------------
@@ -592,28 +620,12 @@ tDualprocReturn dualprocshm_acquireBuffLock(tDualprocDrvInstance pInstance_p, UI
 tDualprocReturn dualprocshm_releaseBuffLock(tDualprocDrvInstance pInstance_p, UINT8 Id_p)
 {
     tDualProcDrv    *pDrvInst = (tDualProcDrv *) pInstance_p;
-
+    //target_acquireMasterLock(pDrvInst->config.procId);
     dualprocshm_targetReleaseLock(&pDrvInst->pDynResTbl[Id_p].memInst->lock);
-
+   // target_releaseMasterLock();
     return kDualprocSuccessful;
 }
 
-UINT8 dualprocshm_ReadBuffLock(tDualprocDrvInstance pInstance_p, UINT8 Id_p)
-{
-    tDualProcDrv    *pDrvInst = (tDualProcDrv *) pInstance_p;
-    UINT8           lock ;
-
-    if(pInstance_p == NULL )
-    {
-        printf("Error Reading Lock\n");
-        return -1;
-    }
-
-    dualprocshm_targetReadData(&pDrvInst->pDynResTbl[Id_p].memInst->lock, 1, &lock);
-
-    return lock;
-
-}
 //============================================================================//
 //            P R I V A T E   F U N C T I O N S                               //
 //============================================================================//
@@ -621,9 +633,9 @@ UINT8 dualprocshm_ReadBuffLock(tDualprocDrvInstance pInstance_p, UINT8 Id_p)
 /**
 \brief  write the buffer address in dynamic memory mapping table
 
-\param  pDrvInst_p  driver instance
-\param  index_p     buffer index.
-\param  addr_p      address of the buffer.
+\param  pInstance_p  driver instance
+\param  index_p      buffer index.
+\param  addr_p       address of the buffer.
 
 \ingroup module_dualprocshm
 */
@@ -633,16 +645,15 @@ static void setDynBuffAddr (tDualprocDrvInstance  pInstance_p,UINT16 index_p,UIN
     tDualProcDrv    *pDrvInst = (tDualProcDrv *) pInstance_p;
     UINT8* tableBase = pDrvInst->pAddrTableBase;
     UINT32 tableEntryOffs = index_p * DYN_MEM_TABLE_ENTRY_SIZE;
-   // if(index_p == 8)
-    //TRACE("Set Id %d Base %x Off:%x\n",index_p,addr_p,tableEntryOffs);
+
     dualprocshm_targetWriteData(tableBase + tableEntryOffs,DYN_MEM_TABLE_ENTRY_SIZE,(UINT8 *)&addr_p);
 }
 //------------------------------------------------------------------------------
 /**
 \brief  read the buffer address from dynamic memory mapping table
 
-\param  pDrvInst_p  driver instance
-\param  index_p     buffer index.
+\param  pInstance_p  driver instance
+\param  index_p      buffer index.
 
 \return address of the buffer
 
@@ -657,7 +668,6 @@ static UINT32 getDynBuffAddr (tDualprocDrvInstance pInstance_p,UINT16 index_p)
     UINT32 buffAddr;
 
     dualprocshm_targetReadData(tableBase + tableEntryOffs,DYN_MEM_TABLE_ENTRY_SIZE,(UINT8 *)&buffAddr);
-   // if(index_p == 8)
-    //TRACE("Get Id %d Base %x Off:%x\n",index_p,buffAddr,tableEntryOffs);
+
     return buffAddr;
 }

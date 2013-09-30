@@ -512,7 +512,6 @@ tCircBufError circbuf_readData(tCircBufInstance* pInstance_p, void* pData_p,
     if (dataSize > size_p)
     {
             circbuf_unlock(pInstance_p);
-            printf("Com'a ya mizy allocate so'memory!\n");
             return kCircBufReadsizeTooSmall;
     }
 
@@ -573,9 +572,7 @@ The function returns the available data count
 UINT32 circbuf_getDataCount(tCircBufInstance* pInstance_p)
 {
     tCircBufHeader*     pHeader = pInstance_p->pCircBufHeader;
-   // circbuf_lock(pInstance_p);
     TARGET_INVALIDATE_DCACHE(&pHeader->dataCount,sizeof(UINT32));
-    //circbuf_unlock(pInstance_p);
     return pHeader->dataCount;
 }
 

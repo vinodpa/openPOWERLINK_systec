@@ -72,7 +72,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // const defines
 //------------------------------------------------------------------------------
 #define CTRL_MAGIC                      0xA5A5
-#define CTRL_PROC_ID                    0x02
+#define CTRL_PROC_ID                    0xFB
 #define DUALPROCSHM_DYNBUFF_ID          0x09
 #define TARGET_MAX_INTERRUPTS           4
 //------------------------------------------------------------------------------
@@ -93,6 +93,7 @@ typedef struct sCtrlBuff
     volatile UINT16     retval;     ///< return word
     UINT16              resv;        ///< reserved
     UINT16              irqEnable;  ///< enable irqs
+  //  UINT32              keventCount;
     union
     {
        volatile UINT16 irqSet;      ///< set irq (Pcp)
@@ -106,6 +107,7 @@ typedef struct
     tDualprocDrvInstance dualProcDrvInst;
     UINT8*               initParamBase;
     size_t               initParamBuffSize;
+  //  UINT32               keventCountLocal;
 }tCtrlkCalInstance;
 //------------------------------------------------------------------------------
 // local vars
@@ -226,19 +228,20 @@ This function provides processing time for the CAL module.
 //------------------------------------------------------------------------------
 tEplKernel ctrlkcal_process (void)
 {
-    UINT16 status;
-   // if(dualprocshm_process(instance_l.dualProcDrvInst)
-  //         != kDualprocSuccessful)
-  //  {
-  //      EPL_DBGLVL_ERROR_TRACE ("Could not initialize Dual processor driver \n");
-  //     return kEplInvalidOperation;
-  //  }
-    dualprocshm_readDataCommon(instance_l.dualProcDrvInst,offsetof(tCtrlBuff,status), \
-                                              sizeof(status),(UINT8 *)&status);
-    if(status == kCtrlStatusRunning )
-    {
+    // process kernel events
+    UINT32 count;
+
+//    if(dualprocshm_readDataCommon(instance_l.dualProcDrvInst,offsetof(tCtrlBuff,keventCount), \
+//                sizeof(count),(UINT8 *)&count) != kDualprocSuccessful)
+//        return kEplGeneralError;
+ //printf("count %d\n",count);
+ //   if(count > instance_l.keventCountLocal)
+ //   {
+      //  printf("count %d %d\n",count,instance_l.keventCountLocal);
         eventkcal_process();
-    }
+ //       instance_l.keventCountLocal++;
+ //   }
+
     return kEplSuccessful;
 }
 

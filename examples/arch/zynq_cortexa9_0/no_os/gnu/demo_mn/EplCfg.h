@@ -96,7 +96,6 @@ The queue defines determine the stack's queues.
     ///< disable shared buffer
 /**@}*/
 
-
 /**
 \name Data Link Layer defines
 The Data Link Layer (DLL) defines determine the POWERLINK DLL module.
@@ -137,7 +136,7 @@ The SDO defines determine the SDO stack configuration.
 /**@}*/
 
 
-#define	EPL_CDC_ON_SD				TRUE
+#define	EPL_CDC_ON_SD                        TRUE
 //------------------------------------------------------------------------------
 // typedef
 //------------------------------------------------------------------------------

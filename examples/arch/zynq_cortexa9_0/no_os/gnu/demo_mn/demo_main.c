@@ -74,7 +74,7 @@ tEplKernel PUBLIC processEvents(tEplApiEventType EventType_p, tEplApiEventArg* p
 // const defines
 //------------------------------------------------------------------------------
 #define NODEID      0xF0                //=> MN
-#define CYCLE_LEN   UINT_MAX
+#define CYCLE_LEN   5000
 #define IP_ADDR     0xc0a86401          // 192.168.100.1
 #define SUBNET_MASK 0xFFFFFF00          // 255.255.255.0
 #define HOSTNAME    "openPOWERLINK Stack    "
@@ -193,17 +193,17 @@ int  main (void)
 
     EplApiInitParam.m_dwFeatureFlags            = -1;
     EplApiInitParam.m_dwCycleLen                = uiCycleLen_g;     // required for error detection
-    EplApiInitParam.m_uiIsochrTxMaxPayload      = 256;              // const
-    EplApiInitParam.m_uiIsochrRxMaxPayload      = 256;              // const
-    EplApiInitParam.m_dwPresMaxLatency          = 50000;            // const; only required for IdentRes
-    EplApiInitParam.m_uiPreqActPayloadLimit     = 36;               // required for initialisation (+28 bytes)
-    EplApiInitParam.m_uiPresActPayloadLimit     = 36;               // required for initialisation of Pres frame (+28 bytes)
+    EplApiInitParam.m_uiIsochrTxMaxPayload      = 1490;              // const
+    EplApiInitParam.m_uiIsochrRxMaxPayload      = 1490;              // const
+    EplApiInitParam.m_dwPresMaxLatency          = 20000;            // const; only required for IdentRes
+    EplApiInitParam.m_uiPreqActPayloadLimit     = 1490;               // required for initialisation (+28 bytes)
+    EplApiInitParam.m_uiPresActPayloadLimit     = 1490;               // required for initialisation of Pres frame (+28 bytes)
     EplApiInitParam.m_dwAsndMaxLatency          = 150000;           // const; only required for IdentRes
     EplApiInitParam.m_uiMultiplCycleCnt         = 0;                // required for error detection
     EplApiInitParam.m_uiAsyncMtu                = 1500;             // required to set up max frame size
     EplApiInitParam.m_uiPrescaler               = 2;                // required for sync
-    EplApiInitParam.m_dwLossOfFrameTolerance    = 500000;
-    EplApiInitParam.m_dwAsyncSlotTimeout        = 3000000;
+    EplApiInitParam.m_dwLossOfFrameTolerance    = 5000000;
+    EplApiInitParam.m_dwAsyncSlotTimeout        = 30000;
     EplApiInitParam.m_dwWaitSocPreq             = -1;
     EplApiInitParam.m_dwDeviceType              = -1;               // NMT_DeviceType_U32
     EplApiInitParam.m_dwVendorId                = -1;               // NMT_IdentityObject_REC.VendorId_U32
@@ -214,7 +214,7 @@ int  main (void)
     EplApiInitParam.m_dwSubnetMask              = SUBNET_MASK;
     EplApiInitParam.m_dwDefaultGateway          = 0;
     EPL_MEMCPY(EplApiInitParam.m_sHostname, sHostname, sizeof(EplApiInitParam.m_sHostname));
-    EplApiInitParam.m_uiSyncNodeId              = EPL_C_ADR_SYNC_ON_SOA;
+    EplApiInitParam.m_uiSyncNodeId              = EPL_C_ADR_SYNC_ON_SOC;
     EplApiInitParam.m_fSyncOnPrcNode            = FALSE;
 
     // set callback functions
@@ -383,7 +383,8 @@ tEplKernel PUBLIC AppCbSync(void)
     }
 
     uiCnt_g++;
-
+    pProcessImageIn_l->CN1_M00_Digital_Ouput_32_Bit_DWORD_01 = uiCnt_g;
+/*
     nodeVar_g[0].m_uiInput = pProcessImageOut_l->CN1_M00_Digital_Input_8_Bit_Byte_1;
     nodeVar_g[1].m_uiInput = pProcessImageOut_l->CN2_M00_Digital_Input_8_Bit_Byte_1;
     nodeVar_g[2].m_uiInput = pProcessImageOut_l->CN3_M00_Digital_Input_8_Bit_Byte_1;
@@ -401,7 +402,7 @@ tEplKernel PUBLIC AppCbSync(void)
     {
         /* Running Leds */
         /* period for LED flashing determined by inputs */
-        nodeVar_g[i].m_uiPeriod = (nodeVar_g[i].m_uiInput == 0) ? 20 : (nodeVar_g[i].m_uiInput * 20);
+/*        nodeVar_g[i].m_uiPeriod = (nodeVar_g[i].m_uiInput == 0) ? 20 : (nodeVar_g[i].m_uiInput * 20);
         if (uiCnt_g % nodeVar_g[i].m_uiPeriod == 0)
         {
             if (nodeVar_g[i].m_uiLeds == 0x00)
@@ -453,7 +454,7 @@ tEplKernel PUBLIC AppCbSync(void)
     pProcessImageIn_l->CN10_M00_Digital_Ouput_8_Bit_Byte_1 = nodeVar_g[9].m_uiLeds;
     pProcessImageIn_l->CN11_M00_Digital_Ouput_8_Bit_Byte_1 = nodeVar_g[10].m_uiLeds;
     pProcessImageIn_l->CN12_M00_Digital_Ouput_8_Bit_Byte_1 = nodeVar_g[11].m_uiLeds;
-
+*/
     EplRet = oplk_exchangeProcessImageIn();
 
     return EplRet;

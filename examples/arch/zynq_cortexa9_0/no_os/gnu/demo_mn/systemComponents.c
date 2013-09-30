@@ -169,7 +169,6 @@ inline void SysComp_disableSyncInterrupt(void)
 {
 #ifdef XPAR_FABRIC_AXI_POWERLINK_0_AP_SYNCIRQ_VEC_ID
 	XScuGic_Disable(&sGicInstance_l, SYNC_IRQ_NUM);
-	//TODO: Check if we have to disconnect handler
 #endif
 }
 /**
@@ -228,7 +227,6 @@ inline void SysComp_disableAsyncInterrupt(void)
 {
 #ifdef XPAR_FABRIC_AXI_POWERLINK_0_AP_ASYNCIRQ_VEC_ID
 	XScuGic_Disable(&sGicInstance_l, ASYNC_IRQ_NUM);
-	//TODO: Check if we have to disconnect handler
 #endif
 }
 

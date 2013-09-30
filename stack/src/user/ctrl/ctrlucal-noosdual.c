@@ -75,7 +75,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 // const defines
 //------------------------------------------------------------------------------
-#define CTRL_PROC_ID            0x01
+#define CTRL_PROC_ID            0xFA
 #define DUALPROCSHM_DYNBUFF_ID  0x09
 #define TARGET_MAX_INTERRUPTS   4
 //------------------------------------------------------------------------------
@@ -96,6 +96,7 @@ typedef struct sCtrlBuff
     volatile UINT16     retval;     ///< return word
     UINT16              resv;        ///< reserved
     UINT16              irqEnable;  ///< enable irqs
+  //  UINT32              keventCount;
     union
     {
        volatile UINT16 irqSet;      ///< set irq (Pcp)
@@ -119,13 +120,14 @@ typedef struct
     size_t               initParamBuffSize;
     BOOL                 fIrqMasterEnable;
     tTargetIrqCb         apfnIrqCb[TARGET_MAX_INTERRUPTS];
-}tCtrlkCalInstance;
+ //   UINT32               keventCount;
+}tCtrluCalInstance;
 
 
 //------------------------------------------------------------------------------
 // local vars
 //------------------------------------------------------------------------------
-static tCtrlkCalInstance   instance_l;
+static tCtrluCalInstance   instance_l;
 //------------------------------------------------------------------------------
 // local function prototypes
 //------------------------------------------------------------------------------
@@ -152,7 +154,7 @@ tEplKernel ctrlucal_init(void)
     tDualprocReturn dualRet;
     tDualprocConfig dualProcConfig;
 
-    EPL_MEMSET(&instance_l,0,sizeof(tCtrlkCalInstance));
+    EPL_MEMSET(&instance_l,0,sizeof(tCtrluCalInstance));
 
     EPL_MEMSET(&dualProcConfig,0,sizeof(tDualprocConfig));
 
@@ -173,7 +175,7 @@ tEplKernel ctrlucal_init(void)
                                     &instance_l.initParamBase,&instance_l.initParamBuffSize,FALSE);
     if(dualRet != kDualprocSuccessful)
     {
-        EPL_DBGLVL_ERROR_TRACE("Error Retrieving dynamic buff\n ");
+        EPL_DBGLVL_ERROR_TRACE("{%s} Error Retrieving dynamic buff %x\n ",__func__,dualRet);
         ret = kEplNoResource;
         goto Exit;
     }
@@ -181,7 +183,7 @@ tEplKernel ctrlucal_init(void)
     // Disable the Interrupts from PCP
     instance_l.fIrqMasterEnable =  FALSE;
 
-    if(target_regIrqHdl(targetInterruptHandler, (void*)&instance_l) != 0)
+    if(target_regSyncIrqHdl(targetInterruptHandler, (void*)&instance_l) != 0)
     {
         EPL_DBGLVL_ERROR_TRACE("Interrupt\n ");
         ret = kEplNoResource;
@@ -189,7 +191,7 @@ tEplKernel ctrlucal_init(void)
     }
 
     // enable system irq
-    target_enableIrq(TRUE);
+    target_enableSyncIrq(TRUE);
 
 
 
@@ -213,8 +215,8 @@ void ctrlucal_exit (void)
     instance_l.fIrqMasterEnable =  FALSE;
 
     // disable system irq
-    target_enableIrq(FALSE);
-    target_regIrqHdl(NULL, NULL);
+    target_enableSyncIrq(FALSE);
+    target_regSyncIrqHdl(NULL, NULL);
 
 
     dualRet = dualprocshm_freeMemory(instance_l.dualProcDrvInst,DUALPROCSHM_DYNBUFF_ID,FALSE);
@@ -250,12 +252,6 @@ tEplKernel ctrlucal_process (void)
     {
         instance_l.fIrqMasterEnable = TRUE;
     }
-    //TODO : @gks can this be moved ??
-  //  if(dualprocshm_process(instance_l.dualProcDrvInst) != kDualprocSuccessful)
-   // {
-   //     EPL_DBGLVL_ERROR_TRACE ("Could not initialize Dual processor driver \n");
-   //    return kEplInvalidOperation;
-  //  }
 
     return kEplSuccessful;
 }
@@ -524,7 +520,17 @@ tEplKernel ctrlucal_registerHandler(UINT8 irqId_p,void* pfnIrqHandler_p)
 
     return kEplSuccessful;
 }
-
+/*
+tEplKernel ctrlucal_signalKernelEvent(void)
+{
+    instance_l.keventCount++;
+    if(dualprocshm_writeDataCommon(instance_l.dualProcDrvInst,offsetof(tCtrlBuff,keventCount), \
+                    sizeof(instance_l.keventCount),(UINT8 *)&instance_l.keventCount) != kDualprocSuccessful)
+    {
+        return kEplInvalidOperation;
+    }
+    //printf("Ctrl Signal %d\n",instance_l.keventCount);
+}*/
 //============================================================================//
 //            P R I V A T E   F U N C T I O N S                               //
 //============================================================================//

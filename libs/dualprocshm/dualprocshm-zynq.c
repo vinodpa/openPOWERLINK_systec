@@ -50,6 +50,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // const defines
 //------------------------------------------------------------------------------
 #define DEFAULT_LOCK_ID             0x00
+#define TARGET_LOCK                 0xFF
 //------------------------------------------------------------------------------
 // module global vars
 //------------------------------------------------------------------------------
@@ -66,6 +67,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // const defines
 //------------------------------------------------------------------------------
 
+static UINT8*      masterLock = (UINT8*) COMMON_MEM_BASE;
 
 //============================================================================//
 //            P U B L I C   F U N C T I O N S                                 //
@@ -78,6 +80,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 \param  pSize_p      minimum size of the common memory, returns the
                      actual size of common memory
 \return pointer to base address of common memory
+
+\ingroup module_dualprocshm
  */
 //------------------------------------------------------------------------------
 UINT8* dualprocshm_getCommonMemAddr(UINT16* pSize_p)
@@ -90,12 +94,12 @@ UINT8* dualprocshm_getCommonMemAddr(UINT16* pSize_p)
         return NULL;
     }
 
-    pAddr = (UINT8 *) COMMON_MEM_BASE;
+    pAddr = (UINT8 *) (COMMON_MEM_BASE + 1);
 
-    memset(pAddr,0,MAX_COMMON_MEM_SIZE);
+    memset(pAddr,0,MAX_COMMON_MEM_SIZE - 1);
 
-    *pSize_p = MAX_COMMON_MEM_SIZE;
-
+    *pSize_p = MAX_COMMON_MEM_SIZE - 1;
+    *masterLock = 0;
     return pAddr;
 }
 //------------------------------------------------------------------------------
@@ -105,12 +109,12 @@ UINT8* dualprocshm_getCommonMemAddr(UINT16* pSize_p)
 
 \param  pSize_p      size of the common memory
 
-
+\ingroup module_dualprocshm
  */
 //------------------------------------------------------------------------------
 void dualprocshm_releaseCommonMemAddr(UINT16 pSize_p)
 {
-
+    // nothing to do be done on zynq
 }
 //------------------------------------------------------------------------------
 /**
@@ -118,6 +122,8 @@ void dualprocshm_releaseCommonMemAddr(UINT16 pSize_p)
         dynamic mapping table
 
 \return pointer to base address of dynamic mapping table
+
+\ingroup module_dualprocshm
 */
 //------------------------------------------------------------------------------
 UINT8* dualprocshm_getDynMapTableAddr(void)
@@ -132,27 +138,29 @@ UINT8* dualprocshm_getDynMapTableAddr(void)
 /**
 \brief  Target specific to routine to retrieve the base address for storing
         dynamic mapping table
+
+\ingroup module_dualprocshm
  */
 //------------------------------------------------------------------------------
 void dualprocshm_releaseDynMapTableAddr()
 {
-
+    // nothing to be done on zynq
 }
 //------------------------------------------------------------------------------
 /**
 \brief  Target specific memory read routine
 
-\param  base      base address to be read
-\param  Size_p    No of bytes to be read
-\param  pData_p   Pointer to receive the read data
+\param  pBase_p    base address to be read
+\param  Size_p     No of bytes to be read
+\param  pData_p    Pointer to receive the read data
 
+\ingroup module_dualprocshm
  */
 //------------------------------------------------------------------------------
 void dualprocshm_targetReadData(UINT8* pBase_p, UINT16 Size_p, UINT8* pData_p)
 {
     if(pBase_p == NULL || pData_p == NULL)
     {
-        printf("Unhandled\n");
         return;
     }
 
@@ -165,17 +173,17 @@ void dualprocshm_targetReadData(UINT8* pBase_p, UINT16 Size_p, UINT8* pData_p)
 /**
 \brief  Target specific memory write routine
 
-\param  base      base address to be written
-\param  Size_p    No of bytes to write
-\param  pData_p   Pointer to memory containing data to written
+\param  pBase_p      base address to be written
+\param  Size_p       No of bytes to write
+\param  pData_p      Pointer to memory containing data to written
 
+\ingroup module_dualprocshm
  */
 //------------------------------------------------------------------------------
 void dualprocshm_targetWriteData(UINT8* pBase_p, UINT16 Size_p, UINT8* pData_p)
 {
     if(pBase_p == NULL || pData_p == NULL)
     {
-        printf("Unhandled\n");
         return;
     }
 
@@ -184,40 +192,125 @@ void dualprocshm_targetWriteData(UINT8* pBase_p, UINT16 Size_p, UINT8* pData_p)
     DUALPROCSHM_FLUSH_DCACHE_RANGE((UINT32)pBase_p,Size_p);
 
 }
+//------------------------------------------------------------------------------
+/**
+\brief  Target specific memory lock routine(acquire)
 
-void dualprocshm_targetAcquireLock(UINT8* pBase_p, UINT8 lockToken_p)
+This routine provides support for a token based lock using the common memory.
+The caller needs to pass the base address and the token for locking a resource
+such as memory buffers
+
+\param  pBase_p         base address of the lock memory
+\param  lockToken_p     token to be used for locking
+\param  pData_p   Pointer to memory containing data to written
+
+\ingroup module_dualprocshm
+ */
+//------------------------------------------------------------------------------
+void dualprocshm_targetAcquireLock(UINT8* pBase_p, UINT8 lockToken_p,UINT8 id)
 {
     UINT8 lock = 0;
+int count =0;
     if(pBase_p == NULL)
     {
-        printf("Unhandled\n");
         return;
     }
 
+    // spin till the passed token is written into memory
     do{
-        DUALPROCSHM_INVALIDATE_DCACHE_RANGE((UINT32)pBase_p,1);
-        lock = DPSHM_READ8(pBase_p);
+        DUALPROCSHM_INVALIDATE_DCACHE_RANGE((UINT32)pBase_p,sizeof(UINT8));
+        lock = DPSHM_READ8((UINT32)pBase_p);
 
         if(lock == DEFAULT_LOCK_ID)
         {
-            DPSHM_WRITE8(pBase_p,lockToken_p);
-            DUALPROCSHM_FLUSH_DCACHE_RANGE((UINT32)pBase_p,1);
+            DPSHM_WRITE8((UINT32)pBase_p,lockToken_p);
+            DUALPROCSHM_FLUSH_DCACHE_RANGE((UINT32)pBase_p,sizeof(UINT8));
             continue;
         }
+/*        else
+        {
+            if(lock != lockToken_p)
+            {
+                count++;
+                if(count > 500)
+                {
+#ifdef __MICROBLAZE__
+          //          printf("Lock %x %d t %x\n",*pBase_p,id,lockToken_p);
+#endif
+                    count = 0;
+
+                }
+
+            }
+         //
+        }*/
       }while(lock != lockToken_p);
+
 }
 
+//------------------------------------------------------------------------------
+/**
+\brief  Target specific memory lock routine(release)
+
+This routine is used to release a lock acquired before at a address specified
+
+\param  pBase_p         base address of the lock memory
+
+\ingroup module_dualprocshm
+ */
+//------------------------------------------------------------------------------
 void dualprocshm_targetReleaseLock(UINT8* pBase_p)
 {
+    UINT8   defaultlock = DEFAULT_LOCK_ID;
     if(pBase_p == NULL)
     {
-        printf("Unhandled\n");
         return;
     }
+  //  printf("Ulk %x\n",*pBase_p);
+    DPSHM_WRITE8((UINT32)pBase_p,defaultlock);
 
-    DPSHM_WRITE8(pBase_p,DEFAULT_LOCK_ID);
-    DUALPROCSHM_FLUSH_DCACHE_RANGE((UINT32)pBase_p,1);
+    DUALPROCSHM_FLUSH_DCACHE_RANGE((UINT32)pBase_p,sizeof(UINT8));
 }
 /**
  * EOF
  */
+void target_acquireMasterLock(UINT8 token_p,UINT8 id)
+{
+    UINT8 lock = 0;
+    int count = 0;
+    do{
+            DUALPROCSHM_INVALIDATE_DCACHE_RANGE((UINT32)masterLock,sizeof(UINT8));
+            lock = DPSHM_READ8((UINT32)masterLock);
+//printf("Lock %d\n",lock);
+            if(lock == DEFAULT_LOCK_ID)
+            {
+
+                DPSHM_WRITE8((UINT32)masterLock, token_p);
+                DUALPROCSHM_FLUSH_DCACHE_RANGE((UINT32)masterLock,sizeof(UINT8));
+                continue;
+            }
+ /*           else
+            {
+                if(lock != token_p)
+                {
+                    count++;
+                    if(count > 500)
+                    {
+#ifdef __MICROBLAZE__
+     //                   printf("mLock %x %d t %x\n",*masterLock,id,token_p);
+#endif
+                        count = 0;
+                    }
+
+                }
+             //
+            }*/
+       }while(lock != token_p);
+}
+void target_releaseMasterLock(void)
+{
+    UINT8 lock = DEFAULT_LOCK_ID;
+   // printf("mUlk %x\n",*masterLock);
+    DPSHM_WRITE8((UINT32)masterLock,lock);
+    DUALPROCSHM_FLUSH_DCACHE_RANGE((UINT32)masterLock,sizeof(UINT8));
+}
