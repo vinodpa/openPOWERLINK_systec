@@ -1,8 +1,8 @@
 /**
 ********************************************************************************
-\file   target-microblaze.c
+\file   target-arm.c
 
-\brief  target specific functions for Microblaze without OS
+\brief  target specific functions for ARM on Zynq without OS
 
 This target depending module provides several functions that are necessary for
 systems without shared buffer and any OS.
@@ -11,7 +11,7 @@ systems without shared buffer and any OS.
 *******************************************************************************/
 
 /*------------------------------------------------------------------------------
-Copyright (c) 2013, Bernecker+Rainer Industrie-Elektronik Ges.m.b.H. (B&R)
+Copyright (c) 2012, Kalycito Infotech Pvt Ltd, Coimbatore
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -40,19 +40,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 // includes
 //------------------------------------------------------------------------------
-#include <Epl.h>
-#include <xparameters.h>
-#include "xilinx_usleep.h"
-#include "xilinx_irq.h"
+#include <global.h>
+#include <xscugic.h>
+#include <xtime_l.h>
 #include "systemComponents.h"
-//============================================================================//
-//            G L O B A L   D E F I N I T I O N S                             //
-//============================================================================//
+#include "xil_cache.h"
+#include "xil_types.h"
+#include "xscugic.h"
+#include "xil_io.h"
+#include "xil_exception.h"
+#include <unistd.h>
+
 
 //------------------------------------------------------------------------------
 // const defines
 //------------------------------------------------------------------------------
-#define TGTCONIO_MS_IN_US(x)    (x*1000U)
 
 //------------------------------------------------------------------------------
 // module global vars
@@ -69,7 +71,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 // const defines
 //------------------------------------------------------------------------------
-
+#define TGTCONIO_MS_IN_US(x)         (x*1000U)
+#define TARGET_SYNC_IRQ_ID           XPAR_PS7_SCUGIC_0_DEVICE_ID
+#define TARGET_SYNC_IRQ              XPAR_FABRIC_AXI_POWERLINK_0_TCP_IRQ_INTR
 //------------------------------------------------------------------------------
 // local types
 //------------------------------------------------------------------------------
@@ -90,7 +94,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /**
 \brief    returns current system tick
 
-This function returns the currect system tick determined by the system timer.
+This function returns the current system tick determined by the system timer.
 
 \return system tick
 \retval DWORD
@@ -98,11 +102,15 @@ This function returns the currect system tick determined by the system timer.
 \ingroup module_target
 */
 //------------------------------------------------------------------------------
-DWORD PUBLIC EplTgtGetTickCountMs (void)
+DWORD PUBLIC EplTgtGetTickCountMs(void)
 {
     DWORD dwTicks;
+    XTime* ticks;
+    /*Uses global timer functions*/
 
-    dwTicks = getMSCount();
+    XTime_GetTime(ticks);
+    /*Select the lower 32 bit of the timer value*/
+    dwTicks = (DWORD)(((2000 * (*ticks))/XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ));
 
     return dwTicks;
 }
@@ -119,24 +127,15 @@ This function enabels/disables global interrupts.
 \ingroup module_target
 */
 //------------------------------------------------------------------------------
-void PUBLIC EplTgtEnableGlobalInterrupt (BYTE fEnable_p)
+void EplTgtEnableGlobalInterrupt (BYTE fEnable_p)
 {
-static int              iLockCount = 0;
-
-    if (fEnable_p != FALSE)
-    {   // restore interrupts
-        if (--iLockCount == 0)
-        {
-            enableInterruptMaster();
-        }
+    if(fEnable_p == TRUE)
+    {
+        SysComp_enableInterrupts();
     }
     else
-    {   // disable interrupts
-        if (iLockCount == 0)
-        {
-            disableInterruptMaster();
-        }
-        iLockCount++;
+    {
+        SysComp_disableInterrupts();
     }
 }
 
@@ -153,29 +152,26 @@ This function obtains if the CPU is in interrupt context.
 \ingroup module_target
 */
 //------------------------------------------------------------------------------
-BYTE PUBLIC EplTgtIsInterruptContext (void)
+BYTE EplTgtIsInterruptContext (void)
 {
     // No real interrupt context check is performed.
     // This would be possible with a flag in the ISR, only.
     // For now, the global interrupt enable flag is checked.
 
-    DWORD dwGIE;
+    // Read the distributor state
+    u32 Distributor_state = Xil_In32(XPAR_PS7_SCUGIC_0_DIST_BASEADDR + XSCUGIC_DIST_EN_OFFSET);
+    // Read the DP (Distributor) and CP (CPU interface) state
+    u32 CPUif_state = Xil_In32(XPAR_SCUGIC_0_CPU_BASEADDR + XSCUGIC_CONTROL_OFFSET);
 
-    dwGIE = Xil_In32(XPAR_PCP_INTC_BASEADDR + XIN_MER_OFFSET) & \
-            XIN_INT_MASTER_ENABLE_MASK;
-
-    if(dwGIE == 0)
+    if(Distributor_state && CPUif_state)
     {
-        //master enable is off
         return TRUE;
     }
     else
     {
-        //master enable is on
         return FALSE;
     }
 }
-
 //------------------------------------------------------------------------------
 /**
 \brief  Initialize target specific stuff
@@ -188,9 +184,17 @@ openPOWERLINK stack.
 //------------------------------------------------------------------------------
 tEplKernel target_init(void)
 {
+u32 version = 0;
+#if defined(__arm__)
+
+    Xil_DCacheFlush();
     SysComp_initPeripheral();
-    SysComp_enableInterrupts();
+
     return kEplSuccessful;
+#else
+    // Add Here any other platform specific code
+	return kEplSuccessful;
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -204,8 +208,6 @@ The function cleans-up target specific stuff.
 //------------------------------------------------------------------------------
 tEplKernel target_cleanup(void)
 {
-    //TODO jz: do stuff in systemComponents.c here?
-
     return kEplSuccessful;
 }
 
@@ -216,7 +218,7 @@ tEplKernel target_cleanup(void)
 The function makes the calling thread sleep until the number of specified
 milliseconds have elapsed.
 
-\param  milliSecond_p       Number of milliseconds to sleep
+\param  mseconds_p              Number of milliseconds to sleep
 
 \ingroup module_target
 */
@@ -224,6 +226,46 @@ milliseconds have elapsed.
 void target_msleep (unsigned int milliSecond_p)
 {
     usleep(TGTCONIO_MS_IN_US(milliSecond_p));
+}
+//------------------------------------------------------------------------------
+/**
+\brief Register synchronization interrupt handler
+
+The function registers the ISR for target specific synchronization interrupt
+used by the application for PDO and event synchronization.
+
+\param  callback_p              interrupt handler
+\param  pArg_p                  argument to be passed while calling the handler
+
+\ingroup module_target
+*/
+//------------------------------------------------------------------------------
+int target_regSyncIrqHdl( void* callback_p,void* pArg_p)
+{
+    return SysComp_initSyncInterrupt(TARGET_SYNC_IRQ,(Xil_InterruptHandler) callback_p,pArg_p);
+}
+//------------------------------------------------------------------------------
+/**
+\brief Sync interrupt control rroutine
+
+The function is used to enable or disable the sync interrupt
+
+\param  fEnable_p              enable if TRUE, disable if FALSE
+
+\ingroup module_target
+*/
+//------------------------------------------------------------------------------
+void target_enableSyncIrq(BOOL fEnable_p)
+{
+    if(fEnable_p)
+    {
+        XScuGic_EnableIntr(TARGET_SYNC_IRQ_ID, TARGET_SYNC_IRQ);
+    }
+    else
+    {
+        XScuGic_DisableIntr(TARGET_SYNC_IRQ_ID, TARGET_SYNC_IRQ);
+    }
+
 }
 
 //============================================================================//
