@@ -2,10 +2,10 @@
 ********************************************************************************
 \file   eventkcal-noosdual.c
 
-\brief  Kernel event CAL module using shared memory on NON-OS systems
+\brief  Kernel event CAL module using shared memory on non-OS systems
 
 This kernel event CAL module implementation uses circular buffers and direct calls
-on NON-OS systems running on dual processor with shared memory interface.
+on non-OS systems running on dual processor with shared memory interface.
 
 \ingroup module_eventkcal
 *******************************************************************************/
@@ -105,7 +105,7 @@ static tEventkCalInstance   instance_l;             ///< Instance variable of ke
 /**
 \brief    Initialize kernel event CAL module
 
-The function initializes the kernel event CAL module on Linux.
+The function initializes the kernel event CAL module for non-OS.
 
 \return The function returns a tEplKernel error code.
 \retval kEplSuccessful          If function executes correctly
@@ -232,9 +232,9 @@ void eventkcal_process(void)
     // process user->kernel events
     if(eventkcal_getEventCountCircbuf(kEventQueueU2K) > 0)
     {
-       // EplTgtEnableGlobalInterrupt(FALSE);
+        EplTgtEnableGlobalInterrupt(FALSE);
         eventkcal_processEventCircbuf(kEventQueueU2K);
-      //  EplTgtEnableGlobalInterrupt(TRUE);
+        EplTgtEnableGlobalInterrupt(TRUE);
     }
 }
 //============================================================================//

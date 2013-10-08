@@ -7,14 +7,42 @@
 
 This module contains of platform specific definitions.
 
-Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
-All rights reserved. All use of this software and documentation is
-subject to the License Agreement located at the end of this file below.
+\ingroup module_demo
 
 *******************************************************************************/
+/*------------------------------------------------------------------------------
+Copyright (c) 2012, Bernecker+Rainer Industrie-Elektronik Ges.m.b.H. (B&R)
+Copyright (c) 2012, SYSTEC electronik GmbH
+Copyright (c) 2012, Kalycito Infotech Private Ltd.
+All rights reserved.
 
-/*******************************************************************************/
-/* includes */
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of the copyright holders nor the
+      names of its contributors may be used to endorse or promote products
+      derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+------------------------------------------------------------------------------*/
+
+
+//------------------------------------------------------------------------------
+// includes
+//------------------------------------------------------------------------------
 #include "systemComponents.h"
 
 #include "xil_cache.h"
@@ -43,8 +71,8 @@ XScuGic sGicInstance_l;
 
 /******************************************************************************/
 /* function declarations */
-static int Gic_CfgInitialize(XScuGic *pInstancePtr_p, unsigned int uiDeviceID);
-static void Gic_InitDistributor (XScuGic_Config *pConfig_p, int iCpuID_p);
+static int Gic_CfgInitialize(XScuGic *pInstancePtr_p, unsigned int deviceID);
+static void Gic_InitDistributor (XScuGic_Config *pConfig_p, int cpuID_p);
 static void Gic_InitCpuInterface (XScuGic_Config *Config);
 static void Gic_StubHandler(void *CallBackRef);
 static void Gic_InterruptHandler(XScuGic *InstancePtr);
@@ -55,13 +83,16 @@ static void Gic_InterruptHandler(XScuGic *InstancePtr);
 /******************************************************************************/
 /* functions */
 
+//------------------------------------------------------------------------------
 /**
-********************************************************************************
-\brief  init the peripherals of the ARM processor
+\brief    Initialize the processor peripheral
 
-This function init's the peripherals of the ARM like cache and the interrupt
-controller.
-*******************************************************************************/
+Enable/invalidate the instruction and data cache. Reset the Leds and init
+the interrupt.
+
+\ingroup module_demo
+*/
+//------------------------------------------------------------------------------
 void SysComp_initPeripheral(void)
 {
     /*Release MB!*/
@@ -78,12 +109,15 @@ void SysComp_initPeripheral(void)
 
 }
 
+//------------------------------------------------------------------------------
 /**
-********************************************************************************
-\brief enables the interrupts
+\brief    Enable global interrupts
 
-This function enables the interrupts of the Host processor on ARM
-*******************************************************************************/
+Enable global interrupt on processor
+
+\ingroup module_demo
+*/
+//------------------------------------------------------------------------------
 inline void SysComp_enableInterrupts(void)
 {
     //Global interrupt enable
@@ -93,12 +127,15 @@ inline void SysComp_enableInterrupts(void)
     Xil_Out32((XPAR_SCUGIC_0_CPU_BASEADDR + XSCUGIC_CONTROL_OFFSET), XSCUGIC_CNTR_EN_S_MASK);
 }
 
+//------------------------------------------------------------------------------
 /**
-********************************************************************************
-\brief disables the interrupts
+\brief    Disable global interrupts
 
-This function disables the interrupts of the Host processor on ARM
-*******************************************************************************/
+Disable global interrupt on processor
+
+\ingroup module_demo
+*/
+//------------------------------------------------------------------------------
 inline void SysComp_disableInterrupts(void)
 {
     // Disable all interrupts from the distributor
@@ -107,22 +144,25 @@ inline void SysComp_disableInterrupts(void)
     Xil_Out32((XPAR_SCUGIC_0_CPU_BASEADDR + XSCUGIC_CONTROL_OFFSET), 0UL);
 }
 
+//------------------------------------------------------------------------------
 /**
-********************************************************************************
-\brief  initialize synchronous interrupt
+\brief  Initialize synchronous interrupt
 
-SysComp_initSyncInterrupt() initializes the synchronous interrupt. The timing parameters
+This function initializes the synchronous interrupt. The timing parameters
 will be initialized, the interrupt handler will be connected and the interrupt
 will be enabled.
 
 \param  Int_p                    Interrupt ID of the sync interrupt
 \param  callbackFunc             The callback of the sync interrupt
-\param  Arg_p                    argument to be passed while calling callback
+\param  Arg_p                    Argument to be passed while calling callback
 
-\return int
-\retval OK                      on success
-\retval ERROR                   if interrupt couldn't be connected
-*******************************************************************************/
+\return The function returns the error code as a integer value
+\retval OK                      On success
+\retval ERROR                   If interrupt couldn't be connected
+
+\ingroup module_demo
+*/
+//------------------------------------------------------------------------------
 int SysComp_initSyncInterrupt(int Int_p,Xil_InterruptHandler callbackFunc_p,void* Arg_p)
 {
 
@@ -141,12 +181,15 @@ int SysComp_initSyncInterrupt(int Int_p,Xil_InterruptHandler callbackFunc_p,void
     return OK;
 }
 
+//------------------------------------------------------------------------------
 /**
-********************************************************************************
 \brief  Enable synchronous interrupt
 
-SysComp_enableSyncInterrupt() enables the synchronous interrupt.
-*******************************************************************************/
+This function enables the synchronous interrupt.
+
+\ingroup module_demo
+*/
+//------------------------------------------------------------------------------
 inline void SysComp_enableSyncInterrupt(void)
 {
 #ifdef XPAR_FABRIC_AXI_POWERLINK_0_AP_SYNCIRQ_VEC_ID
@@ -154,31 +197,37 @@ inline void SysComp_enableSyncInterrupt(void)
 #endif
 }
 
+//------------------------------------------------------------------------------
 /**
-********************************************************************************
 \brief  Disable synchronous interrupt
 
-SysComp_disableSyncInterrupt() disable the synchronous interrupt.
-*******************************************************************************/
+This function disable the synchronous interrupt.
+
+\ingroup module_demo
+*/
+//------------------------------------------------------------------------------
 inline void SysComp_disableSyncInterrupt(void)
 {
 #ifdef XPAR_FABRIC_AXI_POWERLINK_0_AP_SYNCIRQ_VEC_ID
     XScuGic_Disable(&sGicInstance_l, SYNC_IRQ_NUM);
 #endif
 }
+//------------------------------------------------------------------------------
 /**
-********************************************************************************
-\brief  initialize asynchronous interrupt
+\brief  Initialize asynchronous interrupt
 
-SysComp_initAsyncInterrupt() initializes the asynchronous interrupt. The interrupt handler
+This function initializes the asynchronous interrupt. The interrupt handler
 will be connected and the interrupt will be enabled.
 
 \param  callbackFunc             The callback of the async interrupt
 
-\return int
-\retval OK                       on success
-\retval ERROR                    if interrupt couldn't be connected
-*******************************************************************************/
+\return The function returns the error code as a integer value
+\retval OK                       On success
+\retval ERROR                    If interrupt couldn't be connected
+
+\ingroup module_demo
+*/
+//------------------------------------------------------------------------------
 int SysComp_initAsyncInterrupt(void (*callbackFunc)(void*))
 {
 
@@ -199,12 +248,15 @@ int SysComp_initAsyncInterrupt(void (*callbackFunc)(void*))
    return OK;
 }
 
+//------------------------------------------------------------------------------
 /**
-********************************************************************************
 \brief  Enable synchronous interrupt
 
-SysComp_enableSyncInterrupt() enables the synchronous interrupt.
-*******************************************************************************/
+This function enables the synchronous interrupt.
+
+\ingroup module_demo
+*/
+//------------------------------------------------------------------------------
 inline void SysComp_enableAsyncInterrupt(void)
 {
 #ifdef XPAR_FABRIC_AXI_POWERLINK_0_AP_ASYNCIRQ_VEC_ID
@@ -212,12 +264,15 @@ inline void SysComp_enableAsyncInterrupt(void)
 #endif
 }
 
+//------------------------------------------------------------------------------
 /**
-********************************************************************************
 \brief  Disable synchronous interrupt
 
-SysComp_disableSyncInterrupt() disable the synchronous interrupt.
-*******************************************************************************/
+This function disable the synchronous interrupt.
+
+\ingroup module_demo
+*/
+//------------------------------------------------------------------------------
 inline void SysComp_disableAsyncInterrupt(void)
 {
 #ifdef XPAR_FABRIC_AXI_POWERLINK_0_AP_ASYNCIRQ_VEC_ID
@@ -226,21 +281,25 @@ inline void SysComp_disableAsyncInterrupt(void)
 }
 
 #ifdef MN_API_USING_SPI
+
+//------------------------------------------------------------------------------
 /**
-********************************************************************************
 \brief  Execute SPI command
 
-SysComp_SPICommand() sends an SPI command to the SPI master by using the
+This function sends an SPI command to the SPI master by using the
 alt_avalon_spi_command function
 
 \param  pTxBuf_p             A pointer to the buffer to send
 \param  pRxBuf_p             A pointer to the buffer where the data should be stored
 \param  iBytes_p             The number of bytes to send or receive
 
-\return int
-\retval OK                       on success
-\retval ERROR                    in case of an error
-*******************************************************************************/
+\return The function returns the error code as a integer value
+\retval OK                       On success
+\retval ERROR                    In case of an error
+
+\ingroup module_demo
+*/
+//------------------------------------------------------------------------------
 int SysComp_SPICommand(unsigned char *pTxBuf_p, unsigned char *pRxBuf_p, int iBytes_p)
 {
     //TODO: to be integrated later
@@ -248,43 +307,48 @@ int SysComp_SPICommand(unsigned char *pTxBuf_p, unsigned char *pRxBuf_p, int iBy
 }
 #endif //CN_API_USING_SPI
 
+//------------------------------------------------------------------------------
 /**
-********************************************************************************
 \brief  write a value to the output port
 
 This function writes a value to the output port of the AP
 
-\param  dwValue_p       the value to write
-*******************************************************************************/
-void SysComp_writeOutputPort(DWORD dwValue_p)
+\param  value_p       The value to write
+
+\ingroup module_demo
+*/
+//------------------------------------------------------------------------------
+void SysComp_writeOutputPort(UINT32 value_p)
 {
     #ifdef OUTPORT_AP_BASE_ADDRESS
-        XGpio_WriteReg(OUTPORT_AP_BASE_ADDRESS, XGPIO_DATA_OFFSET, dwValue_p);
+        XGpio_WriteReg(OUTPORT_AP_BASE_ADDRESS, XGPIO_DATA_OFFSET, value_p);
     #endif
 }
 
+//------------------------------------------------------------------------------
 /**
-********************************************************************************
 \brief  read a value from the input port
 
-This function reads a value from the input port of the AP
+This function reads a value from the input port of the processor
 
-\return  DWORD
-\retval  dwValue              the value of the input port
-*******************************************************************************/
-DWORD SysComp_readInputPort(void)
+\return  The function returns the value read from the input port
+
+\ingroup module_demo
+*/
+//------------------------------------------------------------------------------
+UINT32 SysComp_readInputPort(void)
 {
-    DWORD dwValue = 0;
+    UINT32 value = 0;
 
     #ifdef INPORT_AP_BASE_ADDRESS
-        dwValue = XGpio_ReadReg(INPORT_AP_BASE_ADDRESS, XGPIO_DATA_OFFSET);
+        value = XGpio_ReadReg(INPORT_AP_BASE_ADDRESS, XGPIO_DATA_OFFSET);
     #endif
 
-    return dwValue;
+    return value;
 }
 
+//------------------------------------------------------------------------------
 /**
-*****************************************************************************
 \brief      This function initializes the distributor of the GIC on ARM
 
             - Write the trigger mode, priority and target CPU
@@ -292,10 +356,13 @@ DWORD SysComp_readInputPort(void)
             - Enable the distributor
 
 
-\param	pConfig_p
-\param	iCpuID_p
-******************************************************************************/
-static void Gic_InitDistributor (XScuGic_Config *pConfig_p, int iCpuID_p)
+\param  pConfig_p   Interrupt configuration structure
+\param  cpuID_p     CPU id of the caller
+
+\ingroup module_demo
+*/
+//------------------------------------------------------------------------------
+static void Gic_InitDistributor (XScuGic_Config *pConfig_p, int cpuID_p)
 {
     int iIntId;
 
@@ -344,11 +411,11 @@ static void Gic_InitDistributor (XScuGic_Config *pConfig_p, int iCpuID_p)
          * 3. The CPU interface in the spi_target register
          * Only write to the SPI interrupts, so start at 32
          */
-        iCpuID_p |= iCpuID_p << 8;
-        iCpuID_p |= iCpuID_p << 16;
+        cpuID_p |= cpuID_p << 8;
+        cpuID_p |= cpuID_p << 16;
 
         XScuGic_WriteReg(pConfig_p->DistBaseAddress,
-        XSCUGIC_SPI_TARGET_OFFSET_CALC(iIntId), iCpuID_p);
+        XSCUGIC_SPI_TARGET_OFFSET_CALC(iIntId), cpuID_p);
     }
 
     for (iIntId = 0; iIntId < XSCUGIC_MAX_NUM_INTR_INPUTS; iIntId+=32)
@@ -368,15 +435,18 @@ static void Gic_InitDistributor (XScuGic_Config *pConfig_p, int iCpuID_p)
             XSCUGIC_EN_INT_MASK);
 }
 
+//------------------------------------------------------------------------------
 /**
-*****************************************************************************
 \brief  This function initializes the CPU Interface of the GIC
 
           -Set the priority of the CPU
           -Enable the CPU interface
 
-\param     Config Pointer to config structure
-******************************************************************************/
+\param     Pointer to config structure
+
+\ingroup module_demo
+*/
+//------------------------------------------------------------------------------
 static void Gic_InitCpuInterface (XScuGic_Config *Config)
 {
     /*
@@ -406,15 +476,18 @@ static void Gic_InitCpuInterface (XScuGic_Config *Config)
     XScuGic_WriteReg(Config->CpuBaseAddress, XSCUGIC_CONTROL_OFFSET, 0x07);
 }
 
+//------------------------------------------------------------------------------
 /**
-*****************************************************************************
-\brief  callback stub
+\brief  Callback stub
 
 A stub for the asynchronous callback. The stub is here in case the upper
 layers forget to set the handler.
 
-\param  CallBackRef         is a pointer to the upper layer callback reference
-******************************************************************************/
+\param  CallBackRef         It is a pointer to the upper layer callback reference
+
+\ingroup module_demo
+*/
+//------------------------------------------------------------------------------
 static void Gic_StubHandler(void *CallBackRef)
 {
     /*
@@ -429,8 +502,8 @@ static void Gic_StubHandler(void *CallBackRef)
 }
 
 
+//------------------------------------------------------------------------------
 /**
-*****************************************************************************
 \brief Interrupt Handler
 
 This function is the primary interrupt handler for the driver.  It must be
@@ -450,8 +523,11 @@ all of the interrupts is honored. If nested interrupts are enabled, the
 standard interrupt processing will always only service one interrupt and then
 return.
 
- \param     InstancePtr     Is a pointer to the XScuGic instance.
-******************************************************************************/
+\param     InstancePtr     Is a pointer to the XScuGic instance.
+
+\ingroup module_demo
+*/
+//------------------------------------------------------------------------------
 static void Gic_InterruptHandler(XScuGic *InstancePtr)
 {
 
@@ -508,8 +584,8 @@ IntrExit:
      */
 }
 
+//------------------------------------------------------------------------------
 /**
-*****************************************************************************
 \brief	This function initializes a specific interrupt controller instance
 
             - initialize fields of the XScuGic structure
@@ -517,12 +593,16 @@ IntrExit:
             - init Distributor and CPU interface
 
 \param  pInstancePtr_p      Instance of GIC
-\param  uiDeviceID          Device ID of GIC
-\return int
+\param  deviceID            Device ID of GIC
+
+\return The function returns the error code as a integer value
 \retval XST_SUCCESS         On success
 \retval XST_FAILURE         On error
-******************************************************************************/
-static int Gic_CfgInitialize(XScuGic *pInstancePtr_p, unsigned int uiDeviceID)
+
+\ingroup module_demo
+*/
+//------------------------------------------------------------------------------
+static int Gic_CfgInitialize(XScuGic *pInstancePtr_p, unsigned int deviceID)
 {
     static XScuGic_Config *pConfig;
     int iIntId;
@@ -533,7 +613,7 @@ static int Gic_CfgInitialize(XScuGic *pInstancePtr_p, unsigned int uiDeviceID)
         iStatus = XST_FAILURE;
     }
 
-    pConfig = &XScuGic_ConfigTable[uiDeviceID];
+    pConfig = &XScuGic_ConfigTable[deviceID];
     pInstancePtr_p->IsReady = 0;
     pInstancePtr_p->Config = pConfig;
 
@@ -567,12 +647,15 @@ static int Gic_CfgInitialize(XScuGic *pInstancePtr_p, unsigned int uiDeviceID)
     return iStatus;
 }
 
+//------------------------------------------------------------------------------
 /**
-********************************************************************************************
 \brief	Setup interrupt controller
 
 This function sets up the interrupt and exception handling for interrupt controller
-********************************************************************************************/
+
+\ingroup module_demo
+*/
+//------------------------------------------------------------------------------
 void SysComp_InitInterrupts(void)
 {
     int iStatus;
@@ -598,41 +681,8 @@ void SysComp_InitInterrupts(void)
             &sGicInstance_l);
 
     Xil_ExceptionEnable();
+
 }
 
-/*******************************************************************************
-*
-* License Agreement
-*
-* Copyright © 2011 BERNECKER + RAINER, AUSTRIA, 5142 EGGELSBERG, B&R STRASSE 1
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms,
-* with or without modification,
-* are permitted provided that the following conditions are met:
-*
-*   * Redistributions of source code must retain the above copyright notice,
-*     this list of conditions and the following disclaimer.
-*   * Redistributions in binary form must reproduce the above copyright notice,
-*     this list of conditions and the following disclaimer
-*     in the documentation and/or other materials provided with the
-*     distribution.
-*   * Neither the name of the B&R nor the names of its contributors
-*     may be used to endorse or promote products derived from this software
-*     without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-* A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-*******************************************************************************/
 /* END-OF-FILE */
 

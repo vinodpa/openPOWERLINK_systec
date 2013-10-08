@@ -5,9 +5,9 @@
 \brief      Module which contains of processor specific functions
             (microblaze version)
 
-Provides all functions which are platform dependent for the application of the
-directIO example.
-
+Provides all functions which are platform dependent for the kernel daemon.
+*******************************************************************************/
+/*------------------------------------------------------------------------------
 Copyright (c) 2012, Bernecker+Rainer Industrie-Elektronik Ges.m.b.H. (B&R)
 Copyright (c) 2012, SYSTEC electronik GmbH
 Copyright (c) 2012, Kalycito Infotech Private Ltd.
@@ -34,7 +34,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*******************************************************************************/
+------------------------------------------------------------------------------*/
 
 #ifndef _INC_SYSTEMCOMPONENTS_H_
 #define _INC_SYSTEMCOMPONENTS_H_

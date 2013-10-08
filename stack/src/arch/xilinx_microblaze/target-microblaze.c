@@ -2,10 +2,10 @@
 ********************************************************************************
 \file   target-microblaze.c
 
-\brief  target specific functions for Microblaze without OS
+\brief  Target specific functions for Microblaze without OS
 
 This target depending module provides several functions that are necessary for
-systems without shared buffer and any OS.
+systems without OS and not using shared buffer library.
 
 \ingroup module_target
 *******************************************************************************/
@@ -88,12 +88,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //------------------------------------------------------------------------------
 /**
-\brief    returns current system tick
+\brief    Returns current system tick
 
-This function returns the currect system tick determined by the system timer.
+This function returns the current system tick determined by the system timer.
 
-\return system tick
-\retval DWORD
+\return The function returns the system tick in milliseconds
 
 \ingroup module_target
 */
@@ -109,9 +108,9 @@ DWORD PUBLIC EplTgtGetTickCountMs (void)
 
 //------------------------------------------------------------------------------
 /**
-\brief    enables global interrupt
+\brief    Enable global interrupt
 
-This function enabels/disables global interrupts.
+This function enables/disables global interrupts.
 
 \param  fEnable_p               TRUE = enable interrupts
                                 FALSE = disable interrupts
@@ -121,7 +120,7 @@ This function enabels/disables global interrupts.
 //------------------------------------------------------------------------------
 void PUBLIC EplTgtEnableGlobalInterrupt (BYTE fEnable_p)
 {
-static int              iLockCount = 0;
+    static int              iLockCount = 0;
 
     if (fEnable_p != FALSE)
     {   // restore interrupts
@@ -142,13 +141,13 @@ static int              iLockCount = 0;
 
 //------------------------------------------------------------------------------
 /**
-\brief    checks if CPU is in interrupt context
+\brief    Check if CPU is in interrupt context
 
 This function obtains if the CPU is in interrupt context.
 
-\return CPU in interrupt context
-\retval TRUE                    CPU is in interrupt context
-\retval FALSE                   CPU is NOT in interrupt context
+\return This function returns the current CPU interrupt context status
+\retval TRUE    CPU is in interrupt context
+\retval FALSE   CPU is NOT in interrupt context
 
 \ingroup module_target
 */
@@ -188,8 +187,12 @@ openPOWERLINK stack.
 //------------------------------------------------------------------------------
 tEplKernel target_init(void)
 {
+    // Initialize peripherals
     SysComp_initPeripheral();
+
+    // Initialize interrupts
     SysComp_enableInterrupts();
+
     return kEplSuccessful;
 }
 

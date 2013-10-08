@@ -48,7 +48,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // const defines
 //------------------------------------------------------------------------------
 
-#define  DUALPROC_DYNBUF_COUNT       2 ///< number of supported dynamic buffers
+#define  DUALPROC_DYNBUF_COUNT       2 ///< Number of supported dynamic buffers
 //------------------------------------------------------------------------------
 // typedef
 //------------------------------------------------------------------------------
@@ -57,16 +57,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 typedef enum eDualprocReturn
 {
-    kDualprocSuccessful     = 0x0000,       ///< no error / successful run
-    kDualprocNoResource     = 0x0001,       ///< resource could not be created
-    kDualprocInvalidParameter = 0x0002,     ///< function parameter invalid
+    kDualprocSuccessful     = 0x0000,       ///< No error / successful run
+    kDualprocNoResource     = 0x0001,       ///< Resource could not be created
+    kDualprocInvalidParameter = 0x0002,     ///< Function parameter invalid
     kDualprocWrongProcInst  = 0x0003,       ///< Processor instance wrong
-    kDualprocHwWriteError   = 0x0004,       ///< write to hw failed
-    kDualprocBufferOverflow = 0x0005,       ///< buffer size overflow
-    kDualprocBufferEmpty    = 0x0006,       ///< buffer is empty
-    kDualprocBufferError    = 0x0007,       ///< buffer is faulty
+    kDualprocHwWriteError   = 0x0004,       ///< Write to hw failed
+    kDualprocBufferOverflow = 0x0005,       ///< Buffer size overflow
+    kDualprocBufferEmpty    = 0x0006,       ///< Buffer is empty
+    kDualprocBufferError    = 0x0007,       ///< Buffer is faulty
 
-    kDualprocUnspecError    = 0xFFFF        ///< unspecified error
+    kDualprocUnspecError    = 0xFFFF        ///< Unspecified error
 } tDualprocReturn;
 
 /**
@@ -76,9 +76,8 @@ The processor instance determines if the caller is the Pcp or the Host.
 */
 typedef enum eDualProcInstance
 {
-    kDualProcPcp        = 0,            ///< instance on PCP
-    kDualProcHost       = 1,            ///< instance on Host
-
+    kDualProcFirst        = 0,            ///< Instance on first processor
+    kDualProcSecond       = 1,            ///< Instance on second processor
 } tDualProcInstance;
 
 /**
@@ -88,17 +87,22 @@ Configures the driver instance.
 */
 typedef struct sDualprocConfig
 {
-    tDualProcInstance   ProcInstance; ///< Processor instance (Pcp/Host)
-    UINT16              commMemSize;  ///< minimum size of common memory
-    UINT8               procId;
+    tDualProcInstance   ProcInstance; ///< Processor instance
+    UINT16              commMemSize;  ///< Minimum size of common memory
+    UINT8               procId;       ///< Processor Id
 
 } tDualprocConfig;
 
+/**
+\brief Memory Instance
+
+Holds information of the dynamic memory
+*/
 typedef struct sDualprocMemInst
 {
-    UINT16     span;   ///< span of the dynamic buffer
-    UINT8      lock;   ///< lock for memory
-    UINT8      resv;   ///< reserved byte;
+    UINT16     span;   ///< Span of the dynamic buffer
+    UINT8      lock;   ///< Lock for memory
+    UINT8      resv;   ///< Reserved byte;
 }tDualprocMemInst;
 
 

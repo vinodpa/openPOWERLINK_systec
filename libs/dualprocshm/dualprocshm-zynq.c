@@ -2,7 +2,7 @@
 ********************************************************************************
 \file   dualprocshm-zynq.c
 
-\brief  Dual Processor Library Support File - For Zynq target
+\brief  Dual Processor Library Support File - Zynq Platform
 
 This file provides specific function definition for Zynq to support shared memory
 interface using dual processor library
@@ -49,7 +49,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 // const defines
 //------------------------------------------------------------------------------
-#define DEFAULT_LOCK_ID             0x00
+#define DEFAULT_LOCK_ID             0x00    ///< Default lock Id
 //------------------------------------------------------------------------------
 // module global vars
 //------------------------------------------------------------------------------
@@ -71,12 +71,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //============================================================================//
 //------------------------------------------------------------------------------
 /**
-\brief  Target specific to routine to retrieve the base address of
-        common memory between dual processors
+\brief  Get common memory address for platform
 
-\param  pSize_p      minimum size of the common memory, returns the
+Target specific routine to retrieve the base address of
+common memory between two processors
+
+\param  pSize_p      Minimum size of the common memory, returns the
                      actual size of common memory
-\return pointer to base address of common memory
+
+\return Pointer to base address of common memory
 
 \ingroup module_dualprocshm
  */
@@ -101,10 +104,12 @@ UINT8* dualprocshm_getCommonMemAddr(UINT16* pSize_p)
 }
 //------------------------------------------------------------------------------
 /**
-\brief  Target specific to routine to release the base address of
-        common memory between dual processors
+\brief  Free common memory address
 
-\param  pSize_p      size of the common memory
+Target specific to routine to release the base address of
+common memory.
+
+\param  pSize_p      Size of the common memory
 
 \ingroup module_dualprocshm
  */
@@ -115,10 +120,12 @@ void dualprocshm_releaseCommonMemAddr(UINT16 pSize_p)
 }
 //------------------------------------------------------------------------------
 /**
-\brief  Target specific to routine to retrieve the base address for storing
-        dynamic mapping table
+\brief  Get dynamic mapping table base address
 
-\return pointer to base address of dynamic mapping table
+Target specific routine to retrieve the base address for storing
+dynamic mapping table
+
+\return Pointer to base address of dynamic mapping table
 
 \ingroup module_dualprocshm
 */
@@ -133,8 +140,10 @@ UINT8* dualprocshm_getDynMapTableAddr(void)
 }
 //------------------------------------------------------------------------------
 /**
-\brief  Target specific to routine to retrieve the base address for storing
-        dynamic mapping table
+\brief  Free dynamic mapping table base address
+
+Target specific routine to free the base address used for storing
+dynamic mapping table
 
 \ingroup module_dualprocshm
  */
@@ -145,9 +154,11 @@ void dualprocshm_releaseDynMapTableAddr()
 }
 //------------------------------------------------------------------------------
 /**
-\brief  Target specific memory read routine
+\brief  Read data from memory
 
-\param  pBase_p    base address to be read
+Target specific memory read routine
+
+\param  pBase_p    Base address to be read
 \param  Size_p     No of bytes to be read
 \param  pData_p    Pointer to receive the read data
 
@@ -168,9 +179,11 @@ void dualprocshm_targetReadData(UINT8* pBase_p, UINT16 Size_p, UINT8* pData_p)
 }
 //------------------------------------------------------------------------------
 /**
-\brief  Target specific memory write routine
+\brief  Write data to memory
 
-\param  pBase_p      base address to be written
+Target specific routine used to write data to the specified memory address.
+
+\param  pBase_p      Base address to be written
 \param  Size_p       No of bytes to write
 \param  pData_p      Pointer to memory containing data to written
 
@@ -197,9 +210,8 @@ This routine provides support for a token based lock using the common memory.
 The caller needs to pass the base address and the token for locking a resource
 such as memory buffers
 
-\param  pBase_p         base address of the lock memory
-\param  lockToken_p     token to be used for locking
-\param  pData_p   Pointer to memory containing data to written
+\param  pBase_p         Base address of the lock memory
+\param  lockToken_p     Token to be used for locking
 
 \ingroup module_dualprocshm
  */
@@ -234,7 +246,7 @@ void dualprocshm_targetAcquireLock(UINT8* pBase_p, UINT8 lockToken_p)
 
 This routine is used to release a lock acquired before at a address specified
 
-\param  pBase_p         base address of the lock memory
+\param  pBase_p         Base address of the lock memory
 
 \ingroup module_dualprocshm
  */

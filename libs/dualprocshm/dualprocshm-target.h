@@ -4,8 +4,9 @@
 
 \brief  Dual Processor Library - Target header file
 
-This header file defines target specific macros (e.g. data types) and selects
-the target specific header file (e.g. dualprocshm_microblaze.h).
+This header file defines platform specific macros (e.g. data types) and selects
+the platform specific header files (e.g. dualprocshm-zynq.h) which contains the
+information of processors part of the platform.
 
 *******************************************************************************/
 
@@ -52,7 +53,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #else
 
-#error "Paltform is not supported! Please point the target platform file in dualprocshm-platform.h "
+#error "Paltform is not supported! Please point the target platform file in dualprocshm-target.h "
 
 #endif
 

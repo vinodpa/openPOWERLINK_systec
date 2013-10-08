@@ -5,7 +5,7 @@
 \brief  User event CAL module using shared memory on NON-OS systems
 
 This user event CAL module implementation uses circular buffers and direct calls
-on NON-OS systems running on dual processor with shared memory interface.
+on non-OS systems running on dual processor with shared memory interface.
 
 \see eventucalintf-circbuf.c
 
@@ -234,7 +234,10 @@ void eventucal_process(void)
 {
     if (eventucal_getEventCountCircbuf(kEventQueueK2U) > 0)
     {
+        // Disable interrupts to avoid deadlocks
+        EplTgtEnableGlobalInterrupt(FALSE);
         eventucal_processEventCircbuf(kEventQueueK2U);
+        EplTgtEnableGlobalInterrupt(TRUE);
     }
 }
 

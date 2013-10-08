@@ -107,7 +107,7 @@ starting of the stack.
 //------------------------------------------------------------------------------
 tEplKernel pdokcal_openMem(void)
 {
-    tDualprocDrvInstance pInstance = dualprocshm_getDrvInst(kDualProcPcp);
+    tDualprocDrvInstance pInstance = dualprocshm_getDrvInst(kDualProcFirst);
 
     if(pInstance == NULL)
     {

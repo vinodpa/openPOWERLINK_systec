@@ -2,11 +2,24 @@
 ********************************************************************************
 \file   dualprocshm-noos.c
 
-\brief  Dual Processor Library - Using shared memory
+\brief  Dual Processor Library - Using shared memory for non-OS system
 
-Dual processor library provides routines for initialization of memory
-and interrupt resources for a shared memory interface between dual
-processor.
+This file contains implementation of dual processor library for a non-OS system.
+
+The library provides an interfacing bridge for systems having two processors
+which uses a common memory(or different memories accessible through an interface)
+for data exchange and communication.
+
+It divides the shared memory into two parts- Common memory and Dynamic Memory
+which can be implemented using two different memories or a single memory on hardware.
+The common memory can be used by application for sharing status and control
+information and is also used for implementing the dynamic address mapping table
+to exchange memory buffer addresses. The dynamic memory is allocated during
+runtime by one of the processors and can be used for implementing queue, arrays,
+or used as a shared memory.
+
+Dual processor library also requires a set of platform specific support routines
+for memory initialization and data exchange.
 
 \ingroup module_dualprocshm
 *******************************************************************************/
@@ -51,9 +64,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 // const defines
 //------------------------------------------------------------------------------
-#define DUALPROC_INSTANCE_COUNT     2   ///< number of supported instances
-#define MEM_LOCK_SIZE               1
-#define DYN_MEM_TABLE_ENTRY_SIZE    4
+#define DUALPROC_INSTANCE_COUNT     2   ///< Number of supported instances
+#define MEM_LOCK_SIZE               1   ///< Memory lock size
+#define DYN_MEM_TABLE_ENTRY_SIZE    4   ///< Size of Dynamic table entry
 
 //------------------------------------------------------------------------------
 // module global vars
@@ -97,10 +110,10 @@ functions. Additionally the base and span is provided.
 */
 typedef struct sDualprocDynRes
 {
-    tSetDynRes        pfnSetDynAddr;   ///< this function sets the dynamic buffer base to hardware
-    tGetDynRes        pfnGetDynAddr;   ///< this function gets the dynamic buffer base to hardware
-    UINT8*            pBase;           ///< base of the dynamic buffer
-    tDualprocMemInst* memInst; ///< pointer to memory instance
+    tSetDynRes        pfnSetDynAddr;   ///< This function sets the dynamic buffer base to hardware
+    tGetDynRes        pfnGetDynAddr;   ///< This function gets the dynamic buffer base from hardware
+    UINT8*            pBase;           ///< Base of the dynamic buffer
+    tDualprocMemInst* memInst;         ///< Pointer to memory instance
 } tDualprocDynResConfig;
 
 /**
@@ -117,15 +130,14 @@ Holds the configuration passed to the instance at creation.
 */
 typedef struct sDualProcDrv
 {
-    tDualprocConfig         config;         ///< copy of configuration
-    UINT8                   *pCommMemBase;  ///< base address of the common memory
-    UINT8                   *pAddrTableBase;///< base address of the location to place dynamic
+    tDualprocConfig         config;         ///< Copy of configuration
+    UINT8                   *pCommMemBase;  ///< Base address of the common memory
+    UINT8                   *pAddrTableBase;///< Base address of the location to place dynamic
                                             ///< memory address table
-    int                     iMaxDynBuffEntries; ///< number of dynamic buffers (Pcp/Host)
-    tDualprocDynResConfig*  pDynResTbl;     ///< dynamic buffer table (Pcp/Host)
+    int                     iMaxDynBuffEntries; ///< Number of dynamic buffers (Pcp/Host)
+    tDualprocDynResConfig*  pDynResTbl;     ///< Dynamic buffer table (Pcp/Host)
 
 } tDualProcDrv;
-
 
 //------------------------------------------------------------------------------
 // local vars
@@ -160,7 +172,7 @@ initializes it depending on the pConfig_p parameters.
 \param  ppInstance_p            The function returns with this double-pointer
                                 the created instance pointer. (return)
 
-\return tDualprocReturn
+\return The function returns a tDualprocReturn Error code.
 \retval kDualprocSuccessful         The dual processor driver is configured successfully
                                     with the provided parameters.
 \retval kDualprocInvalidParameter   The caller has provided incorrect parameters.
@@ -175,7 +187,7 @@ tDualprocReturn dualprocshm_create (tDualprocConfig *pConfig_p, tDualprocDrvInst
     tDualprocReturn  ret = kDualprocSuccessful;
     tDualProcDrv     *pDrvInst = NULL;
     int              iIndex;
-    if(pConfig_p->ProcInstance != kDualProcPcp && pConfig_p->ProcInstance != kDualProcHost )
+    if(pConfig_p->ProcInstance != kDualProcFirst && pConfig_p->ProcInstance != kDualProcSecond )
     {
         //TRACE("Inst %x\n",pConfig_p->ProcInstance);
         return kDualprocInvalidParameter;
@@ -251,7 +263,7 @@ This function deletes a dual processor driver instance.
 \param  pInstance_p             The driver instance that should be
                                 deleted
 
-\return tDualprocReturn
+\return The function returns a tDualprocReturn Error code.
 \retval kDualprocSuccessful       The driver instance is deleted successfully.
 \retval kDualprocInvalidParameter The caller has provided incorrect parameters.
 
@@ -297,8 +309,7 @@ If the instance is not found NULL is returned
 
 \param  Instance_p              Processor instance
 
-\return tDualprocDrvInstance
-\retval NULL                    driver instance not found
+\return This returns the driver instance requested if found
 
 \ingroup module_dualprocshm
 */
@@ -324,7 +335,7 @@ tDualprocDrvInstance dualprocshm_getDrvInst (tDualProcInstance Instance_p)
 /**
 \brief  Retrieves a dynamic memory buffer specified with Id
 
-\param  pInstance_p  driver instance
+\param  pInstance_p  Driver instance
 \param  Id_p         Id of memory instance, used to index into the memory mapping
                      table to identify a dynamic memory instance and book keeping
                      in a local memory instance array.
@@ -333,7 +344,7 @@ tDualprocDrvInstance dualprocshm_getDrvInst (tDualProcInstance Instance_p)
 \param  fAlloc_p     Allocate memory if TRUE, Retrieve address from address mapping
                      table if FALSE
 
-\return tDualprocReturn
+\return The function returns a tDualprocReturn Error code.
 \retval kDualprocSuccessful       The driver instance is deleted successfully.
 \retval kDualprocInvalidParameter The caller has provided incorrect parameters.
 \retval kDualprocNoResource       requested resources not available
@@ -393,13 +404,13 @@ tDualprocReturn dualprocshm_getMemory(tDualprocDrvInstance pInstance_p, UINT8 Id
 /**
 \brief  Retrieves a dynamic memory buffer specified with Id
 
-\param  pInstance_p  driver instance
+\param  pInstance_p  Driver instance
 \param  Id_p         Id to be used for memory, used for indexing the memory
                      instance array.
 \param  fFree_p      Free memory if TRUE, clear address from address mapping table
                      if FALSE
 
-\return tDualprocReturn
+\return The function returns a tDualprocReturn Error code.
 \retval kDualprocSuccessful       The driver instance is deleted successfully.
 \retval kDualprocInvalidParameter The caller has provided incorrect parameters.
 \retval kDualprocNoResource       requested resources not available
@@ -439,16 +450,16 @@ tDualprocReturn dualprocshm_freeMemory(tDualprocDrvInstance pInstance_p, UINT8 I
 /**
 \brief  Read specified number of bytes from a specified buffer.
 
-\param  pInstance_p  driver instance
+\param  pInstance_p  Driver instance
 \param  Id_p         Id of the buffer
 \param  offset_p     Offset from the base to be read.
 \param  Size_p       Number of bytes to be read.
 \param  pData_p      Pointer to memory to receive the read data.
 
-\return tDualprocReturn
+\return The function returns a tDualprocReturn Error code.
 \retval kDualprocSuccessful       The driver instance is deleted successfully.
 \retval kDualprocInvalidParameter The caller has provided incorrect parameters.
-\retval kDualprocNoResource       requested resources not available
+\retval kDualprocNoResource       Requested resources not available
 
 \ingroup module_dualprocshm
 */
@@ -479,16 +490,16 @@ tDualprocReturn dualprocshm_readData(tDualprocDrvInstance pInstance_p, UINT8 Id_
 /**
 \brief  Write specified number of bytes to a specified buffer
 
-\param  pInstance_p  driver instance
+\param  pInstance_p  Driver instance
 \param  Id_p         Id of the buffer
 \param  offset_p     Offset from the base to be written.
 \param  Size_p       Number of bytes to write.
 \param  pData_p      Pointer to memory containing data to be written.
 
-\return tDualprocReturn
+\return The function returns a tDualprocReturn Error code.
 \retval kDualprocSuccessful       The driver instance is deleted successfully.
 \retval kDualprocInvalidParameter The caller has provided incorrect parameters.
-\retval kDualprocNoResource       requested resources not available
+\retval kDualprocNoResource       Requested resources not available
 
 \ingroup module_dualprocshm
 */
@@ -519,12 +530,12 @@ tDualprocReturn dualprocshm_writeData(tDualprocDrvInstance pInstance_p, UINT8 Id
 /**
 \brief  Read specified number of bytes from a specified offset from the common memory.
 
-\param  pInstance_p  driver instance
+\param  pInstance_p  Driver instance
 \param  offset_p     Offset from the base of common memory to be read.
 \param  Size_p       Number of bytes to be read.
 \param  pData_p      Pointer to memory to receive the read data.
 
-\return tDualprocReturn
+\return The function returns a tDualprocReturn Error code.
 \retval kDualprocSuccessful       The driver instance is deleted successfully.
 \retval kDualprocInvalidParameter The caller has provided incorrect parameters.
 
@@ -553,7 +564,7 @@ tDualprocReturn dualprocshm_readDataCommon(tDualprocDrvInstance pInstance_p,UINT
 \param  Size_p       Number of bytes to write.
 \param  pData_p      Pointer to memory containing data to be written.
 
-\return tDualprocReturn
+\return The function returns a tDualprocReturn Error code.
 \retval kDualprocSuccessful       The driver instance is deleted successfully.
 \retval kDualprocInvalidParameter The caller has provided incorrect parameters.
 
@@ -578,12 +589,14 @@ tDualprocReturn dualprocshm_writeDataCommon(tDualprocDrvInstance pInstance_p,UIN
 /**
 \brief  Acquire lock for a buffer
 
-\param  pInstance_p  driver instance
-\param  Id_p         buffer id.
+Acquires lock for the specified buffer for the calling processor
+
+\param  pInstance_p  Driver instance
+\param  Id_p         Buffer id.
 
 
-\return tDualprocReturn
-\retval kDualprocSuccessful       The driver instance is deleted successfully.
+\return The function returns a tDualprocReturn Error code.
+\retval kDualprocSuccessful       The lock is acquired successfully.
 \retval kDualprocInvalidParameter The caller has provided incorrect parameters.
 
 \ingroup module_dualprocshm
@@ -596,7 +609,8 @@ tDualprocReturn dualprocshm_acquireBuffLock(tDualprocDrvInstance pInstance_p, UI
     if(pInstance_p == NULL )
         return kDualprocInvalidParameter;
 
-    dualprocshm_targetAcquireLock(&pDrvInst->pDynResTbl[Id_p].memInst->lock,pDrvInst->config.procId);
+    dualprocshm_targetAcquireLock(&pDrvInst->pDynResTbl[Id_p].memInst->lock, \
+                                                        pDrvInst->config.procId);
 
     return kDualprocSuccessful;
 }
@@ -604,12 +618,14 @@ tDualprocReturn dualprocshm_acquireBuffLock(tDualprocDrvInstance pInstance_p, UI
 /**
 \brief  Release lock for a buffer
 
-\param  pInstance_p  driver instance
-\param  Id_p         buffer id.
+Release lock acquired before by the calling processor
+
+\param  pInstance_p  Driver instance
+\param  Id_p         Buffer id.
 
 
-\return tDualprocReturn
-\retval kDualprocSuccessful       The driver instance is deleted successfully.
+\return The function returns a tDualprocReturn Error code.
+\retval kDualprocSuccessful       The lock was released successfully.
 \retval kDualprocInvalidParameter The caller has provided incorrect parameters.
 
 \ingroup module_dualprocshm
@@ -629,11 +645,11 @@ tDualprocReturn dualprocshm_releaseBuffLock(tDualprocDrvInstance pInstance_p, UI
 //============================================================================//
 //------------------------------------------------------------------------------
 /**
-\brief  write the buffer address in dynamic memory mapping table
+\brief  Write the buffer address in dynamic memory mapping table
 
-\param  pInstance_p  driver instance
-\param  index_p      buffer index.
-\param  addr_p       address of the buffer.
+\param  pInstance_p  Driver instance
+\param  index_p      Buffer index.
+\param  addr_p       Address of the buffer.
 
 \ingroup module_dualprocshm
 */
@@ -644,16 +660,17 @@ static void setDynBuffAddr (tDualprocDrvInstance  pInstance_p,UINT16 index_p,UIN
     UINT8* tableBase = pDrvInst->pAddrTableBase;
     UINT32 tableEntryOffs = index_p * DYN_MEM_TABLE_ENTRY_SIZE;
 
-    dualprocshm_targetWriteData(tableBase + tableEntryOffs,DYN_MEM_TABLE_ENTRY_SIZE,(UINT8 *)&addr_p);
+    dualprocshm_targetWriteData(tableBase + tableEntryOffs, \
+                                    DYN_MEM_TABLE_ENTRY_SIZE,(UINT8 *)&addr_p);
 }
 //------------------------------------------------------------------------------
 /**
-\brief  read the buffer address from dynamic memory mapping table
+\brief  Read the buffer address from dynamic memory mapping table
 
-\param  pInstance_p  driver instance
-\param  index_p      buffer index.
+\param  pInstance_p  Driver instance
+\param  index_p      Buffer index.
 
-\return address of the buffer
+\return Address of the buffer requested
 
 \ingroup module_dualprocshm
 */
@@ -665,7 +682,8 @@ static UINT32 getDynBuffAddr (tDualprocDrvInstance pInstance_p,UINT16 index_p)
     UINT32 tableEntryOffs = index_p * DYN_MEM_TABLE_ENTRY_SIZE;
     UINT32 buffAddr;
 
-    dualprocshm_targetReadData(tableBase + tableEntryOffs,DYN_MEM_TABLE_ENTRY_SIZE,(UINT8 *)&buffAddr);
+    dualprocshm_targetReadData(tableBase + tableEntryOffs, \
+                                   DYN_MEM_TABLE_ENTRY_SIZE, (UINT8 *)&buffAddr);
 
     return buffAddr;
 }

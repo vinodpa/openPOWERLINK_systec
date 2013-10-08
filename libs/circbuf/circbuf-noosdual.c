@@ -11,7 +11,7 @@ for systems running on dual processor without operating system
 This implementation stores the circular buffer instances in a global variable
 because there's no multitasking and this memory could be accessed from normal
 execution context as well as from interrupt context. Locking is performed using
-a shared memory bit for each circular buffer.
+a shared memory byte for each circular buffer.
 
 \ingroup module_lib_circbuf
 *******************************************************************************/
@@ -78,8 +78,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 typedef struct
 {
-    tDualprocDrvInstance    dualProcDrvInstance;  ///< dual processor driver instance
-    BOOL                    fAlloc;
+    tDualprocDrvInstance    dualProcDrvInstance;  ///< Dual processor driver instance
+    BOOL                    fAlloc;               ///< Allocation flag for buffer
 }tCircBufArchInstance;
 //------------------------------------------------------------------------------
 // local types
@@ -166,7 +166,7 @@ tCircBufError circbuf_allocBuffer(tCircBufInstance* pInstance_p, size_t size_p)
     tCircBufArchInstance        *pArch = (tCircBufArchInstance*)pInstance_p->pCircBufArchInstance;
     size = size_p + sizeof(tCircBufHeader);
 
-    dualProcDrvInst = dualprocshm_getDrvInst(kDualProcPcp);
+    dualProcDrvInst = dualprocshm_getDrvInst(kDualProcFirst);
 
     if(dualProcDrvInst == NULL)
     {
@@ -240,7 +240,7 @@ tCircBufError circbuf_connectBuffer(tCircBufInstance* pInstance_p)
     UINT8                        *pBuffAddr;
     tCircBufArchInstance        *pArch = (tCircBufArchInstance*)pInstance_p->pCircBufArchInstance;
 
-    dualProcDrvInst = dualprocshm_getDrvInst(kDualProcHost);
+    dualProcDrvInst = dualprocshm_getDrvInst(kDualProcSecond);
 
     if(dualProcDrvInst == NULL)
     {

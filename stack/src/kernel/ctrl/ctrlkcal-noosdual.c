@@ -4,8 +4,11 @@
 
 \brief  Kernel control CAL module using a dual processor shared memory library
 
-This file contains an implementation of the kernel control CAL module which uses
-a dual processor shared memory for communication with the user layer.
+This file contains an implementation of the kernel CAL control module for non-OS
+system running on two processors.
+The implementation uses the dual processor shared memory for communication with
+the user layer. It also provides support for interrupt generation over a single
+for different causes such as events, data exchange, errors etc.
 
 \ingroup module_ctrlkcal
 *******************************************************************************/
@@ -71,10 +74,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 // const defines
 //------------------------------------------------------------------------------
-#define CTRL_MAGIC                      0xA5A5
-#define CTRL_PROC_ID                    0xFB
-#define DUALPROCSHM_DYNBUFF_ID          0x09
-#define TARGET_MAX_INTERRUPTS           4
+#define CTRL_MAGIC                      0xA5A5  ///< Control magic word
+#define CTRL_PROC_ID                    0xFB    ///< Processor Id for kernel layer
+#define DUALPROCSHM_DYNBUFF_ID          0x09    ///< Buffer Id for dynamic buffer
+#define TARGET_MAX_INTERRUPTS           4       ///< Max interrupts supported
 //------------------------------------------------------------------------------
 // local types
 //------------------------------------------------------------------------------
@@ -86,26 +89,32 @@ The control sub-registers provide basic Pcp-to-Host communication features.
 */
 typedef struct sCtrlBuff
 {
-    volatile UINT16     magic;      ///< enable the bridge logic
-    volatile UINT16     status;     ///< reserved
-    volatile UINT16     heartbeat;  ///< heart beat word
-    volatile UINT16     command;    ///< command word
-    volatile UINT16     retval;     ///< return word
-    UINT16              resv;        ///< reserved
-    UINT16              irqEnable;  ///< enable irqs
+    volatile UINT16     magic;      ///< Enable the bridge logic
+    volatile UINT16     status;     ///< Reserved
+    volatile UINT16     heartbeat;  ///< Heart beat word
+    volatile UINT16     command;    ///< Command word
+    volatile UINT16     retval;     ///< Return word
+    UINT16              resv;       ///< Reserved
+    UINT16              irqEnable;  ///< Enable irqs
     union
     {
-       volatile UINT16 irqSet;      ///< set irq (Pcp)
-       volatile UINT16 irqAck;      ///< acknowledge irq (Host)
-       volatile UINT16 irqPending;  ///< pending irq
+       volatile UINT16 irqSet;      ///< Set irq (Pcp)
+       volatile UINT16 irqAck;      ///< Acknowledge irq (Host)
+       volatile UINT16 irqPending;  ///< Pending irq
     };
 } tCtrlBuff;
 
+/**
+\brief Control module instance - Kernel Layer
+
+The control module instance stores the local parameters used by the
+control CAL module during runtime
+*/
 typedef struct
 {
-    tDualprocDrvInstance dualProcDrvInst;
-    UINT8*               initParamBase;
-    size_t               initParamBuffSize;
+    tDualprocDrvInstance dualProcDrvInst;    ///< Dual processor driver instance
+    UINT8*               initParamBase;      ///< Pointer to memory for init params
+    size_t               initParamBuffSize;  ///< Size of memory for init params
 }tCtrlkCalInstance;
 //------------------------------------------------------------------------------
 // local vars
@@ -124,10 +133,12 @@ static tCtrlkCalInstance   instance_l;
 \brief  Initialize kernel control CAL module
 
 The function initializes the kernel control CAL module. It initializes the
-control memory block and the underlaying CAL module used for implementing
+control memory block and the underlying CAL module used for implementing
 the memory block access functions.
 
 \return The function returns a tEplKernel error code.
+\retval kEplSuccessful          If function executes correctly
+\retval other error codes       If an error occurred
 
 \ingroup module_ctrlkcal
 */
@@ -143,7 +154,7 @@ tEplKernel ctrlkcal_init (void)
 
     EPL_MEMSET(&dualProcConfig,0,sizeof(tDualprocConfig));
 
-    dualProcConfig.ProcInstance = kDualProcPcp;
+    dualProcConfig.ProcInstance = kDualProcFirst;
     dualProcConfig.procId = CTRL_PROC_ID;
 
     dualRet = dualprocshm_create(&dualProcConfig,&instance_l.dualProcDrvInst);
@@ -187,7 +198,7 @@ Exit:
 \brief  Cleanup kernel control CAL module
 
 The function cleans up the kernel control CAL module. It resets the control
-memory block and cleans up the underlaying CAL module used for implementing
+memory block and cleans up the underlying CAL module used for implementing
 the memory block access functions.
 
 \ingroup module_ctrlkcal
@@ -219,7 +230,8 @@ void ctrlkcal_exit (void)
 
 This function provides processing time for the CAL module.
 
-\return The function returns a tEplKernel error code.
+\return The function returns a tEplKernel error code. The function always returns
+        kEplSuccessful
 
 \ingroup module_ctrlkcal
 */
@@ -243,6 +255,8 @@ block to execute a kernel control function.
 \param  pCmd_p            The command to be executed.
 
 \return The function returns a tEplKernel error code.
+\retval kEplSuccessful          If function executes correctly
+\retval other error codes       If an error occurred
 
 \ingroup module_ctrlkcal
 */
@@ -351,6 +365,8 @@ The function reads the initialization parameter from the user stack.
 \param  pInitParam_p        Specifies where to store the read init parameters.
 
 \return The function returns a tEplKernel error code.
+\retval kEplSuccessful          If function executes correctly
+\retval other error codes       If an error occurred
 
 \ingroup module_ctrlkcal
 */
@@ -379,13 +395,14 @@ tEplKernel ctrlkcal_readInitParam(tCtrlInitParam* pInitParam_p)
 
 The function enables the specified interrupt.
 
-\param  irqId_p        interrupt id.
-\param  fEnable_p      enable if TRUE, Disable if FALSE
+\param  irqId_p        Interrupt id.
+\param  fEnable_p      Enable if TRUE, Disable if FALSE
 
-\return The function returns a tEplKernel error code. It returns always
-        kEplSuccessful!
+\return The function returns a tEplKernel error code.
+\retval kEplSuccessful          If function executes correctly
+\retval other error codes       If an error occurred
 
-\ingroup module_ctrlucal
+\ingroup module_ctrlkcal
 */
 //------------------------------------------------------------------------------
 tEplKernel ctrlkcal_enableIrq(UINT8 irqId_p,BOOL fEnable_p)
@@ -420,13 +437,12 @@ tEplKernel ctrlkcal_enableIrq(UINT8 irqId_p,BOOL fEnable_p)
 
 The function triggers the specified interrupt.
 
-\param  irqId_p        interrupt id.
-\param  fSet_p         trigger if TRUE, clear if FALSE
+\param  irqId_p        Interrupt id.
+\param  fSet_p         Trigger if TRUE, clear if FALSE
 
-\return The function returns a tEplKernel error code. It returns always
-        kEplSuccessful!
+\return The function returns a tEplKernel error code.
 
-\ingroup module_ctrlucal
+\ingroup module_ctrlkcal
 */
 //------------------------------------------------------------------------------
 tEplKernel ctrlkcal_setIrq(UINT8 irqId_p,BOOL fSet_p)

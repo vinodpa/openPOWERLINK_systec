@@ -6,7 +6,7 @@
 
 This module implements the user layer CAL functions of the error handler.
 This implementation uses shared memory to share the error objects
-between user and kernel part runninf on two different processors.
+between user and kernel part running on two different processors.
 
 \ingroup module_errhnducal
 *******************************************************************************/
@@ -110,7 +110,7 @@ The function initializes the user layer CAL module of the error handler.
 tEplKernel errhnducal_init (tErrHndObjects *pLocalObjects_p)
 {
     tDualprocReturn dualRet;
-    tDualprocDrvInstance pInstance = dualprocshm_getDrvInst(kDualProcHost);
+    tDualprocDrvInstance pInstance = dualprocshm_getDrvInst(kDualProcSecond);
     UINT8*               pBase;
     size_t               span;
 
@@ -157,7 +157,7 @@ CAL module of the error handler.
 //------------------------------------------------------------------------------
 void errhnducal_exit (void)
 {
-    tDualprocDrvInstance pInstance = dualprocshm_getDrvInst(kDualProcHost);
+    tDualprocDrvInstance pInstance = dualprocshm_getDrvInst(kDualProcSecond);
 
     if (pErrHndMem_l != NULL)
     {

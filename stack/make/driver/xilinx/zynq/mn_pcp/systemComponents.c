@@ -7,6 +7,7 @@
 
 Provides all functions which are platform dependent for the application of the
 directIO example.
+
 \ingroup module_daemon
 *******************************************************************************/
 /*------------------------------------------------------------------------------
@@ -84,7 +85,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 // local vars
 //------------------------------------------------------------------------------
-static DWORD bEplStatusLeds = 0;
+static UINT32 bEplStatusLeds = 0;
 
 //------------------------------------------------------------------------------
 // local function prototypes
@@ -97,10 +98,12 @@ static DWORD bEplStatusLeds = 0;
 
 //------------------------------------------------------------------------------
 /**
-\brief               init the processor peripheral
+\brief    Initialize the processor peripheral
 
 Enable/invalidate the instruction and data cache. Reset the Leds and init
 the interrupt.
+
+\ingroup module_daemon
 */
 //------------------------------------------------------------------------------
 void SysComp_initPeripheral(void)
@@ -130,9 +133,11 @@ void SysComp_initPeripheral(void)
 
 //------------------------------------------------------------------------------
 /**
-\brief               enable global interrupts
+\brief    Enable global interrupts
 
 Call enable interrupts function in the xilinx target folder
+
+\ingroup module_daemon
 */
 //------------------------------------------------------------------------------
 void SysComp_enableInterrupts(void)
@@ -142,9 +147,11 @@ void SysComp_enableInterrupts(void)
 
 //------------------------------------------------------------------------------
 /**
-\brief               free the processor cache
+\brief    Free the processor cache
 
 Flush and disable the instruction and data cache.
+
+\ingroup module_daemon
 */
 //------------------------------------------------------------------------------
 void SysComp_freeProcessorCache(void)
@@ -163,18 +170,20 @@ void SysComp_freeProcessorCache(void)
 
 //------------------------------------------------------------------------------
 /**
-\brief              read the node ID from the available peripheral
+\brief    Read the node ID from the available peripheral
 
 This function reads the node id from the given board peripheral. If the board
 is not supporting node switches zero is returned.
 
-\return             nodeId
+\return    The function returns the node Id set in hardware register
 \retval             [1-239]         the given node id
+
+\ingroup module_daemon
 */
 //------------------------------------------------------------------------------
-BYTE SysComp_getNodeId(void)
+UINT8 SysComp_getNodeId(void)
 {
-    BYTE nodeId = 0;
+    UINT8 nodeId = 0;
 
     /* read dip switches for node id */
 #ifdef NODE_SWITCH_BASE
@@ -186,14 +195,16 @@ BYTE SysComp_getNodeId(void)
 
 //------------------------------------------------------------------------------
 /**
-\brief              set the powerlink led
+\brief    set the powerlink led
 
 This function sets the powerlink status or error led.
 
-\param              bBitNum_p       powerlink status (1: state; 2: error)
+\param    bBitNum_p       powerlink status (1: state; 2: error)
+
+\ingroup module_daemon
 */
 //------------------------------------------------------------------------------
-void SysComp_setPowerlinkStatus(BYTE bBitNum_p)
+void SysComp_setPowerlinkStatus(UINT8 bBitNum_p)
 {
     bEplStatusLeds |= bBitNum_p;
 
@@ -204,14 +215,16 @@ void SysComp_setPowerlinkStatus(BYTE bBitNum_p)
 
 //------------------------------------------------------------------------------
 /**
-\brief             reset the powerlink led
+\brief    reset the powerlink led
 
 This function resets the powerlink status or error led.
 
-\param             bBitNum_p       powerlink status (1: state; 2: error)
+\param    bBitNum_p       Powerlink status (1: state; 2: error)
+
+\ingroup module_daemon
 */
 //------------------------------------------------------------------------------
-void SysComp_resetPowerlinkStatus(BYTE bBitNum_p)
+void SysComp_resetPowerlinkStatus(UINT8 bBitNum_p)
 {
     bEplStatusLeds &= ~bBitNum_p;
 

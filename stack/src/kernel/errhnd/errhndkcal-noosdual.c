@@ -98,7 +98,7 @@ static tErrHndObjects*          pErrHndMem_l;
 
 The function initializes the user layer CAL module of the error handler.
 
-\return     Returns always kEplSuccessful
+\return     The function returns a tEplKernel error code.
 
 \ingroup module_errhndkcal
 */
@@ -106,7 +106,7 @@ The function initializes the user layer CAL module of the error handler.
 tEplKernel errhndkcal_init (void)
 {
     tDualprocReturn dualRet;
-    tDualprocDrvInstance pInstance = dualprocshm_getDrvInst(kDualProcPcp);
+    tDualprocDrvInstance pInstance = dualprocshm_getDrvInst(kDualProcFirst);
     UINT8*               pBase;
     size_t               span;
 
@@ -153,7 +153,7 @@ CAL module of the error handler.
 //------------------------------------------------------------------------------
 void errhndkcal_exit (void)
 {
-    tDualprocDrvInstance pInstance = dualprocshm_getDrvInst(kDualProcPcp);
+    tDualprocDrvInstance pInstance = dualprocshm_getDrvInst(kDualProcFirst);
     if (pErrHndMem_l != NULL)
     {
         dualprocshm_freeMemory(pInstance, DUALPROCSHM_BUFF_ID_ERRHDLR, TRUE);

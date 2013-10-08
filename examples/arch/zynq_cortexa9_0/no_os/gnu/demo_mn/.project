@@ -175,11 +175,6 @@
 			<locationURI>STACK_ROOT/libs/circbuf/circbuffer.h</locationURI>
 		</link>
 		<link>
-			<name>libs/console/console-arm.c</name>
-			<type>1</type>
-			<locationURI>STACK_ROOT/libs/console/console-arm.c</locationURI>
-		</link>
-		<link>
 			<name>libs/console/printlog.c</name>
 			<type>1</type>
 			<locationURI>STACK_ROOT/libs/console/printlog.c</locationURI>
@@ -385,9 +380,9 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>stack/src/arch/xilinx_arm/target_arm.c</name>
+			<name>stack/src/arch/xilinx_arm/target-arm.c</name>
 			<type>1</type>
-			<locationURI>PARENT-6-PROJECT_LOC/stack/src/arch/xilinx_arm/target_arm.c</locationURI>
+			<locationURI>STACK_ROOT/stack/src/arch/xilinx_arm/target-arm.c</locationURI>
 		</link>
 		<link>
 			<name>stack/src/common/event/event.c</name>

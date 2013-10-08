@@ -52,17 +52,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <section-microblaze.h> // TODO gks:Is this needed in absence
                                 //        of TCM?
 
-/// cache
+/// Memory
 #define DUALPROCSHM_MALLOC(size)            malloc(size)
 #define DUALPROCSHM_FREE(ptr)               free(ptr)
 
-/// sleep
+/// Sleep
 #define DUALPROCSHM_USLEEP(x)               usleep((unsigned int)x)
 
-
+/// IO operations
 #define DPSHM_READ8(base)                   Xil_In8((UINT32)base);
 #define DPSHM_WRITE8(base,val)                   Xil_Out8((UINT32)base,val);
 
+/// Cache hadling
 #define DUALPROCSHM_FLUSH_DCACHE_RANGE(base,range) \
                     microblaze_flush_dcache_range(base, range);
 

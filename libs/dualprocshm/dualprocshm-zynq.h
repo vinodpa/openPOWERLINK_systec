@@ -61,6 +61,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 /* SIZE */
-#define MAX_COMMON_MEM_SIZE         2048
-#define MAX_DYNAMIC_BUFF_COUNT      15  ///< number of maximum dynamic buffers
+#define MAX_COMMON_MEM_SIZE         2048 ///< Max common memory size
+#define MAX_DYNAMIC_BUFF_COUNT      15   ///< Number of maximum dynamic buffers
 #endif //__DUALPROCSHM_MEM_H__

@@ -2,16 +2,16 @@
 ********************************************************************************
 \file   target-arm.c
 
-\brief  target specific functions for ARM on Zynq without OS
+\brief  Target specific functions for ARM on Zynq without OS
 
 This target depending module provides several functions that are necessary for
-systems without shared buffer and any OS.
+systems without OS and not using the shared buffer library.
 
 \ingroup module_target
 *******************************************************************************/
 
 /*------------------------------------------------------------------------------
-Copyright (c) 2012, Kalycito Infotech Pvt Ltd, Coimbatore
+Copyright (c) 2013, Kalycito Infotech Pvt Ltd, Coimbatore
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -96,21 +96,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 This function returns the current system tick determined by the system timer.
 
-\return system tick
-\retval DWORD
+\return The function returns the system tick in milliseconds
 
 \ingroup module_target
 */
 //------------------------------------------------------------------------------
-DWORD PUBLIC EplTgtGetTickCountMs(void)
+UINT32 PUBLIC EplTgtGetTickCountMs(void)
 {
-    DWORD dwTicks;
+    UINT32 dwTicks;
     XTime* ticks;
     /*Uses global timer functions*/
 
     XTime_GetTime(ticks);
     /*Select the lower 32 bit of the timer value*/
-    dwTicks = (DWORD)(((2000 * (*ticks))/XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ));
+    dwTicks = (UINT32)(((2000 * (*ticks))/XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ));
 
     return dwTicks;
 }
@@ -127,7 +126,7 @@ This function enabels/disables global interrupts.
 \ingroup module_target
 */
 //------------------------------------------------------------------------------
-void EplTgtEnableGlobalInterrupt (BYTE fEnable_p)
+void EplTgtEnableGlobalInterrupt (UINT8 fEnable_p)
 {
     if(fEnable_p == TRUE)
     {
@@ -145,14 +144,14 @@ void EplTgtEnableGlobalInterrupt (BYTE fEnable_p)
 
 This function obtains if the CPU is in interrupt context.
 
-\return CPU in interrupt context
-\retval TRUE                    CPU is in interrupt context
-\retval FALSE                   CPU is NOT in interrupt context
+\return This function returns the current CPU interrupt context status
+\retval TRUE        CPU is in interrupt context
+\retval FALSE       CPU is NOT in interrupt context
 
 \ingroup module_target
 */
 //------------------------------------------------------------------------------
-BYTE EplTgtIsInterruptContext (void)
+UINT8 EplTgtIsInterruptContext (void)
 {
     // No real interrupt context check is performed.
     // This would be possible with a flag in the ISR, only.
@@ -180,6 +179,8 @@ The function initialize target specific stuff which is needed to run the
 openPOWERLINK stack.
 
 \return The function returns a tEplKernel error code.
+
+\ingroup module_target
 */
 //------------------------------------------------------------------------------
 tEplKernel target_init(void)
@@ -204,6 +205,8 @@ u32 version = 0;
 The function cleans-up target specific stuff.
 
 \return The function returns a tEplKernel error code.
+
+\ingroup module_target
 */
 //------------------------------------------------------------------------------
 tEplKernel target_cleanup(void)
@@ -218,7 +221,7 @@ tEplKernel target_cleanup(void)
 The function makes the calling thread sleep until the number of specified
 milliseconds have elapsed.
 
-\param  mseconds_p              Number of milliseconds to sleep
+\param  milliSecond_p              Number of milliseconds to sleep
 
 \ingroup module_target
 */
@@ -234,8 +237,12 @@ void target_msleep (unsigned int milliSecond_p)
 The function registers the ISR for target specific synchronization interrupt
 used by the application for PDO and event synchronization.
 
-\param  callback_p              interrupt handler
-\param  pArg_p                  argument to be passed while calling the handler
+\param  callback_p              Interrupt handler
+\param  pArg_p                  Argument to be passed while calling the handler
+
+\return The function returns the error code as a integer value
+\retval 0 if able to register 
+\retval other if not
 
 \ingroup module_target
 */

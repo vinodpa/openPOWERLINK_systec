@@ -89,18 +89,18 @@ The control sub-registers provide basic Pcp-to-Host communication features.
 */
 typedef struct sCtrlBuff
 {
-    volatile UINT16     magic;      ///< enable the bridge logic
-    volatile UINT16     status;     ///< reserved
-    volatile UINT16     heartbeat;  ///< heart beat word
-    volatile UINT16     command;    ///< command word
-    volatile UINT16     retval;     ///< return word
-    UINT16              resv;        ///< reserved
-    UINT16              irqEnable;  ///< enable irqs
+    volatile UINT16     magic;      ///< Enable the bridge logic
+    volatile UINT16     status;     ///< Reserved
+    volatile UINT16     heartbeat;  ///< Heart beat word
+    volatile UINT16     command;    ///< Command word
+    volatile UINT16     retval;     ///< Return word
+    UINT16              resv;       ///< Reserved
+    UINT16              irqEnable;  ///< Enable irqs
     union
     {
-       volatile UINT16 irqSet;      ///< set irq (Pcp)
-       volatile UINT16 irqAck;      ///< acknowledge irq (Host)
-       volatile UINT16 irqPending;  ///< pending irq
+       volatile UINT16 irqSet;      ///< Set irq (Pcp)
+       volatile UINT16 irqAck;      ///< Acknowledge irq (Host)
+       volatile UINT16 irqPending;  ///< Pending irq
     };
 } tCtrlBuff;
 
@@ -112,13 +112,20 @@ a specific user layer module.
 */
 typedef void (*tTargetIrqCb) (void);
 
+/**
+\brief Control module instance - User Layer
+
+The control module instance stores the local parameters used by the
+control CAL module during runtime
+*/
 typedef struct
 {
-    tDualprocDrvInstance dualProcDrvInst;
-    UINT8*               initParamBase;
-    size_t               initParamBuffSize;
-    BOOL                 fIrqMasterEnable;
-    tTargetIrqCb         apfnIrqCb[TARGET_MAX_INTERRUPTS];
+    tDualprocDrvInstance dualProcDrvInst;      ///< Dual processor driver instance
+    UINT8*               initParamBase;        ///< Pointer to memory for init params
+    size_t               initParamBuffSize;    ///< Size of memory for init params
+    BOOL                 fIrqMasterEnable;     ///< Master interrupts status
+    tTargetIrqCb         apfnIrqCb[TARGET_MAX_INTERRUPTS];  ///< User applications
+                                                            ///< interrupt callbacks
 }tCtrluCalInstance;
 
 
@@ -142,6 +149,8 @@ static void targetInterruptHandler ( void* pArg_p );
 The function initializes the user control CAL module.
 
 \return The function returns a tEplKernel error code.
+\retval kEplSuccessful          If function executes correctly
+\retval other error codes       If an error occurred
 
 \ingroup module_ctrlucal
 */
@@ -156,7 +165,7 @@ tEplKernel ctrlucal_init(void)
 
     EPL_MEMSET(&dualProcConfig,0,sizeof(tDualprocConfig));
 
-    dualProcConfig.ProcInstance = kDualProcHost;
+    dualProcConfig.ProcInstance = kDualProcSecond;
     dualProcConfig.procId = CTRL_PROC_ID;
 
     dualRet = dualprocshm_create(&dualProcConfig,&instance_l.dualProcDrvInst);
@@ -240,6 +249,8 @@ void ctrlucal_exit (void)
 This function provides processing time for the CAL module.
 
 \return The function returns a tEplKernel error code.
+\retval kEplSuccessful          If function executes correctly
+\retval other error codes       If an error occurred
 
 \ingroup module_ctrlucal
 */
@@ -263,6 +274,8 @@ The function executes a control command in the kernel stack.
 \param  cmd_p            Command to execute
 
 \return The function returns a tEplKernel error code.
+\retval kEplSuccessful          If function executes correctly
+\retval other error codes       If an error occurred
 
 \ingroup module_ctrlucal
 */
@@ -273,7 +286,7 @@ tEplKernel ctrlucal_executeCmd(tCtrlCmdType cmd_p)
     UINT16              retVal;
     int                 timeout;
 
-    /* write command into shared buffer */
+    // write command into shared buffer
     cmd = cmd_p;
     retVal = 0;
     if(dualprocshm_writeDataCommon(instance_l.dualProcDrvInst,offsetof(tCtrlBuff,retval), \
@@ -284,7 +297,7 @@ tEplKernel ctrlucal_executeCmd(tCtrlCmdType cmd_p)
             sizeof(cmd),(UINT8 *)&cmd) != kDualprocSuccessful )
         return kEplGeneralError;
 
-    /* wait for response */
+    // wait for response
     for (timeout = 0; timeout < CMD_TIMEOUT_CNT; timeout++)
     {
         target_msleep(10);
@@ -315,8 +328,8 @@ The function checks the state of the kernel stack. If it is already running
 it tries to shutdown.
 
 \return The function returns a tEplKernel error code.
-\retval kEplSuccessful  If kernel stack is initialized
-\retval kEplNoResource  If kernel stack is not running or in wrong state
+\retval kEplSuccessful          If function executes correctly
+\retval other error codes       If an error occurred
 
 \ingroup module_ctrlucal
 */
@@ -403,7 +416,7 @@ UINT16 ctrlucal_getStatus(void)
 /**
 \brief Get the heartbeat of the kernel stack
 
-The function reads the heartbeat genereated by the kernel stack.
+The function reads the heartbeat generated by the kernel stack.
 
 \return The function returns the heartbeat counter.
 
@@ -450,8 +463,9 @@ The function reads the initialization parameter from the kernel stack.
 
 \param  pInitParam_p        Specifies where to store the read init parameters.
 
-\return The function returns a tEplKernel error code. It returns always
-        kEplSuccessful!
+\return The function returns a tEplKernel error code.
+\retval kEplSuccessful          If function executes correctly
+\retval other error codes       If an error occurred
 
 \ingroup module_ctrlucal
 */
@@ -484,8 +498,7 @@ The function registers a interrupt handler for the specified interrupt.
 \param  irqId_p        interrupt id.
 \param  pfnIrqHandler_p  interrpt handler
 
-\return The function returns a tEplKernel error code. It returns always
-        kEplSuccessful!
+\return The function returns a tEplKernel error code.
 
 \ingroup module_ctrlucal
 */
@@ -553,7 +566,7 @@ static void targetInterruptHandler ( void* pArg_p )
     {
         mask = 1 << i;
 
-        //ack irq source first
+        // ack irq source first
         if(pendings & mask)
         {
             pendings &= ~mask;
@@ -562,7 +575,7 @@ static void targetInterruptHandler ( void* pArg_p )
         }
 
 
-        //then try to execute the callback
+        // then try to execute the callback
         if(instance_l.apfnIrqCb[i] != NULL)
             instance_l.apfnIrqCb[i]();
     }

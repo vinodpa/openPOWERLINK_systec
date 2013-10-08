@@ -214,7 +214,7 @@ int  main (void)
     EplApiInitParam.m_dwSubnetMask              = SUBNET_MASK;
     EplApiInitParam.m_dwDefaultGateway          = 0;
     EPL_MEMCPY(EplApiInitParam.m_sHostname, sHostname, sizeof(EplApiInitParam.m_sHostname));
-    EplApiInitParam.m_uiSyncNodeId              = EPL_C_ADR_SYNC_ON_SOC;
+    EplApiInitParam.m_uiSyncNodeId              = EPL_C_ADR_SYNC_ON_SOA;
     EplApiInitParam.m_fSyncOnPrcNode            = FALSE;
 
     // set callback functions

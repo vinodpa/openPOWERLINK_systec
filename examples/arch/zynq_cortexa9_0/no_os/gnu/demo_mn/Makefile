@@ -124,7 +124,7 @@ ${STACK_ROOT}/libs/console/printlog.c \
 ${STACK_ROOT}/libs/trace/trace-printf.c \
 ${STACK_ROOT}/stack/src/user/api/processimage-cia302.c \
 ${STACK_ROOT}/objdicts/CiA302-4_MN/Objdict.c \
-${STACK_ROOT}/stack/src/arch/xilinx_arm/target_arm.c \
+${STACK_ROOT}/stack/src/arch/xilinx_arm/target-arm.c \
 ${STACK_ROOT}/stack/src/common/timer/timer-generic.c \
 ${STACK_ROOT}/stack/src/common/debug.c \
 ${STACK_ROOT}/stack/src/common/errstring.c \

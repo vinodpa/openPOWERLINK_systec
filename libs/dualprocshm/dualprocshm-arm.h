@@ -62,16 +62,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //------------------------------------------------------------------------------
 
 
-/// cache
+/// memory
 #define DUALPROCSHM_MALLOC(size)            malloc(size)
 #define DUALPROCSHM_FREE(ptr)               free(ptr)
 
 /// sleep
 #define DUALPROCSHM_USLEEP(x)               usleep((UINT32)x)
 
+/// IO operations
 #define DPSHM_READ8(base)                   Xil_In8((UINT32)base);
 #define DPSHM_WRITE8(base,val)              Xil_Out8((UINT32)base,val);
 
+/// cache handling
 #define DUALPROCSHM_FLUSH_DCACHE_RANGE(base,range) \
                     Xil_DCacheFlushRange(base, range);
 

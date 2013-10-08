@@ -2,7 +2,7 @@
 ********************************************************************************
 \file   pdoucalmem-noosdual.c
 
-\brief  PDO user CAL shared-memory module using dual processor library
+\brief  PDO user CAL module using dual processor library
 
 This file contains an implementation for the user PDO CAL shared-memory
 module which uses dual processor library to access it. The shared memory is used
@@ -103,13 +103,15 @@ The function performs all actions needed to setup the shared memory at
 starting of the stack.
 
 \return The function returns a tEplKernel error code.
+\retval kEplSuccessful          If function executes correctly
+\retval other error codes       If an error occurred
 
 \ingroup module_pdoucal
 */
 //------------------------------------------------------------------------------
 tEplKernel pdoucal_openMem(void)
 {
-    tDualprocDrvInstance pInstance = dualprocshm_getDrvInst(kDualProcHost);
+    tDualprocDrvInstance pInstance = dualprocshm_getDrvInst(kDualProcSecond);
 
     if(pInstance == NULL)
     {
@@ -131,6 +133,8 @@ The function performs all actions needed to cleanup the shared memory at
 shutdown.
 
 \return The function returns a tEplKernel error code.
+\retval kEplSuccessful          If function executes correctly
+\retval other error codes       If an error occurred
 
 \ingroup module_pdoucal
 */
@@ -151,6 +155,8 @@ The function allocates shared memory for the kernel needed to transfer the PDOs.
 \param  ppPdoMem_p              Pointer to store the PDO memory pointer.
 
 \return The function returns a tEplKernel error code.
+\retval kEplSuccessful          If function executes correctly
+\retval other error codes       If an error occurred
 
 \ingroup module_pdoucal
 */
@@ -182,6 +188,8 @@ transferring the PDOs.
 \param  memSize_p               Size of PDO memory
 
 \return The function returns a tEplKernel error code.
+\retval kEplSuccessful          If function executes correctly
+\retval other error codes       If an error occurred
 
 \ingroup module_pdoucal
 */
