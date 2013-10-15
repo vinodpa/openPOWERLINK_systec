@@ -5,3 +5,12 @@ build*
 *~
 *.orig
 *.bak
+/fpga/boards/xilinx/xilinx_z702/Zynq_ap_pcp_intaxi-axi/SDK/SDK_Export/hw/ps7_summary.html
+/fpga/boards/xilinx/xilinx_z702/Zynq_ap_pcp_intaxi-axi/SDK/SDK_Export/hw/system.html
+/fpga/boards/xilinx/xilinx_z702/Zynq_ap_pcp_intaxi-axi/SDK/SDK_Export/hw/system_main.html
+/fpga/boards/xilinx/xilinx_z702/Zynq_ap_pcp_intaxi-axi/SDK/SDK_Export/hw/system_mainNF.html
+/fpga/boards/xilinx/xilinx_z702/Zynq_ap_pcp_intaxi-axi/SDK/SDK_Export/hw/system_toc.html
+/fpga/boards/xilinx/xilinx_z702/Zynq_ap_pcp_intaxi-axi/SDK/SDK_Export/hw/ps7_init.c
+/fpga/boards/xilinx/xilinx_z702/Zynq_ap_pcp_intaxi-axi/SDK/SDK_Export/hw/ps7_init.h
+/fpga/boards/xilinx/xilinx_z702/Zynq_ap_pcp_intaxi-axi/SDK/SDK_Export/hw/ps7_init.html
+/fpga/boards/xilinx/xilinx_z702/Zynq_ap_pcp_intaxi-axi/SDK/SDK_Export/hw/ps7_init.tcl
